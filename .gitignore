@@ -1,0 +1,18 @@
+﻿# ignore directory archive, client, data, documentation, log
+archive/
+client/
+data/
+documentation/
+log/
+
+# do not ignore tmpl directories in data, this rule is not implemented yet
+!data\**\tmpl\
+
+# ignore settings-local
+settings-local.xlsx
+
+# ignore VBA_Import_Export_Tool
+VBA_Import_Export_Tool.xlsm
+
+# ignore files starting with ~
+~
