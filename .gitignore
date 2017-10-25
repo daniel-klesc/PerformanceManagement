@@ -15,4 +15,4 @@ settings-local.xlsx
 VBA_Import_Export_Tool.xlsm
 
 # ignore files starting with ~
-~
+~*
