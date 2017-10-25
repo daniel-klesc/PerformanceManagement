@@ -24,6 +24,7 @@ Public obj_current_data_process_provider_info As FileExcelDataProviderInfo
 Public bool_run_process As Boolean
 Public bool_run_process_load_unfinished As Boolean
 Public bool_run_kpi_pallet As Boolean
+Public bool_run_kpi_result As Boolean
 
 
 Public Function before_run()
@@ -50,6 +51,12 @@ Public Function run()
         data_kpi_pallet_before_run
         data_kpi_pallet_run
         data_kpi_pallet_after_run
+    End If
+    
+    If bool_run_kpi_result Then
+        data_kpi_result_before_run
+        data_kpi_result_run
+        data_kpi_result_after_run
     End If
 End Function
 
@@ -95,6 +102,21 @@ Public Function data_kpi_pallet_after_run()
     ' # implement - not yet decided
 End Function
 
+Public Function data_kpi_result_before_run()
+    'Set obj_mdl_kpi_pallet_dashboard_listener = New MDLKPIPalletDashboardListener
+    'Set obj_mdl_kpi_pallet_dashboard_listener.obj_md_dashboard = obj_md_dashboard
+    'obj_mdl_kpi_pallet_dashboard_listener.load
+    
+    'init_mdl_data_pallet obj_mdl_kpi_pallet_dashboard_listener
+End Function
+
+Public Function data_kpi_result_run()
+    'obj_mdl_data_kpi_pallet.load
+End Function
+
+Public Function data_kpi_result_after_run()
+    ' # implement - not yet decided
+End Function
 
 Private Function init_mdl_data_process(obj_dashboard_listener As MDLProcessDashboardListener)
     Dim obj_multi_data_provider As MultiFileExcelDataProvider
