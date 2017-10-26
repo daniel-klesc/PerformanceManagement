@@ -13,6 +13,7 @@ Public obj_md_dashboard As MDDashboard1
 
 Public obj_mdl_process_dashboard_listener As MDLProcessDashboardListener
 Public obj_mdl_kpi_pallet_dashboard_listener As MDLKPIPalletDashboardListener
+Public obj_mdl_kpi_result_dashboard_listener As MDLKPIResultDashboardListener
 
 Public obj_mdl_data_process As MDLDataProcessExcel
 Public obj_mdl_data_process_unfinished As MDLDataProcessExcel
@@ -103,11 +104,11 @@ Public Function data_kpi_pallet_after_run()
 End Function
 
 Public Function data_kpi_result_before_run()
-    'Set obj_mdl_kpi_pallet_dashboard_listener = New MDLKPIPalletDashboardListener
-    'Set obj_mdl_kpi_pallet_dashboard_listener.obj_md_dashboard = obj_md_dashboard
-    'obj_mdl_kpi_pallet_dashboard_listener.load
-    
-    'init_mdl_data_pallet obj_mdl_kpi_pallet_dashboard_listener
+    Set obj_mdl_kpi_result_dashboard_listener = New MDLKPIResultDashboardListener
+    Set obj_mdl_kpi_result_dashboard_listener.obj_md_dashboard = obj_md_dashboard
+    obj_mdl_kpi_result_dashboard_listener.load
+
+    init_mdl_data_result obj_mdl_kpi_result_dashboard_listener
 End Function
 
 Public Function data_kpi_result_run()
@@ -234,7 +235,7 @@ Private Function init_mdl_data_pallet(obj_dashboard_listener As MDLKPIPalletDash
     Set obj_multi_data_provider.obj_data_provider_util = obj_data_provider_util
 End Function
 
-Private Function init_mdl_data_result(obj_dashboard_listener As MDLProcessDashboardListener)
+Private Function init_mdl_data_result(obj_dashboard_listener As MDLKPIResultDashboardListener)
     Dim obj_multi_data_provider As MultiFileExcelDataProvider
     Dim obj_data_provider_util As FileExcelDataProviderUtil
     
@@ -253,6 +254,7 @@ Private Function init_mdl_data_result(obj_dashboard_listener As MDLProcessDashbo
 '    For Each obj_listener In obj_dashboard_listener.col_listeners
 '        obj_mdl_data_result.add_listener obj_listener
 '    Next
+
         ' multi data provider
     Set obj_multi_data_provider = New MultiFileExcelDataProvider
           ' general
