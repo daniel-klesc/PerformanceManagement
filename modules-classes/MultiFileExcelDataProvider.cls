@@ -77,7 +77,7 @@ Public Function load_data_static()
 
     Exit Function
 ERR_PROCESS_FILE:
-    hndl_log.log db_log.TYPE_WARN, str_module, "process", _
+    hndl_log.log db_log.TYPE_WARN, str_module, "load_data_static", _
         "An error occured during processing file " & obj_data_provider.str_id & ". Original error message>" & Err.description
     Resume Next
 End Function
@@ -93,14 +93,14 @@ Public Function load_data()
     obj_mdl_processed_file.open_data
     On Error GoTo 0
     
-    'On Error GoTo ERR_CREATE_PROVIDERS
+    On Error GoTo ERR_CREATE_PROVIDERS
     If BOOL_IS_DYNAMIC_LOADING_PROVIDERS_FROM_FILES_ON Then
         create_data_providers_read_mode
     End If
     On Error GoTo 0
     
     For Each obj_data_provider In col_providers
-        'On Error GoTo ERR_PROCESS_FILE
+        On Error GoTo ERR_PROCESS_FILE
         before_load_data obj_data_provider
         obj_data_provider.load_data 'obj_current_data_provider_info
         after_load_data
@@ -119,7 +119,7 @@ ERR_CREATE_PROVIDERS:
     hndl_log.log db_log.TYPE_WARN, str_module, "load_data", Err.Number & "->" & Err.description
     Exit Function
 ERR_PROCESS_FILE:
-    hndl_log.log db_log.TYPE_WARN, str_module, "process", _
+    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", _
         "An error occured during processing file " & obj_data_provider.str_id & ". Original error message>" & Err.description
     Resume Next
 End Function
@@ -207,10 +207,10 @@ Public Function create_data_providers_read_mode()
     Next
     Exit Function
 ERR_RETRIEVE_FILES:
-    hndl_log.log db_log.TYPE_WARN, str_module, "process", Err.Number & "->" & Err.description
+    hndl_log.log db_log.TYPE_WARN, str_module, "create_data_providers_read_mode", Err.Number & "->" & Err.description
     Exit Function
 ERR_PROCESS_FILE:
-    hndl_log.log db_log.TYPE_WARN, str_module, "process", _
+    hndl_log.log db_log.TYPE_WARN, str_module, "create_data_providers_read_mode", _
         "An error occured during processing file " & var_file & ". Original error message>" & Err.description
     Exit Function
 End Function

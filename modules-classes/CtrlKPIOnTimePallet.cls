@@ -37,7 +37,7 @@ Public Function loading_data_is_about_to_start(obj_provider_info As FileExcelDat
 
     If obj_provider_info.str_loading_type = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC Then
         create_intervals obj_provider_info.obj_period.str_start, obj_provider_info.obj_period.str_end
-        
+            
         'If Not bool_db_data_process_unfinished_loaded Then
 '            For Each obj_db_data_process In col_db_data_process_unfinished
 '                process_db_data_process_record obj_db_data_process
@@ -120,7 +120,7 @@ Public Function process_db_data_process_record(obj_data_process As DBDataProcess
     Dim obj_kpi_on_time_pallet_full_live_interval As KPIOnTimePallet
     Dim str_date_end_for_status_calculation As String
 
-    If obj_data_process.str_pallet = "357020105501109173" Then
+    If obj_data_process.str_pallet = "357020105494051671" Then
         DoEvents
     End If
 
@@ -163,7 +163,7 @@ Public Function process_db_data_process_record(obj_data_process As DBDataProcess
                         Do While Not obj_kpi_on_time_next_interval Is Nothing
                             On Error GoTo INFO_TRY_TO_REMOVE
                             obj_kpi_on_time_next_interval.col_pallets_step.Remove retrieve_pallet_id_interval(obj_kpi_on_time_pallet_step_interval)
-                            obj_kpi_on_time_next_interval.col_pallets_full_live.Remove obj_kpi_on_time_pallet_full_live_interval.str_id 'retrieve_pallet_id_interval(obj_kpi_on_time_pallet_full_live_interval)
+                            'obj_kpi_on_time_next_interval.col_pallets_full_live.Remove obj_kpi_on_time_pallet_full_live_interval.str_id ' # implement - check if this step is valid, update of full live interval pallet is done later and seperately
                             On Error GoTo 0
                             Set obj_kpi_on_time_next_interval = obj_kpi_on_time_next_interval.obj_next_interval
                         Loop
@@ -216,18 +216,39 @@ Public Function create_kpi_on_time_pallet(obj_data_process As DBDataProcess) As 
     create_kpi_on_time_pallet.str_building_destination = _
         obj_checkpoint_type_resolver.retrieve_building(obj_data_process.str_destination, obj_data_process.str_destination_type)
         
-    create_kpi_on_time_pallet.str_place_from = bin_place_grp.get_place_grp(obj_data_process.str_bin_from)
+    ' set datetime values
     create_kpi_on_time_pallet.str_date_start = obj_data_process.str_date_start
     create_kpi_on_time_pallet.str_date_last_checkpoint = obj_data_process.str_date_start
+    ' set place
+    create_kpi_on_time_pallet.str_place_from = bin_place_grp.get_place_grp(obj_data_process.str_bin_from)
     
     ' retrieve limit
-    Set create_kpi_on_time_pallet.obj_checkpoint = retrieve_checkpoint(create_kpi_on_time_pallet)
-    If create_kpi_on_time_pallet.obj_checkpoint Is Nothing Then
-        Set create_kpi_on_time_pallet = Nothing
-    Else
-        col_kpi_pallets.add create_kpi_on_time_pallet, create_kpi_on_time_pallet.str_id
+    If obj_data_process.str_pallet = "357020105537643597" Then
+        DoEvents
     End If
     
+    Set create_kpi_on_time_pallet.obj_checkpoint = retrieve_checkpoint(create_kpi_on_time_pallet)
+    If create_kpi_on_time_pallet.obj_checkpoint Is Nothing Then
+        ' check if checkpoint exists for place_to
+        create_kpi_on_time_pallet.str_place_from = bin_place_grp.get_place_grp(obj_data_process.str_bin_to)
+        Set create_kpi_on_time_pallet.obj_checkpoint = retrieve_checkpoint(create_kpi_on_time_pallet)
+        
+        If create_kpi_on_time_pallet.obj_checkpoint Is Nothing Then
+            hndl_log.log db_log.TYPE_INFO, STR_CLASS_NAME, "create_kpi_on_time_pallet", "Checkpoint not found for pallet: " & obj_data_process.str_pallet
+            Set create_kpi_on_time_pallet = Nothing
+        Else
+            hndl_log.log db_log.TYPE_INFO, STR_CLASS_NAME, "create_kpi_on_time_pallet", "Checkpoint found in end place for pallet: " & obj_data_process.str_pallet
+            ' update pallet datetime data
+            create_kpi_on_time_pallet.str_date_start = obj_data_process.str_date_end
+            create_kpi_on_time_pallet.str_date_last_checkpoint = obj_data_process.str_date_end
+            ' register pallet
+            col_kpi_pallets.add create_kpi_on_time_pallet, create_kpi_on_time_pallet.str_id
+        End If
+    Else
+        hndl_log.log db_log.TYPE_INFO, STR_CLASS_NAME, "create_kpi_on_time_pallet", "Checkpoint found in start place for pallet: " & obj_data_process.str_pallet
+        ' register pallet
+        col_kpi_pallets.add create_kpi_on_time_pallet, create_kpi_on_time_pallet.str_id
+    End If
 End Function
 
 Public Function update_kpi_on_time_pallet(obj_kpi_on_time_pallet As KPIOnTimePallet, obj_data_process As DBDataProcess) As Collection
@@ -318,7 +339,7 @@ Public Function update_kpi_on_time_pallet(obj_kpi_on_time_pallet As KPIOnTimePal
                     End If
                 End If
             Else
-                update_kpi_on_time_pallet.add obj_kpi_on_time_pallet.create_copy
+                'update_kpi_on_time_pallet.add obj_kpi_on_time_pallet.create_copy - # implement - not sure if this update should be here, must evaluate
             End If
         End If
     Else
@@ -356,22 +377,22 @@ Public Function update_kpi_on_time_pallet_step_interval( _
         obj_kpi_on_time_pallet_step_interval As KPIOnTimePallet, _
         obj_data_process As DBDataProcess, _
         str_date_end_for_status_calculation)
-    ' process status
-    obj_kpi_on_time_pallet_step_interval.byte_process_status = obj_kpi_on_time_pallet_step.byte_process_status
-    ' place
-    ' # implement - if str_place_to = "" then take place_to from next checkpoint
-    If obj_kpi_on_time_pallet_step.str_place_to = "" Then
-        obj_kpi_on_time_pallet_step_interval.str_place_to = obj_kpi_on_time_pallet_step_interval.obj_checkpoint.str_next_checkpoint_id
-        obj_kpi_on_time_pallet_step_interval.str_place_building = _
-            obj_checkpoint_type_resolver.retrieve_building_for_checkpoint( _
-                obj_kpi_on_time_pallet_step.str_building_source, const_place_type.STR_IMPLICIT, _
-                obj_kpi_on_time_pallet_step.str_building_destination, const_place_type.STR_IMPLICIT, _
-                obj_kpi_on_time_pallet_step_interval.obj_checkpoint)
-        ' # implement - retrieve building from obj_data_process destination property
-    Else
-        obj_kpi_on_time_pallet_step_interval.str_place_to = obj_kpi_on_time_pallet_step.str_place_to
-        obj_kpi_on_time_pallet_step_interval.str_place_building = obj_kpi_on_time_pallet_step.str_place_building
-    End If
+'    ' process status
+'    obj_kpi_on_time_pallet_step_interval.byte_process_status = obj_kpi_on_time_pallet_step.byte_process_status
+'    ' place
+'    ' # implement - if str_place_to = "" then take place_to from next checkpoint
+'    If obj_kpi_on_time_pallet_step.str_place_to = "" Then
+'        obj_kpi_on_time_pallet_step_interval.str_place_to = obj_kpi_on_time_pallet_step_interval.obj_checkpoint.str_next_checkpoint_id
+'        obj_kpi_on_time_pallet_step_interval.str_place_building = _
+'            obj_checkpoint_type_resolver.retrieve_building_for_checkpoint( _
+'                obj_kpi_on_time_pallet_step.str_building_source, const_place_type.STR_IMPLICIT, _
+'                obj_kpi_on_time_pallet_step.str_building_destination, const_place_type.STR_IMPLICIT, _
+'                obj_kpi_on_time_pallet_step_interval.obj_checkpoint)
+'        ' # implement - retrieve building from obj_data_process destination property
+'    Else
+'        obj_kpi_on_time_pallet_step_interval.str_place_to = obj_kpi_on_time_pallet_step.str_place_to
+'        obj_kpi_on_time_pallet_step_interval.str_place_building = obj_kpi_on_time_pallet_step.str_place_building
+'    End If
     ' date end
     If CDate(str_date_end_for_status_calculation) > obj_kpi_on_time_interval.obj_interval.obj_end Then
         obj_kpi_on_time_pallet_step_interval.str_date_end = obj_kpi_on_time_interval.obj_interval.obj_end

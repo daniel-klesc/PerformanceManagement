@@ -126,6 +126,7 @@ Public Function load_data()
         On Error GoTo ERR_PROCESS
         For Each obj_listener In col_listeners
             obj_listener.load_record rg_record
+            'Debug.Print rg_record.Value
         Next
         On Error GoTo 0
         ' move to next record
