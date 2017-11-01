@@ -140,10 +140,10 @@ Public Function process_db_data_process_record(obj_data_process As DBDataProcess
                         Set obj_kpi_on_time_pallet_step_interval = obj_kpi_on_time_interval.col_pallets_step(retrieve_pallet_id_interval(obj_kpi_on_time_pallet_step))
                         On Error GoTo 0
                         
-                        ' update obj_kpi_on_time_pallet_step_interval
+                        ' update interval pallet
                         update_kpi_on_time_pallet_step_interval _
-                            obj_kpi_on_time_interval, obj_kpi_on_time_pallet_step, _
-                            obj_kpi_on_time_pallet_step_interval, obj_data_process, _
+                            obj_kpi_on_time_interval, _
+                            obj_kpi_on_time_pallet_step_interval, _
                             str_date_end_for_status_calculation
                         
                         ' update full live pallet
@@ -350,12 +350,9 @@ End Function
 
 Public Function update_kpi_on_time_pallet_step_interval( _
         obj_kpi_on_time_interval As KPIOnTimeInterval, _
-        obj_kpi_on_time_pallet_step As KPIOnTimePallet, _
         obj_kpi_on_time_pallet_step_interval As KPIOnTimePallet, _
-        obj_data_process As DBDataProcess, _
         str_date_end_for_status_calculation)
-        
-    ' date end
+            
     If CDate(str_date_end_for_status_calculation) > obj_kpi_on_time_interval.obj_interval.obj_end Then
         obj_kpi_on_time_pallet_step_interval.str_date_end = obj_kpi_on_time_interval.obj_interval.obj_end
     Else
