@@ -37,14 +37,6 @@ Public Function loading_data_is_about_to_start(obj_provider_info As FileExcelDat
 
     If obj_provider_info.str_loading_type = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC Then
         create_intervals obj_provider_info.obj_period.str_start, obj_provider_info.obj_period.str_end
-            
-        'If Not bool_db_data_process_unfinished_loaded Then
-'            For Each obj_db_data_process In col_db_data_process_unfinished
-'                process_db_data_process_record obj_db_data_process
-'            Next
-'
-'            bool_db_data_process_unfinished_loaded = True
-        'End If
     Else
         Set col_db_data_process_unfinished = New Collection
     End If
@@ -176,7 +168,7 @@ Public Function process_db_data_process_record(obj_data_process As DBDataProcess
                     obj_kpi_on_time_interval.col_pallets_full_live.add obj_kpi_on_time_pallet_full_live_interval, obj_kpi_on_time_pallet_full_live_interval.str_id 'retrieve_pallet_id_interval(obj_kpi_on_time_pallet_full_live_interval)
                     On Error GoTo 0
                     ' reset
-                    Set obj_kpi_on_time_pallet_full_live_interval = Nothing 'obj_kpi_on_time_pallet_full_live_interval.create_copy
+                    Set obj_kpi_on_time_pallet_full_live_interval = Nothing
                 End If
                 
             Next
@@ -254,11 +246,6 @@ Public Function create_kpi_on_time_pallet(obj_data_process As DBDataProcess) As 
         ' register pallet
         col_kpi_pallets.add create_kpi_on_time_pallet, create_kpi_on_time_pallet.str_id
     End If
-    
-'    Exit Function
-'WARN_NEXT_CHECKPOINT_IS_LAST_CHECKPOINT:
-'    Set create_kpi_on_time_pallet = Nothing
-'    hndl_log.log db_log.TYPE_INFO, STR_CLASS_NAME, "create_kpi_on_time_pallet", "Checkpoint:" & obj_checkpoint.str_id & " doesn't have successor checkpoint. Pallet ID: " & obj_data_process.str_pallet
 End Function
 
 Public Function update_kpi_on_time_pallet(obj_kpi_on_time_pallet As KPIOnTimePallet, obj_data_process As DBDataProcess) As Collection
@@ -270,7 +257,6 @@ Public Function update_kpi_on_time_pallet(obj_kpi_on_time_pallet As KPIOnTimePal
     Dim col_pallet_steps As Collection
 
     bool_is_place_to_tracked_by_kpi = False
-    'Set update_kpi_on_time_pallet = New Collection
     Set col_pallet_steps = New Collection
 
     If obj_data_process.str_pallet = "357020105430494975" Then
@@ -337,11 +323,7 @@ Public Function update_kpi_on_time_pallet_with_new_checkpoint(obj_kpi_on_time_pa
 End Function
 
 Public Function update_kpi_on_time_pallet_to_next_checkpoint(obj_kpi_on_time_pallet As KPIOnTimePallet)
-    'Dim obj_kpi_on_time_pallet_original As KPIOnTimePallet
     Dim obj_checkpoint As KPIOnTimeLimitCheckpoint
-    
-    ' save original version of pallet in case for new str_place_to checkpoint doesn't exist
-    'Set obj_kpi_on_time_pallet_original = obj_kpi_on_time_pallet.create_copy
     
     ' update first part of pallet step
     obj_kpi_on_time_pallet.str_place_from = obj_kpi_on_time_pallet.str_place_to
@@ -355,9 +337,6 @@ Public Function update_kpi_on_time_pallet_to_next_checkpoint(obj_kpi_on_time_pal
     ' load new checkpoint for new str_place_from
     Set obj_checkpoint = retrieve_checkpoint(obj_kpi_on_time_pallet)
     update_kpi_on_time_pallet_with_new_checkpoint obj_kpi_on_time_pallet, obj_checkpoint
-'    If Not obj_checkpoint Is Nothing Then
-'        update_kpi_on_time_pallet_with_new_checkpoint obj_kpi_on_time_pallet, obj_checkpoint
-'    End If
 End Function
 
 Public Function update_pallet_steps(col_pallet_steps As Collection, obj_db_data_process As DBDataProcess)
@@ -375,22 +354,7 @@ Public Function update_kpi_on_time_pallet_step_interval( _
         obj_kpi_on_time_pallet_step_interval As KPIOnTimePallet, _
         obj_data_process As DBDataProcess, _
         str_date_end_for_status_calculation)
-'    ' process status
-'    obj_kpi_on_time_pallet_step_interval.byte_process_status = obj_kpi_on_time_pallet_step.byte_process_status
-'    ' place
-'    ' # implement - if str_place_to = "" then take place_to from next checkpoint
-'    If obj_kpi_on_time_pallet_step.str_place_to = "" Then
-'        obj_kpi_on_time_pallet_step_interval.str_place_to = obj_kpi_on_time_pallet_step_interval.obj_checkpoint.str_next_checkpoint_id
-'        obj_kpi_on_time_pallet_step_interval.str_place_building = _
-'            obj_checkpoint_type_resolver.retrieve_building_for_checkpoint( _
-'                obj_kpi_on_time_pallet_step.str_building_source, const_place_type.STR_IMPLICIT, _
-'                obj_kpi_on_time_pallet_step.str_building_destination, const_place_type.STR_IMPLICIT, _
-'                obj_kpi_on_time_pallet_step_interval.obj_checkpoint)
-'        ' # implement - retrieve building from obj_data_process destination property
-'    Else
-'        obj_kpi_on_time_pallet_step_interval.str_place_to = obj_kpi_on_time_pallet_step.str_place_to
-'        obj_kpi_on_time_pallet_step_interval.str_place_building = obj_kpi_on_time_pallet_step.str_place_building
-'    End If
+        
     ' date end
     If CDate(str_date_end_for_status_calculation) > obj_kpi_on_time_interval.obj_interval.obj_end Then
         obj_kpi_on_time_pallet_step_interval.str_date_end = obj_kpi_on_time_interval.obj_interval.obj_end
@@ -399,11 +363,9 @@ Public Function update_kpi_on_time_pallet_step_interval( _
     End If
 End Function
 
-'Public Function retrieve_checkpoint(obj_kpi_on_time_pallet As KPIOnTimePallet, obj_data_process As DBDataProcess) As KPIOnTimeLimitCheckpoint
 Public Function retrieve_checkpoint(obj_kpi_on_time_pallet As KPIOnTimePallet) As KPIOnTimeLimitCheckpoint
     Dim bool_only_default As Boolean ' if during searching one part of limit is not found then every following part is set to default
-
-    'Dim str_process_version_id As String
+    
     Dim str_place_checkpoint As String
     Dim obj_vendor As Vendor
     Dim obj_material_group_wh_resolver As MaterialGroupWHResolver
@@ -413,9 +375,6 @@ Public Function retrieve_checkpoint(obj_kpi_on_time_pallet As KPIOnTimePallet) A
     Dim obj_kpi_limit_process_version As KPIOnTimeLimitProcVersion
     Dim obj_kpi_limit_mat_grp_wh As KPIOnTimeLimitMatGrpWH
     Dim obj_kpi_limit_source As KPIOnTimeLimitSource
-    
-    'Dim obj_mdl_process_version_master As New MDLProcessVersionMaster
-    'Dim obj_mdl_material_group_wh As New MDLMaterialGroupWH
     
     ' # implement - all retrievals must be error handled - these will lead to warning error
     Set obj_kpi_limit_process = obj_kpi.col_limits_process(obj_kpi_on_time_pallet.str_process_id)
@@ -488,7 +447,7 @@ Public Function save(obj_provider_info As FileExcelDataProviderInfo)
         Next
     Next
     
-    ' clean up
+    ' clean up - # implement - check what is necesarry to purge to be ready for new update data
     'Set col_kpi_pallets = New Collection
 '    Set col_kpi_intervals = New Collection
 '    obj_mdl_kpi_on_time_pallet.close_data
