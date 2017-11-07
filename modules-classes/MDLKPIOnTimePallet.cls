@@ -95,6 +95,11 @@ Public Function load()
     obj_multi_data_provider.load_data
 End Function
 
+Public Function load_static()
+    obj_multi_data_provider.add_listener Me
+    obj_multi_data_provider.load_data_static
+End Function
+
 Public Function load_data_for_interval(obj_kpi_on_time_interval As KPIOnTimeInterval)
     Dim obj_data_provider As FileExcelDataProvider
     Dim obj_data_provider_util As Object
@@ -177,7 +182,8 @@ Public Function loading_data_is_about_to_start(obj_provider_info As FileExcelDat
     Set obj_current_data_provider_info = obj_provider_info
     
     For Each obj_listener In col_listeners
-        obj_listener.kpi_pallet_loading_data_is_about_to_start obj_provider_info.obj_period
+        ' obj_listener.kpi_pallet_loading_data_is_about_to_start obj_provider_info.obj_period
+        obj_listener.kpi_pallet_loading_data_is_about_to_start obj_provider_info
     Next
 End Function
 
@@ -186,7 +192,8 @@ Public Function loading_data_has_finished(obj_provider_info As FileExcelDataProv
     Dim obj_listener As Object
     
     For Each obj_listener In col_listeners
-        obj_listener.kpi_pallet_loading_data_has_finished obj_provider_info.obj_period
+        'obj_listener.kpi_pallet_loading_data_has_finished obj_provider_info.obj_period
+        obj_listener.kpi_pallet_loading_data_has_finished obj_provider_info
     Next
     
     Set obj_current_data_provider_info = Nothing
@@ -222,9 +229,26 @@ INFO_PROVIDER_NOT_FOUND:
     Resume Next
 End Function
 
-Public Function save_record_static(obj_data_process_record As DBDataProcess)
-    save_record obj_data_process_record, obj_multi_data_provider.retrieve_provider(str_static_data_provider_id).next_data
+Public Function save_record_static(obj_kpi_on_time_pallet As KPIOnTimePallet)
+    Dim obj_data_provider As FileExcelDataProvider
+    Dim rg_next_data As Range
+
+    Set obj_data_provider = obj_multi_data_provider.retrieve_provider(str_static_data_provider_id)
+    On Error GoTo INFO_PROVIDER_IS_NOT_OPEN
+    Set rg_next_data = obj_data_provider.next_data
+    On Error GoTo 0
+
+    save_record obj_kpi_on_time_pallet, rg_next_data
+    
+    Exit Function
+INFO_PROVIDER_IS_NOT_OPEN:
+    obj_data_provider.open_data
+    Set rg_next_data = obj_data_provider.next_data
+    Resume Next
 End Function
+'Public Function save_record_static(obj_data_process_record As DBDataProcess)
+'    save_record obj_data_process_record, obj_multi_data_provider.retrieve_provider(str_static_data_provider_id).next_data
+'End Function
 
 Public Function save_record(obj_kpi_on_time_pallet As KPIOnTimePallet, rg_record As Range)
     ' pallet level
@@ -245,17 +269,21 @@ Public Function save_record(obj_kpi_on_time_pallet As KPIOnTimePallet, rg_record
     rg_record.Offset(0, INT_OFFSET_DATE_START).Value = obj_kpi_on_time_pallet.str_date_start
     rg_record.Offset(0, INT_OFFSET_DATE_END).Value = obj_kpi_on_time_pallet.str_date_end
     rg_record.Offset(0, INT_OFFSET_DATE_LAST_CHECKPOINT).Value = obj_kpi_on_time_pallet.str_date_last_checkpoint
-      ' interval
-        ' start, end
-    rg_record.Offset(0, INT_OFFSET_INTERVAL_ID).Value = obj_kpi_on_time_pallet.obj_kpi_interval.str_id
-    rg_record.Offset(0, INT_OFFSET_INTERVAL_START).Value = obj_kpi_on_time_pallet.obj_kpi_interval.obj_interval.obj_start
-    rg_record.Offset(0, INT_OFFSET_INTERVAL_END).Value = obj_kpi_on_time_pallet.obj_kpi_interval.obj_interval.obj_end
-        ' shift
-    rg_record.Offset(0, INT_OFFSET_INTERVAL_SHIFT).Value = obj_kpi_on_time_pallet.obj_kpi_interval.str_shift
-    rg_record.Offset(0, INT_OFFSET_INTERVAL_SHIFT_TYPE).Value = obj_kpi_on_time_pallet.obj_kpi_interval.str_shift_type
-      ' checkpoint
-    rg_record.Offset(0, INT_OFFSET_CHECKPOINT_LIMIT).NumberFormat = "[$-F400]h:mm:ss AM/PM"
-    rg_record.Offset(0, INT_OFFSET_CHECKPOINT_LIMIT).Value = obj_kpi_on_time_pallet.obj_checkpoint.obj_limit
+    
+    ' only for complete pallets
+    If Not obj_kpi_on_time_pallet.obj_kpi_interval Is Nothing Then
+          ' interval
+            ' start, end
+        rg_record.Offset(0, INT_OFFSET_INTERVAL_ID).Value = obj_kpi_on_time_pallet.obj_kpi_interval.str_id
+        rg_record.Offset(0, INT_OFFSET_INTERVAL_START).Value = obj_kpi_on_time_pallet.obj_kpi_interval.obj_interval.obj_start
+        rg_record.Offset(0, INT_OFFSET_INTERVAL_END).Value = obj_kpi_on_time_pallet.obj_kpi_interval.obj_interval.obj_end
+            ' shift
+        rg_record.Offset(0, INT_OFFSET_INTERVAL_SHIFT).Value = obj_kpi_on_time_pallet.obj_kpi_interval.str_shift
+        rg_record.Offset(0, INT_OFFSET_INTERVAL_SHIFT_TYPE).Value = obj_kpi_on_time_pallet.obj_kpi_interval.str_shift_type
+          ' checkpoint
+        rg_record.Offset(0, INT_OFFSET_CHECKPOINT_LIMIT).NumberFormat = "[$-F400]h:mm:ss AM/PM"
+        rg_record.Offset(0, INT_OFFSET_CHECKPOINT_LIMIT).Value = obj_kpi_on_time_pallet.obj_checkpoint.obj_limit
+    End If
 End Function
 
 Public Function close_data()

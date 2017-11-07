@@ -21,11 +21,12 @@ Public col_db_data_process_unfinished As Collection
 Public col_kpi_intervals As Collection
 Public col_kpi_pallets As Collection '
 
-Public bool_db_data_process_unfinished_loaded As Boolean
+'Public bool_db_data_process_unfinished_loaded As Boolean
 
 ' master data
 Public obj_md_dashboard As MDDashboard1
-Public obj_mdl_kpi_on_time_pallet As MDLKPIOnTimePallet
+Public obj_mdl_kpi_on_time_pallet As MDLKPIOnTimePallet ' load current update data about pallets
+Public obj_mdl_kpi_on_time_pallet_unfinished As MDLKPIOnTimePallet ' load last state of active pallets
 
 Public obj_checkpoint_type_resolver As CheckpointTypeResolver
 
@@ -34,34 +35,49 @@ Public Function loading_data_is_about_to_start(obj_provider_info As FileExcelDat
     Dim obj_db_data_process As DBDataProcess
 
     Set obj_current_provider_info = obj_provider_info
+    ' load last state of active pallets
+    obj_mdl_kpi_on_time_pallet.add_listener Me
+    obj_mdl_kpi_on_time_pallet_unfinished.load_static
+    create_intervals obj_provider_info.obj_period.str_start, obj_provider_info.obj_period.str_end
 
-    If obj_provider_info.str_loading_type = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC Then
-        create_intervals obj_provider_info.obj_period.str_start, obj_provider_info.obj_period.str_end
-    Else
-        Set col_db_data_process_unfinished = New Collection
-    End If
+'    If obj_provider_info.str_loading_type = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC Then
+'        create_intervals obj_provider_info.obj_period.str_start, obj_provider_info.obj_period.str_end
+'    Else
+'        Set col_db_data_process_unfinished = New Collection
+'    End If
 End Function
 
 ' # method is called from MDLProcessDashboardListener
 Public Function process_record(obj_db_data_process As DBDataProcess)
-    If obj_current_provider_info.str_loading_type = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC Then
-        process_db_data_process_record obj_db_data_process
-    Else
-        process_db_data_process_unfinished obj_db_data_process
-    End If
+    process_db_data_process_record obj_db_data_process
+'    If obj_current_provider_info.str_loading_type = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC Then
+'        process_db_data_process_record obj_db_data_process
+'    Else
+'        process_db_data_process_unfinished obj_db_data_process
+'    End If
 End Function
 
 ' # method is called from MDLProcessDashboardListener
 Public Function loading_data_has_finished(obj_provider_info As FileExcelDataProviderInfo)
-    If obj_provider_info.str_loading_type = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC Then
-        save obj_provider_info
-        
-        ' clean up
-        Set col_kpi_intervals = New Collection
-        obj_mdl_kpi_on_time_pallet.close_data
-    End If
+    save obj_provider_info
+    save_unfinished obj_provider_info
+
+    ' clean up
+    Set col_kpi_intervals = New Collection
+    Set col_kpi_pallets = New Collection ' # check - is it ok to clean it right here
+    ' release resources
+    obj_mdl_kpi_on_time_pallet.close_data
+    obj_mdl_kpi_on_time_pallet_unfinished.close_data
 
     Set obj_current_provider_info = Nothing
+'    If obj_provider_info.str_loading_type = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC Then
+'        save obj_provider_info
+'
+'        ' clean up
+'        Set col_kpi_intervals = New Collection
+'        Set col_kpi_pallets = New Collection ' # check - is it ok to clean it right here
+'        obj_mdl_kpi_on_time_pallet.close_data
+'    End If
 End Function
 
 Public Function create_intervals(obj_period_start As Date, obj_period_end As Date)
@@ -443,15 +459,75 @@ Public Function save(obj_provider_info As FileExcelDataProviderInfo)
             obj_mdl_kpi_on_time_pallet.save_record_dynamic obj_kpi_on_time_pallet
         Next
     Next
-    
-    ' clean up - # implement - check what is necesarry to purge to be ready for new update data
-    'Set col_kpi_pallets = New Collection
-'    Set col_kpi_intervals = New Collection
-'    obj_mdl_kpi_on_time_pallet.close_data
+End Function
+
+Public Function save_unfinished(obj_provider_info As FileExcelDataProviderInfo)
+    Dim obj_pallet As KPIOnTimePallet
+
+    For Each obj_pallet In col_kpi_pallets
+        ' find out if pallet should be saved into unfinished
+        If Not obj_pallet.obj_checkpoint.obj_next_limit Is Nothing Then
+            obj_mdl_kpi_on_time_pallet_unfinished.save_record_static obj_pallet
+        End If
+    Next
+End Function
+
+' Listening to model with unfinished kpi pallets
+' # interface method for listening MDLKPIOnTImePallet
+'Public Function kpi_pallet_loading_data_is_about_to_start(obj_date_start As Date, obj_date_end As Date)
+Public Function kpi_pallet_loading_data_is_about_to_start(obj_provider_info As FileExcelDataProviderInfo)
+    'obj_mdl_kpi_on_time_result.load_data_for_interval obj_date_start
+End Function
+
+' # interface method for listening MDLKPIOnTImePallet
+Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePallet)
+'    Dim obj_kpi_on_time_result_pallet As KPIOnTimeResultPallet
+'    Dim str_pallet_id As String
+'    Dim bool_action_create As Boolean
+'
+'    If obj_kpi_on_time_pallet.str_id = "357020105500768128" Then
+'        DoEvents
+'    End If
+'
+'    bool_action_create = False
+'
+'    str_pallet_id = retrieve_col_result_pallet_id( _
+'        obj_kpi_on_time_pallet.str_id, _
+'        obj_kpi_on_time_pallet.str_place_from, _
+'        obj_kpi_on_time_pallet.str_place_to)
+'    On Error GoTo INFO_NEW_PALLET
+'    Set obj_kpi_on_time_result_pallet = col_result_pallets(str_pallet_id)
+'    On Error GoTo 0
+'
+'    If Not bool_action_create Then
+'        col_result_pallets.Remove str_pallet_id
+'    End If
+'    update_pallet obj_kpi_on_time_pallet, obj_kpi_on_time_result_pallet
+'
+'    obj_mdl_kpi_on_time_result.save_record_dynamic obj_kpi_on_time_result_pallet
+'    Exit Function
+'INFO_NEW_PALLET:
+'    Set obj_kpi_on_time_result_pallet = create_pallet(obj_kpi_on_time_pallet)
+'    bool_action_create = True
+'    Resume Next
+End Function
+
+' # interface method for listening MDLKPIOnTImePallet
+'Public Function kpi_pallet_loading_data_has_finished(obj_period As Period)
+Public Function kpi_pallet_loading_data_has_finished(obj_provider_info As FileExcelDataProviderInfo)
+'    Dim obj_kpi_on_time_result_pallet As KPIOnTimeResultPallet
+'
+'    For Each obj_kpi_on_time_result_pallet In col_result_pallets
+'        obj_mdl_kpi_on_time_result.save_record_dynamic obj_kpi_on_time_result_pallet
+'    Next
+'
+'    ' clean up
+'    Set col_result_pallets = New Collection
+'    obj_mdl_kpi_on_time_result.obj_multi_data_provider.close_providers
 End Function
 
 Private Sub Class_Initialize()
-    bool_db_data_process_unfinished_loaded = False
+    'bool_db_data_process_unfinished_loaded = False
     
     Set col_kpi_intervals = New Collection
 '    Set col_result_pallets = New Collection

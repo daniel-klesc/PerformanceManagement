@@ -29,8 +29,9 @@ Public Function add_mdl_kpi_on_time_result(obj_mdl As MDLKPIOnTimeResult)
 End Function
 
 ' # interface method for listening MDLKPIOnTImePallet
-Public Function kpi_pallet_loading_data_is_about_to_start(obj_date_start As Date, obj_date_end As Date)
-    obj_mdl_kpi_on_time_result.load_data_for_interval obj_date_start
+'Public Function kpi_pallet_loading_data_is_about_to_start(obj_date_start As Date, obj_date_end As Date)
+Public Function kpi_pallet_loading_data_is_about_to_start(obj_data_provider_info As FileExcelDataProviderInfo)
+    obj_mdl_kpi_on_time_result.load_data_for_interval CDate(obj_data_provider_info.obj_period.str_start)
 End Function
 
 ' # interface method for listening MDLKPIOnTImePallet
@@ -67,7 +68,8 @@ INFO_NEW_PALLET:
 End Function
 
 ' # interface method for listening MDLKPIOnTImePallet
-Public Function kpi_pallet_loading_data_has_finished(obj_period As Period)
+'Public Function kpi_pallet_loading_data_has_finished(obj_period As Period)
+Public Function kpi_pallet_loading_data_has_finished(obj_data_provider_info As FileExcelDataProviderInfo)
     Dim obj_kpi_on_time_result_pallet As KPIOnTimeResultPallet
     
     For Each obj_kpi_on_time_result_pallet In col_result_pallets

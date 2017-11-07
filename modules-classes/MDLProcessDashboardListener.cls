@@ -67,6 +67,7 @@ Private Function create_kpi(rg_record As Range, obj_md_dashboard As MDDashboard1
             On Error GoTo WARN_KPI_NOT_FOUND
             Set create_kpi.obj_kpi = obj_md_dashboard.col_kpis(rg_record.Offset(0, INT_OFFSET_LINK).Value)
             Set create_kpi.obj_mdl_kpi_on_time_pallet = create_mdl_kpi_on_time_pallet()
+            Set create_kpi.obj_mdl_kpi_on_time_pallet_unfinished = create_mdl_kpi_on_time_pallet_unfinished()
 '            ' listeners
 '            Dim obj_listener As Object
 '              ' data process
@@ -129,18 +130,18 @@ End Function
 
 ' MDLKPIOnTimePallet
 ' # interface method for listening MDLKPIOnTimePallet
-Public Function kpi_pallet_loading_data_is_about_to_start(obj_period As Period)
+Public Function kpi_pallet_loading_data_is_about_to_start(obj_data_provider_info As FileExcelDataProviderInfo)
     Dim obj_listener As Object
     Dim obj_date_start As Date
     Dim obj_date_end As Date
     
-    Debug.Print "kpi_pallet_loading_data_is_about_to_start(obj_period As Period) started"
+    'Debug.Print "kpi_pallet_loading_data_is_about_to_start(obj_period As Period) started"
     
-    obj_date_start = DateValue(obj_period.str_start) + TimeValue(obj_period.str_start)
-    obj_date_end = DateValue(obj_period.str_end) + TimeValue(obj_period.str_end)
+    'obj_date_start = DateValue(obj_period.str_start) + TimeValue(obj_period.str_start)
+    'obj_date_end = DateValue(obj_period.str_end) + TimeValue(obj_period.str_end)
     
     For Each obj_listener In col_listeners
-        obj_listener.kpi_pallet_loading_data_is_about_to_start obj_date_start, obj_date_end
+        obj_listener.kpi_pallet_loading_data_is_about_to_start obj_data_provider_info 'obj_date_start, obj_date_end
     Next
 End Function
 
@@ -154,11 +155,11 @@ Public Function kpi_pallet_process_record(obj_kpi_on_pallet As KPIOnTimePallet)
 End Function
 
 ' # interface method for listening MDLKPIOnTimePallet
-Public Function kpi_pallet_loading_data_has_finished(obj_provider_info As FileExcelDataProviderInfo)
+Public Function kpi_pallet_loading_data_has_finished(obj_data_provider_info As FileExcelDataProviderInfo)
     Dim obj_listener As Object
     Debug.Print "kpi_pallet_loading_data_has_finished started"
     For Each obj_listener In col_listeners
-        obj_listener.save obj_provider_info
+        obj_listener.save obj_data_provider_info
     Next
 End Function
 
@@ -211,6 +212,40 @@ Private Function create_mdl_kpi_on_time_pallet() As MDLKPIOnTimePallet
     obj_data_provider_util.int_regex_status = 1
           ' add to multi data provider
     Set obj_multi_data_provider.obj_data_provider_util = obj_data_provider_util
+End Function
+
+Private Function create_mdl_kpi_on_time_pallet_unfinished() As MDLKPIOnTimePallet
+    Dim obj_mdl_unfinished As MDLKPIOnTimePallet
+    Dim obj_multi_data_provider As MultiFileExcelDataProvider
+    Dim obj_data_provider As FileExcelDataProvider
+
+    ' unfinished
+    Set obj_mdl_unfinished = New MDLKPIOnTimePallet
+    'obj_mdl_unfinished.BYTE_STEP_STATUS = new_ctrl_process.BYTE_STATUS_OPEN ' # implement byte_step_status should be evaluated in ctrl_pallet logic
+    'obj_mdl_unfinished.str_provider_id_default = "unfinished"
+    'obj_mdl_unfinished.add_listener obj_dashboard_listener
+        ' multi data provider
+    Set obj_multi_data_provider = New MultiFileExcelDataProvider
+    'obj_multi_data_provider.STR_WS_NAME = "data" '"data.process"
+    'obj_multi_data_provider.str_source_type = new_const_excel_data_provider.STR_SOURCE_TYPE_EXTERNAL
+    obj_multi_data_provider.BOOL_IS_DYNAMIC_LOADING_PROVIDERS_FROM_FILES_ON = False
+          ' file
+    'obj_multi_data_provider.str_path = ThisWorkbook.Path & "\data\inbound\history-kpi_pallet\unfinished\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\data\inbound\history-process\"
+            ' specific provider
+    Set obj_data_provider = New FileExcelDataProvider
+    obj_data_provider.str_id = "unfinished"
+    obj_data_provider.STR_WS_NAME = "data"
+    obj_data_provider.str_source_type = new_const_excel_data_provider.STR_SOURCE_TYPE_EXTERNAL
+    obj_data_provider.str_path = ThisWorkbook.Path & "\data\inbound\history-kpi_pallet\unfinished\"
+    obj_data_provider.str_file_name = "history-kpi_pallet-unfinished.xlsx"
+    obj_data_provider.bool_save_mode_on = True
+    obj_data_provider.add_listener obj_mdl_unfinished
+    obj_multi_data_provider.add_provider obj_data_provider
+
+    Set obj_mdl_unfinished.obj_multi_data_provider = obj_multi_data_provider
+    obj_mdl_unfinished.str_static_data_provider_id = obj_data_provider.str_id
+    
+    Set create_mdl_kpi_on_time_pallet_unfinished = obj_mdl_unfinished
 End Function
 
 'Private Function create_mdl_kpi_on_time_result() As MDLKPIOnTimeResult

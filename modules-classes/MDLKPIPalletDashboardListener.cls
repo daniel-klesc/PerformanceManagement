@@ -73,13 +73,14 @@ WARN_KPI_NOT_FOUND:
 End Function
 
 ' # interface method for listening MDLKPIOnTImePallet
-Public Function kpi_pallet_loading_data_is_about_to_start(obj_period As Period)
+'Public Function kpi_pallet_loading_data_is_about_to_start(obj_period As Period)
+Public Function kpi_pallet_loading_data_is_about_to_start(obj_data_provider_info As FileExcelDataProviderInfo)
     Dim obj_listener As Object
     Dim obj_date_start As Date
     Dim obj_date_end As Date
     
     For Each obj_listener In col_listeners
-        obj_listener.kpi_pallet_loading_data_is_about_to_start obj_period.str_start, obj_period.str_end
+        obj_listener.kpi_pallet_loading_data_is_about_to_start obj_data_provider_info 'obj_data_provider_info.obj_period.str_start, obj_data_provider_info.obj_period.str_end
     Next
 End Function
 
@@ -93,11 +94,12 @@ Public Function kpi_pallet_process_record(obj_kpi_on_pallet As KPIOnTimePallet)
 End Function
 
 ' # interface method for listening MDLKPIOnTImePallet
-Public Function kpi_pallet_loading_data_has_finished(obj_period As Period)
+'Public Function kpi_pallet_loading_data_has_finished(obj_period As Period)
+Public Function kpi_pallet_loading_data_has_finished(obj_data_provider_info As FileExcelDataProviderInfo)
     Dim obj_listener As Object
     
     For Each obj_listener In col_listeners
-        obj_listener.kpi_pallet_loading_data_has_finished obj_period
+        obj_listener.kpi_pallet_loading_data_has_finished obj_data_provider_info 'obj_period
     Next
 End Function
 

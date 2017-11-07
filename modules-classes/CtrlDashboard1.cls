@@ -158,37 +158,37 @@ Private Function init_mdl_data_process(obj_dashboard_listener As MDLProcessDashb
           ' add to multi data provider
     Set obj_multi_data_provider.obj_data_provider_util = obj_data_provider_util
     
-    ' unfinished
-    Set obj_mdl_data_process_unfinished = New MDLDataProcessExcel
-    obj_mdl_data_process_unfinished.BYTE_STEP_STATUS = new_ctrl_process.BYTE_STATUS_OPEN ' # implement byte_step_status should be evaluated in ctrl_pallet logic
-    obj_mdl_data_process_unfinished.str_provider_id_default = "default"
-    obj_mdl_data_process_unfinished.add_listener obj_dashboard_listener
-        ' multi data provider
-    Set obj_multi_data_provider = New MultiFileExcelDataProvider
-    obj_multi_data_provider.STR_WS_NAME = "data" '"data.process"
-    obj_multi_data_provider.str_source_type = new_const_excel_data_provider.STR_SOURCE_TYPE_EXTERNAL
-    obj_multi_data_provider.BOOL_IS_DYNAMIC_LOADING_PROVIDERS_FROM_FILES_ON = False
-          ' file
-    obj_multi_data_provider.str_path = ThisWorkbook.Path & "\data\inbound\history-process\unfinished\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\data\inbound\history-process\"
-            ' specific provider
-    Set obj_data_provider = New FileExcelDataProvider
-    obj_data_provider.str_id = "unfinished"
-    obj_data_provider.STR_WS_NAME = "data"
-    obj_data_provider.str_source_type = new_const_excel_data_provider.STR_SOURCE_TYPE_EXTERNAL
-    obj_data_provider.str_path = ThisWorkbook.Path & "\data\inbound\history-process\unfinished\"
-    obj_data_provider.str_file_name = "history-process-unfinished.xlsx"
-    obj_data_provider.bool_save_mode_on = False 'True
-    obj_data_provider.add_listener obj_mdl_data_process_unfinished
-    obj_multi_data_provider.add_provider obj_data_provider
-    
-    Set obj_mdl_data_process_unfinished.obj_multi_data_provider = obj_multi_data_provider
-    obj_mdl_data_process_unfinished.str_static_data_provider_id = obj_data_provider.str_id
+'    ' unfinished
+'    Set obj_mdl_data_process_unfinished = New MDLDataProcessExcel
+'    obj_mdl_data_process_unfinished.BYTE_STEP_STATUS = new_ctrl_process.BYTE_STATUS_OPEN ' # implement byte_step_status should be evaluated in ctrl_pallet logic
+'    obj_mdl_data_process_unfinished.str_provider_id_default = "default"
+'    obj_mdl_data_process_unfinished.add_listener obj_dashboard_listener
+'        ' multi data provider
+'    Set obj_multi_data_provider = New MultiFileExcelDataProvider
+'    obj_multi_data_provider.STR_WS_NAME = "data" '"data.process"
+'    obj_multi_data_provider.str_source_type = new_const_excel_data_provider.STR_SOURCE_TYPE_EXTERNAL
+'    obj_multi_data_provider.BOOL_IS_DYNAMIC_LOADING_PROVIDERS_FROM_FILES_ON = False
+'          ' file
+'    obj_multi_data_provider.str_path = ThisWorkbook.Path & "\data\inbound\history-process\unfinished\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\data\inbound\history-process\"
+'            ' specific provider
+'    Set obj_data_provider = New FileExcelDataProvider
+'    obj_data_provider.str_id = "unfinished"
+'    obj_data_provider.STR_WS_NAME = "data"
+'    obj_data_provider.str_source_type = new_const_excel_data_provider.STR_SOURCE_TYPE_EXTERNAL
+'    obj_data_provider.str_path = ThisWorkbook.Path & "\data\inbound\history-process\unfinished\"
+'    obj_data_provider.str_file_name = "history-process-unfinished.xlsx"
+'    obj_data_provider.bool_save_mode_on = False 'True
+'    obj_data_provider.add_listener obj_mdl_data_process_unfinished
+'    obj_multi_data_provider.add_provider obj_data_provider
+'
+'    Set obj_mdl_data_process_unfinished.obj_multi_data_provider = obj_multi_data_provider
+'    obj_mdl_data_process_unfinished.str_static_data_provider_id = obj_data_provider.str_id
         ' data provider util
-    Set obj_data_provider_util = New FileExcelDataProviderUtil
-          ' save mode
-    obj_data_provider_util.str_save_mode = new_const_excel_data_provider.STR_SAVE_MODE_HOURLY
-    
-    Set obj_multi_data_provider.obj_data_provider_util = obj_data_provider_util
+'    Set obj_data_provider_util = New FileExcelDataProviderUtil
+'          ' save mode
+'    obj_data_provider_util.str_save_mode = new_const_excel_data_provider.STR_SAVE_MODE_HOURLY
+'
+'    Set obj_multi_data_provider.obj_data_provider_util = obj_data_provider_util
 End Function
 
 Private Function init_mdl_data_pallet(obj_dashboard_listener As MDLKPIPalletDashboardListener)
