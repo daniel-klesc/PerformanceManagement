@@ -145,9 +145,15 @@ Public Function before_load_data(obj_provider As FileExcelDataProvider)
     Set obj_current_data_provider_info = obj_provider.obj_info
                 
     For Each obj_listener In col_listeners
+        On Error GoTo WARN_LISTENER_ERROR
         obj_listener.loading_data_is_about_to_start obj_current_data_provider_info
+        On Error GoTo 0
     Next
     
+    Exit Function
+WARN_LISTENER_ERROR:
+    hndl_log.log db_log.TYPE_WARN, str_module, "before_load_data", "An error occured in listener: " & obj_listener.str_id
+    Resume Next
 End Function
 
 Public Function after_load_data()
@@ -161,10 +167,17 @@ Public Function after_load_data()
     'End If
     
     For Each obj_listener In col_listeners
+        On Error GoTo WARN_LISTENER_ERROR
         obj_listener.loading_data_has_finished obj_current_data_provider_info
+        On Error GoTo 0
     Next
     
     Set obj_current_data_provider_info = Nothing
+    
+    Exit Function
+WARN_LISTENER_ERROR:
+    hndl_log.log db_log.TYPE_WARN, str_module, "after_load_data", "An error occured in listener: " & obj_listener.str_id
+    Resume Next
 End Function
 
 Public Function before_load_data_static(obj_provider As FileExcelDataProvider)
@@ -175,18 +188,32 @@ Public Function before_load_data_static(obj_provider As FileExcelDataProvider)
     obj_current_data_provider_info.str_provider_id = obj_provider.str_id
     
     For Each obj_listener In col_listeners
+        On Error GoTo WARN_LISTENER_ERROR
         obj_listener.loading_data_is_about_to_start obj_current_data_provider_info
+        On Error GoTo 0
     Next
+    
+    Exit Function
+WARN_LISTENER_ERROR:
+    hndl_log.log db_log.TYPE_WARN, str_module, "after_load_data", "An error occured in listener: " & obj_listener.str_id
+    Resume Next
 End Function
 
 Public Function after_load_data_static()
     Dim obj_listener As Object
     
     For Each obj_listener In col_listeners
+        On Error GoTo WARN_LISTENER_ERROR
         obj_listener.loading_data_has_finished obj_current_data_provider_info
+        On Error GoTo 0
     Next
     
     Set obj_current_data_provider_info = Nothing
+    
+    Exit Function
+WARN_LISTENER_ERROR:
+    hndl_log.log db_log.TYPE_WARN, str_module, "after_load_data", "An error occured in listener: " & obj_listener.str_id
+    Resume Next
 End Function
 
 ' providers management
@@ -211,7 +238,7 @@ ERR_RETRIEVE_FILES:
     Exit Function
 ERR_PROCESS_FILE:
     hndl_log.log db_log.TYPE_WARN, str_module, "create_data_providers_read_mode", _
-        "An error occured during processing file " & var_file & ". Original error message>" & Err.description
+        "An error occured during creation of provider for file: " & var_file & ". Original error message>" & Err.description
     Exit Function
 End Function
 

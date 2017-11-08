@@ -122,13 +122,14 @@ Public Function load_data()
 '        If rg_record.Value = "357020105500244851" Then
 '            DoEvents
 '        End If
-                                        
-        On Error GoTo ERR_PROCESS
+                                                
         For Each obj_listener In col_listeners
+            On Error GoTo ERR_PROCESS
             obj_listener.load_record rg_record
             'Debug.Print rg_record.Value
+            On Error GoTo 0
         Next
-        On Error GoTo 0
+        
         ' move to next record
         Set rg_record = rg_record.Offset(1)
     Loop
