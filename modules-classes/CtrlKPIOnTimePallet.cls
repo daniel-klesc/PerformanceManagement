@@ -21,8 +21,6 @@ Public col_db_data_process_unfinished As Collection
 Public col_kpi_intervals As Collection
 Public col_kpi_pallets As Collection '
 
-'Public bool_db_data_process_unfinished_loaded As Boolean
-
 ' master data
 Public obj_md_dashboard As MDDashboard1
 Public obj_mdl_kpi_on_time_pallet As MDLKPIOnTimePallet ' load current update data about pallets
@@ -35,10 +33,12 @@ Public Function loading_data_is_about_to_start(obj_provider_info As FileExcelDat
     Dim obj_db_data_process As DBDataProcess
 
     Set obj_current_provider_info = obj_provider_info
+    
+    create_intervals obj_provider_info.obj_period.str_start, obj_provider_info.obj_period.str_end
+    
     ' load last state of active pallets
     obj_mdl_kpi_on_time_pallet_unfinished.add_listener Me
     obj_mdl_kpi_on_time_pallet_unfinished.load_static
-    create_intervals obj_provider_info.obj_period.str_start, obj_provider_info.obj_period.str_end
 End Function
 
 ' # method is called from MDLProcessDashboardListener
@@ -94,10 +94,6 @@ Public Function create_intervals(obj_period_start As Date, obj_period_end As Dat
     Next
 End Function
 
-'Public Function process_db_data_process_unfinished(obj_data_process As DBDataProcess)
-'       col_db_data_process_unfinished.add obj_data_process, obj_data_process.str_pallet
-'End Function
-
 ' # method is called from MDLProcessDashboardListener
 Public Function process_db_data_process_record(obj_data_process As DBDataProcess)
     Dim obj_kpi_on_time_interval As KPIOnTimeInterval
@@ -109,7 +105,7 @@ Public Function process_db_data_process_record(obj_data_process As DBDataProcess
     Dim obj_kpi_on_time_pallet_full_live_interval As KPIOnTimePallet
     Dim str_date_end_for_status_calculation As String
 
-    If obj_data_process.str_pallet = "357020105494051671" Then
+    If obj_data_process.str_pallet = "357020105502489588" Then
         DoEvents
     End If
 
@@ -121,54 +117,9 @@ Public Function process_db_data_process_record(obj_data_process As DBDataProcess
         
         If Not obj_kpi_on_time_pallet.obj_checkpoint Is Nothing Then ' check to not process pallets which already reached final checkpoint
             Set obj_kpi_on_time_pallet_steps = update_kpi_on_time_pallet(obj_kpi_on_time_pallet, obj_data_process)
-        
-            For Each obj_kpi_on_time_interval In col_kpi_intervals
-                For Each obj_kpi_on_time_pallet_step In obj_kpi_on_time_pallet_steps
-                    ' find date end for pallet
-                    If obj_kpi_on_time_pallet_step.str_date_end = "" Then
-                        str_date_end_for_status_calculation = obj_kpi_on_time_interval.obj_interval.obj_end
-                    Else
-                        str_date_end_for_status_calculation = obj_kpi_on_time_pallet_step.str_date_end
-                    End If
-                    
-                    ' check if pallet belongs to the interval
-                    If obj_kpi_on_time_interval.is_valid_interval(obj_kpi_on_time_pallet_step.str_date_last_checkpoint, str_date_end_for_status_calculation) Then
-                        On Error GoTo INFO_NEW_PALLET_IN_INTERVAL
-                        Set obj_kpi_on_time_pallet_step_interval = obj_kpi_on_time_interval.col_pallets_step(retrieve_pallet_id_interval(obj_kpi_on_time_pallet_step))
-                        On Error GoTo 0
-                        
-                        ' update interval pallet
-                        update_kpi_on_time_pallet_step_interval _
-                            obj_kpi_on_time_interval, _
-                            obj_kpi_on_time_pallet_step_interval, _
-                            str_date_end_for_status_calculation
-                        
-                        ' update full live pallet
-                        Set obj_kpi_on_time_pallet_full_live_interval = obj_kpi_on_time_pallet_step_interval.create_copy
-                        
-                        ' # implement - when pallet step interval is closed then remove this specific pallet step from following intervals
-                        Set obj_kpi_on_time_next_interval = obj_kpi_on_time_interval.obj_next_interval
-                        
-                        Do While Not obj_kpi_on_time_next_interval Is Nothing
-                            On Error GoTo INFO_TRY_TO_REMOVE
-                            obj_kpi_on_time_next_interval.col_pallets_step.Remove retrieve_pallet_id_interval(obj_kpi_on_time_pallet_step_interval)
-                            'obj_kpi_on_time_next_interval.col_pallets_full_live.Remove obj_kpi_on_time_pallet_full_live_interval.str_id ' # implement - check if this step is valid, update of full live interval pallet is done later and seperately
-                            On Error GoTo 0
-                            Set obj_kpi_on_time_next_interval = obj_kpi_on_time_next_interval.obj_next_interval
-                        Loop
-                    End If
-                Next
-                
-                ' create
-                If Not obj_kpi_on_time_pallet_full_live_interval Is Nothing Then
-                    On Error GoTo INFO_NEW_PALLET_IN_FULL_LIVE_INTERVAL
-                    obj_kpi_on_time_interval.col_pallets_full_live.add obj_kpi_on_time_pallet_full_live_interval, obj_kpi_on_time_pallet_full_live_interval.str_id 'retrieve_pallet_id_interval(obj_kpi_on_time_pallet_full_live_interval)
-                    On Error GoTo 0
-                    ' reset
-                    Set obj_kpi_on_time_pallet_full_live_interval = Nothing
-                End If
-                
-            Next
+            process_steps obj_kpi_on_time_pallet_steps, col_kpi_intervals
+            
+
         End If
     End If
     
@@ -178,6 +129,64 @@ INFO_NEW_PALLET:
     If Not obj_kpi_on_time_pallet Is Nothing Then ' it could happen if checkpoint for current place is not found or set - this behavior is required if only part of process should be measured by KPI
         Resume Next
     End If
+    Exit Function
+End Function
+
+Public Function process_steps(col_steps As Collection, col_kpi_intervals As Collection)
+    Dim obj_kpi_on_time_interval As KPIOnTimeInterval
+    Dim obj_kpi_on_time_next_interval As KPIOnTimeInterval
+    Dim obj_kpi_on_time_pallet_step As KPIOnTimePallet
+    Dim obj_kpi_on_time_pallet_steps As Collection
+    Dim obj_kpi_on_time_pallet_step_interval As KPIOnTimePallet
+    Dim obj_kpi_on_time_pallet_full_live_interval As KPIOnTimePallet
+    Dim str_date_end_for_status_calculation As String
+
+    For Each obj_kpi_on_time_interval In col_kpi_intervals
+        For Each obj_kpi_on_time_pallet_step In col_steps 'obj_kpi_on_time_pallet_steps
+            ' find date end for pallet
+            If obj_kpi_on_time_pallet_step.str_date_end = "" Then
+                str_date_end_for_status_calculation = obj_kpi_on_time_interval.obj_interval.obj_end
+            Else
+                str_date_end_for_status_calculation = obj_kpi_on_time_pallet_step.str_date_end
+            End If
+            
+            ' check if pallet belongs to the interval
+            If obj_kpi_on_time_interval.is_valid_interval(obj_kpi_on_time_pallet_step.str_date_last_checkpoint, str_date_end_for_status_calculation) Then
+                On Error GoTo INFO_NEW_PALLET_IN_INTERVAL
+                Set obj_kpi_on_time_pallet_step_interval = obj_kpi_on_time_interval.col_pallets_step(retrieve_pallet_id_interval(obj_kpi_on_time_pallet_step))
+                On Error GoTo 0
+                
+                ' update interval pallet
+                update_kpi_on_time_pallet_step_interval _
+                    obj_kpi_on_time_interval, _
+                    obj_kpi_on_time_pallet_step_interval, _
+                    str_date_end_for_status_calculation
+                
+                ' update full live pallet
+                Set obj_kpi_on_time_pallet_full_live_interval = obj_kpi_on_time_pallet_step_interval.create_copy
+                
+                ' # implement - when pallet step interval is closed then remove this specific pallet step from following intervals
+                Set obj_kpi_on_time_next_interval = obj_kpi_on_time_interval.obj_next_interval
+                
+                Do While Not obj_kpi_on_time_next_interval Is Nothing
+                    On Error GoTo INFO_TRY_TO_REMOVE
+                    obj_kpi_on_time_next_interval.col_pallets_step.Remove retrieve_pallet_id_interval(obj_kpi_on_time_pallet_step_interval)
+                    On Error GoTo 0
+                    Set obj_kpi_on_time_next_interval = obj_kpi_on_time_next_interval.obj_next_interval
+                Loop
+            End If
+        Next
+        
+        ' create
+        If Not obj_kpi_on_time_pallet_full_live_interval Is Nothing Then
+            On Error GoTo INFO_NEW_PALLET_IN_FULL_LIVE_INTERVAL
+            obj_kpi_on_time_interval.col_pallets_full_live.add obj_kpi_on_time_pallet_full_live_interval, obj_kpi_on_time_pallet_full_live_interval.str_id 'retrieve_pallet_id_interval(obj_kpi_on_time_pallet_full_live_interval)
+            On Error GoTo 0
+            ' reset
+            Set obj_kpi_on_time_pallet_full_live_interval = Nothing
+        End If
+    Next
+    
     Exit Function
 INFO_NEW_PALLET_IN_INTERVAL:
     Set obj_kpi_on_time_pallet_step_interval = obj_kpi_on_time_pallet_step.create_copy
@@ -214,9 +223,9 @@ Public Function create_kpi_on_time_pallet(obj_data_process As DBDataProcess) As 
     create_kpi_on_time_pallet.str_place_from = bin_place_grp.get_place_grp(obj_data_process.str_bin_from)
     
     ' retrieve limit
-    If obj_data_process.str_pallet = "357020105537643597" Then
-        DoEvents
-    End If
+    If obj_data_process.str_pallet = "357020105540662080" Then ' # debug
+        DoEvents ' # debug
+    End If ' # debug
     
     Set obj_checkpoint = retrieve_checkpoint(create_kpi_on_time_pallet)
 
@@ -256,9 +265,9 @@ Public Function update_kpi_on_time_pallet(obj_kpi_on_time_pallet As KPIOnTimePal
     bool_is_place_to_tracked_by_kpi = False
     Set col_pallet_steps = New Collection
 
-    If obj_data_process.str_pallet = "357020105430494975" Then
-        DoEvents
-    End If
+    If obj_data_process.str_pallet = "357020105502489588" Then ' # debug
+        DoEvents ' # debug
+    End If ' # debug
 
     ' check if transaction is complete - incomplete transaction is not processed because current obj_kpi_on_time_pallet is everytime set to this last incomplete record
     If obj_data_process.str_date_end <> "" Then ' # implement - db_data_process.is_complete
@@ -298,6 +307,9 @@ Public Function update_kpi_on_time_pallet(obj_kpi_on_time_pallet As KPIOnTimePal
             col_kpi_pallets.add obj_kpi_on_time_pallet_original, obj_kpi_on_time_pallet_original.str_id
             Set obj_kpi_on_time_pallet = obj_kpi_on_time_pallet_original.create_copy
         End If
+    Else
+        ' pallets with unfinished data process step (open records), it means pallet stays at same place
+        col_pallet_steps.add obj_kpi_on_time_pallet.create_copy
     End If
     
     Set update_kpi_on_time_pallet = col_pallet_steps
@@ -357,6 +369,7 @@ Public Function update_kpi_on_time_pallet_step_interval( _
     End If
 End Function
 
+' # implement - retrieve_chekpoint should be implemented in other class
 Public Function retrieve_checkpoint(obj_kpi_on_time_pallet As KPIOnTimePallet) As KPIOnTimeLimitCheckpoint
     Dim bool_only_default As Boolean ' if during searching one part of limit is not found then every following part is set to default
     
@@ -443,21 +456,24 @@ Public Function save(obj_provider_info As FileExcelDataProviderInfo)
 End Function
 
 ' Processing of unfinished pallets
-
 Public Function save_unfinished(obj_provider_info As FileExcelDataProviderInfo)
     Dim obj_pallet As KPIOnTimePallet
 
     For Each obj_pallet In col_kpi_pallets
         ' find out if pallet should be saved into unfinished
+        On Error GoTo ERR_TEST
         If Not obj_pallet.obj_checkpoint.obj_next_limit Is Nothing Then
             obj_mdl_kpi_on_time_pallet_unfinished.save_record_static obj_pallet
         End If
+        On Error GoTo 0
     Next
+    Exit Function
+ERR_TEST:
+    DoEvents
 End Function
 
 ' Listening to model with unfinished kpi pallets
 ' # interface method for listening MDLKPIOnTImePallet
-'Public Function kpi_pallet_loading_data_is_about_to_start(obj_date_start As Date, obj_date_end As Date)
 Public Function kpi_pallet_loading_data_is_about_to_start(obj_provider_info As FileExcelDataProviderInfo)
     obj_mdl_kpi_on_time_pallet_unfinished.obj_multi_data_provider.retrieve_provider(obj_provider_info.str_provider_id). _
         set_clear_data_before_close_status True
@@ -467,6 +483,7 @@ End Function
 Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePallet)
     ' register pallet
     On Error GoTo WARN_PALLET_ALREADY_EXISTS
+    Set obj_kpi_on_time_pallet.obj_checkpoint = retrieve_checkpoint(obj_kpi_on_time_pallet)
     col_kpi_pallets.add obj_kpi_on_time_pallet, obj_kpi_on_time_pallet.str_id
     On Error GoTo 0
 
@@ -478,19 +495,15 @@ WARN_PALLET_ALREADY_EXISTS:
 End Function
 
 ' # interface method for listening MDLKPIOnTImePallet
-'Public Function kpi_pallet_loading_data_has_finished(obj_period As Period)
 Public Function kpi_pallet_loading_data_has_finished(obj_provider_info As FileExcelDataProviderInfo)
-    ' close data for now, again data will be open for writing in save_unfinished method
-    'obj_mdl_kpi_on_time_pallet_unfinished.close_data
+    process_steps col_kpi_pallets, col_kpi_intervals
+    
     obj_mdl_kpi_on_time_pallet_unfinished.obj_multi_data_provider.retrieve_provider(obj_provider_info.str_provider_id). _
         set_clear_data_before_close_status False
 End Function
 
 Private Sub Class_Initialize()
-    'bool_db_data_process_unfinished_loaded = False
-    
     Set col_kpi_intervals = New Collection
-'    Set col_result_pallets = New Collection
     Set col_kpi_pallets = New Collection
     
     Set obj_checkpoint_type_resolver = New CheckpointTypeResolver ' # implement - cross check if this is the correct place where to initialize it
