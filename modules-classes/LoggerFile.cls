@@ -9,9 +9,9 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-Public name As String
+Public Name As String
 Public destination As String
-Public level As Integer
+Public Level As Integer
 Public category As Variant
 
 
@@ -26,7 +26,7 @@ Private MESSAGE_OFFSET As Integer
 
 
 Public Function log(lvl As Integer, dest As String, message As MSG)
-    If Not lvl < Me.level Then
+    If Not lvl < Me.Level Then
         If dest = Me.destination Then
             save message, lvl
         End If
@@ -53,8 +53,8 @@ Private Function save(message As MSG, lvl As Integer)
 End Function
 
 Public Function init(str_name As String, lvl As Integer, str_dest As String)
-    name = str_name
-    level = lvl
+    Name = str_name
+    Level = lvl
     destination = str_dest
     
     wsName = "log"
@@ -102,7 +102,7 @@ Private Function closeFile(wb As Workbook)
     Dim lApp As Application
     
     Set lApp = wb.Parent
-    wb.Close saveChanges:=True
+    wb.Close SaveChanges:=True
     lApp.Quit
     
 End Function

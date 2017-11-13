@@ -44,17 +44,17 @@ Public Function load_record(rg_record As Range)
 Dim obj_listener As Object
 Dim obj_kpi As Object
 
-For Each obj_listener In col_listeners
-    On Error GoTo INFO_NEW_KPI_SETTING
-        Set obj_kpi = obj_listener.get_collection(str_module)(rg_record.Offset(0, INT_OFFSET_ID).Value)
-    On Error GoTo 0
-
-    If Not obj_kpi.obj_process Is Nothing Then
-        obj_kpi.add_process_version obj_kpi.obj_process.col_versions(rg_record.Offset(0, INT_OFFSET_PROCESS_VERSION).Value)
-    End If
-
+    For Each obj_listener In col_listeners
+        On Error GoTo INFO_NEW_KPI_SETTING
+            Set obj_kpi = obj_listener.get_collection(str_module)(rg_record.Offset(0, INT_OFFSET_ID).Value)
+        On Error GoTo 0
+    
+        If Not obj_kpi.obj_process Is Nothing Then
+            obj_kpi.add_process_version obj_kpi.obj_process.col_versions(rg_record.Offset(0, INT_OFFSET_PROCESS_VERSION).Value)
+        End If
+    Next obj_listener
+    
     Exit Function
-
 INFO_NEW_KPI_SETTING:
     Set obj_kpi = create_kpi(rg_record)
     obj_kpi.str_id = rg_record.Offset(0, INT_OFFSET_ID).Value
@@ -67,10 +67,9 @@ INFO_NEW_KPI_SETTING:
         obj_kpi.obj_process = obj_listener.get_collection(str_process_collection)(rg_record.Offset(0, INT_OFFSET_PROCESS_ID).Value)
     End If
 
-
     obj_listener.get_collection(str_module).add obj_kpi, obj_kpi.str_id
-Next obj_listener
-
+    
+    Resume Next
 End Function
 
 Private Function create_kpi(rg_record) As Object

@@ -18,7 +18,7 @@ log4VBA.add_logger obj_logger
 
 
 Set message = New MSG
-log4VBA.error "test_destination", message.source("testing_module").text("Toto je testovací zpráva, která nemá žádný význam.")
+log4VBA.error "test_destination", message.source("testing_module", "testing-function").text("Toto je testovací zpráva, která nemá žádný význam.")
 Set message = Nothing
 
 
@@ -43,7 +43,7 @@ log4VBA.add_logger obj_logger
 
 
 Set message = New MSG
-log4VBA.error "test_destination", message.source("testing_module").text("Problém je mezi židlí a klávesnicí")
+log4VBA.error "test_destination", message.source("testing_module", "testing-function").text("Problém je mezi židlí a klávesnicí")
 Set message = Nothing
 
 
