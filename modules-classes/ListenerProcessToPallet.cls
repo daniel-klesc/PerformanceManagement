@@ -82,9 +82,9 @@ Private Function create_step(obj_record As DBDataProcess) As ProcessStep
     
     create_step.str_bin_from = obj_record.str_bin_from
     create_step.str_bin_to = obj_record.str_bin_to
-    create_step.str_place_from = bin_place_grp.get_place_grp(obj_record.str_bin_from)
+    create_step.str_place_from = bin_place_grp.get_place_grp_level_aisle(obj_record.str_bin_from)
     If obj_record.str_bin_to <> "" Then
-        create_step.str_place_to = bin_place_grp.get_place_grp(obj_record.str_bin_to)
+        create_step.str_place_to = bin_place_grp.get_place_grp_level_aisle(obj_record.str_bin_to)
     End If
     
     create_step.str_date_start = obj_record.str_date_start

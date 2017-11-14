@@ -17,15 +17,15 @@ Public category As Variant
 Public subjMsgLenght As Integer
 Public mailAddress As String
 
-Public Function log(lvl As Integer, dest As String, message As MSG)
+Public Function log(lvl As Integer, dest As String, Message As MSG)
     If Not lvl < Me.Level Then
         If dest = Me.destination Then
-            save message, lvl
+            save Message, lvl
         End If
     End If
 End Function
 
-Public Function save(message As MSG, lvl As Integer)
+Public Function save(Message As MSG, lvl As Integer)
     Dim oApp As Object
     Dim oMail As Object
     
@@ -33,8 +33,8 @@ Public Function save(message As MSG, lvl As Integer)
     Set oMail = oApp.CreateItem(0)
     With oMail
         .To = mailAddress
-        .Subject = message.source_ & " " & toMsgType(lvl) & " " & Left(message.text_, subjMsgLenght)
-        .Body = Now & vbCrLf & message.source_ & vbCrLf & toMsgType(lvl) & vbCrLf & message.text_
+        .Subject = Message.source_ & " " & toMsgType(lvl) & " " & Left(Message.text_, subjMsgLenght)
+        .Body = Now & vbCrLf & Message.source_ & vbCrLf & toMsgType(lvl) & vbCrLf & Message.text_
         .Send
     End With
     

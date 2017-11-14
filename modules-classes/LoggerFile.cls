@@ -25,15 +25,15 @@ Private SOURCE_OFFSET As Integer
 Private MESSAGE_OFFSET As Integer
 
 
-Public Function log(lvl As Integer, dest As String, message As MSG)
+Public Function log(lvl As Integer, dest As String, Message As MSG)
     If Not lvl < Me.Level Then
         If dest = Me.destination Then
-            save message, lvl
+            save Message, lvl
         End If
     End If
 End Function
 
-Private Function save(message As MSG, lvl As Integer)
+Private Function save(Message As MSG, lvl As Integer)
     Dim ws As Worksheet
     Dim newRowIndex As Long
     Dim actualRng As Range
@@ -45,8 +45,8 @@ Private Function save(message As MSG, lvl As Integer)
     
     actualRng.Offset(0, DATE_TIME_OFFSET).Value = CStr(Now)
     actualRng.Offset(0, TYPE_OFFSET).Value = toMsgType(lvl)
-    actualRng.Offset(0, SOURCE_OFFSET).Value = message.source_
-    actualRng.Offset(0, MESSAGE_OFFSET).Value = message.text_
+    actualRng.Offset(0, SOURCE_OFFSET).Value = Message.source_
+    actualRng.Offset(0, MESSAGE_OFFSET).Value = Message.text_
     
     closeFile ws.Parent
     

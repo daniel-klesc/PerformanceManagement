@@ -21,38 +21,38 @@ Public Function init()
     logging_is_enabled = True
 End Function
 
-Public Function trace(destination As String, message As MSG)
-    log TRC, destination, message
+Public Function trace(destination As String, Message As MSG)
+    log TRC, destination, Message
 End Function
 
-Public Function debg(destination As String, message As MSG)
-    log DBG, destination, message
+Public Function debg(destination As String, Message As MSG)
+    log DBG, destination, Message
 End Function
 
-Public Function info(destination As String, message As MSG)
-    log INF, destination, message
+Public Function info(destination As String, Message As MSG)
+    log INF, destination, Message
 End Function
 
-Public Function warn(destination As String, message As MSG)
-    log WRN, destination, message
+Public Function warn(destination As String, Message As MSG)
+    log WRN, destination, Message
 End Function
 
-Public Function error(destination As String, message As MSG)
-    log ERRO, destination, message
+Public Function error(destination As String, Message As MSG)
+    log ERRO, destination, Message
 End Function
 
-Private Function log(lvl As Integer, destination As String, message As MSG)
+Private Function log(lvl As Integer, destination As String, Message As MSG)
     Dim obj_logger As Object
     
     If logging_is_enabled Then
         For Each obj_logger In loggers
-            obj_logger.log lvl, destination, message
+            obj_logger.log lvl, destination, Message
         Next obj_logger
     End If
 End Function
 
 Public Function add_logger(obj_logger As Object)
-    loggers.add obj_logger, obj_logger.name
+    loggers.add obj_logger, obj_logger.Name
 End Function
 
 Public Function remove_logger(logger_name As String)

@@ -174,7 +174,7 @@ Public Function run()
     
     obj_mdl_data_process_unfinished.set_clear_data
     obj_mdl_data_process_unfinished.load_static
-    new_mdl_history.process
+    new_mdl_history.Process
     ' make post process actions in listeners
       ' save unfinished
     obj_mdl_data_process_unfinished.reset_clear_data

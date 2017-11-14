@@ -220,7 +220,7 @@ Public Function create_kpi_on_time_pallet(obj_data_process As DBDataProcess) As 
     create_kpi_on_time_pallet.str_date_start = obj_data_process.str_date_start
     create_kpi_on_time_pallet.str_date_last_checkpoint = obj_data_process.str_date_start
     ' set place
-    create_kpi_on_time_pallet.str_place_from = bin_place_grp.get_place_grp(obj_data_process.str_bin_from)
+    create_kpi_on_time_pallet.str_place_from = bin_place_grp.get_place_grp_level_aisle(obj_data_process.str_bin_from)
     
     ' retrieve limit
     If obj_data_process.str_pallet = "357020105540662080" Then ' # debug
@@ -231,7 +231,7 @@ Public Function create_kpi_on_time_pallet(obj_data_process As DBDataProcess) As 
 
     If obj_checkpoint Is Nothing Then
         ' check if checkpoint exists for place_to
-        create_kpi_on_time_pallet.str_place_from = bin_place_grp.get_place_grp(obj_data_process.str_bin_to)
+        create_kpi_on_time_pallet.str_place_from = bin_place_grp.get_place_grp_level_aisle(obj_data_process.str_bin_to)
         Set obj_checkpoint = retrieve_checkpoint(create_kpi_on_time_pallet)
         
         If obj_checkpoint Is Nothing Then
@@ -273,7 +273,7 @@ Public Function update_kpi_on_time_pallet(obj_kpi_on_time_pallet As KPIOnTimePal
     If obj_data_process.str_date_end <> "" Then ' # implement - db_data_process.is_complete
         ' create copy to be able to restore pallet in original state if str_place_to is not valid checkpoint
         Set obj_kpi_on_time_pallet_original = obj_kpi_on_time_pallet.create_copy
-        str_place_to_new = bin_place_grp.get_place_grp(obj_data_process.str_bin_to)
+        str_place_to_new = bin_place_grp.get_place_grp_level_aisle(obj_data_process.str_bin_to)
 
         Do
             col_pallet_steps.add obj_kpi_on_time_pallet.create_copy
@@ -491,7 +491,7 @@ Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePal
 WARN_PALLET_ALREADY_EXISTS:
     hndl_log.log db_log.TYPE_WARN, STR_CLASS_NAME, "kpi_pallet_process_record", _
         "An error occured while adding pallet: " & obj_kpi_on_time_pallet.str_id & _
-        ". The original error content: " & Err.description
+        ". The original error content: " & Err.Description
 End Function
 
 ' # interface method for listening MDLKPIOnTImePallet

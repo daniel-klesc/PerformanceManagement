@@ -14,16 +14,16 @@ Public destination As String
 Public Level As Integer
 Public category As Variant
 
-Public Function log(lvl As Integer, dest As String, message As MSG)
+Public Function log(lvl As Integer, dest As String, Message As MSG)
     If Not lvl < Me.Level Then
         If dest = Me.destination Then
-            save message
+            save Message
         End If
     End If
 End Function
 
-Public Function save(message As MSG)
-    Debug.Print Now & " " & message.source_ & " " & message.text_
+Public Function save(Message As MSG)
+    Debug.Print Now & " " & Message.source_ & " " & Message.text_
 End Function
 
 Public Function init(str_name As String, lvl As Integer, str_dest As String)

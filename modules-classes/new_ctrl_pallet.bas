@@ -95,7 +95,7 @@ INFO_NEW_PALLET:
 End Function
 
 Public Function create_record(obj_record As DBHistoryRecord) As Pallet
-    Dim obj_process As process
+    Dim obj_process As Process
 
     ' process level
     Set obj_process = new_ctrl_process.create_process(obj_record)

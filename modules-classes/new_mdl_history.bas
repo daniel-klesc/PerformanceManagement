@@ -39,7 +39,7 @@ Public Function init()
     Set col_listeners = New Collection
 End Function
 
-Public Function process()
+Public Function Process()
     Dim obj_list_files As Collection
     Dim var_file As Variant
     Dim obj_data_provider_info As FileExcelDataProviderInfo
@@ -69,12 +69,12 @@ Public Function process()
             
     Exit Function
 ERR_RETRIEVE_FILES:
-    Debug.Print Err.Number & "->" & Err.description
-    hndl_log.log db_log.TYPE_WARN, str_module, "process", Err.Number & "->" & Err.description
+    Debug.Print Err.Number & "->" & Err.Description
+    hndl_log.log db_log.TYPE_WARN, str_module, "process", Err.Number & "->" & Err.Description
     Exit Function
 ERR_PROCESS_FILE:
     hndl_log.log db_log.TYPE_WARN, str_module, "process", _
-        "An error occured during processing file " & var_file & ". Original error message>" & Err.description
+        "An error occured during processing file " & var_file & ". Original error message>" & Err.Description
     Resume Next
 End Function
 

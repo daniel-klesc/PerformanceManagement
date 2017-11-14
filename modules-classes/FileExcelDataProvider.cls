@@ -90,7 +90,7 @@ ERR_FILE_NOT_FOUND:
         wb.SaveAs file_path ', WriteResPassword:=STR_PASSWD
         Resume Next
     Else
-        Err.raise Err.Number, Err.Source, Err.description
+        Err.raise Err.Number, Err.source, Err.Description
     End If
 End Function
 

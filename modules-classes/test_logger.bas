@@ -4,7 +4,7 @@ Option Explicit
 Public Function testMailLogger()
 
 Dim obj_logger As LoggerMail
-Dim message As MSG
+Dim Message As MSG
 
 
 Set obj_logger = New LoggerMail
@@ -17,9 +17,9 @@ log4VBA.add_logger obj_logger
 
 
 
-Set message = New MSG
-log4VBA.error "test_destination", message.source("testing_module", "testing-function").text("Toto je testovací zpráva, která nemá žádný význam.")
-Set message = Nothing
+Set Message = New MSG
+log4VBA.error "test_destination", Message.source("testing_module", "testing-function").text("Toto je testovací zpráva, která nemá žádný význam.")
+Set Message = Nothing
 
 
 End Function
@@ -27,7 +27,7 @@ End Function
 Public Function testFileLogger()
 
 Dim obj_logger As LoggerFile
-Dim message As MSG
+Dim Message As MSG
 
 
 Set obj_logger = New LoggerFile
@@ -42,9 +42,9 @@ log4VBA.add_logger obj_logger
 
 
 
-Set message = New MSG
-log4VBA.error "test_destination", message.source("testing_module", "testing-function").text("Problém je mezi židlí a klávesnicí")
-Set message = Nothing
+Set Message = New MSG
+log4VBA.error "test_destination", Message.source("testing_module", "testing-function").text("Problém je mezi židlí a klávesnicí")
+Set Message = Nothing
 
 
 End Function

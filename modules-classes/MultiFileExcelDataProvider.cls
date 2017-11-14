@@ -78,7 +78,7 @@ Public Function load_data_static()
     Exit Function
 ERR_PROCESS_FILE:
     hndl_log.log db_log.TYPE_WARN, str_module, "load_data_static", _
-        "An error occured during processing file " & obj_data_provider.str_id & ". Original error message>" & Err.description
+        "An error occured during processing file " & obj_data_provider.str_id & ". Original error message>" & Err.Description
     Resume Next
 End Function
 
@@ -113,14 +113,14 @@ Public Function load_data()
             
     Exit Function
 ERR_PROCESSED_FILE_NOT_FOUND:
-    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", Err.Number & "->" & Err.description
+    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", Err.Number & "->" & Err.Description
     Exit Function
 ERR_CREATE_PROVIDERS:
-    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", Err.Number & "->" & Err.description
+    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", Err.Number & "->" & Err.Description
     Exit Function
 ERR_PROCESS_FILE:
     hndl_log.log db_log.TYPE_WARN, str_module, "load_data", _
-        "An error occured during processing file " & obj_data_provider.str_id & ". Original error message>" & Err.description
+        "An error occured during processing file " & obj_data_provider.str_id & ". Original error message>" & Err.Description
     Resume Next
 End Function
 
@@ -234,11 +234,11 @@ Public Function create_data_providers_read_mode()
     Next
     Exit Function
 ERR_RETRIEVE_FILES:
-    hndl_log.log db_log.TYPE_WARN, str_module, "create_data_providers_read_mode", Err.Number & "->" & Err.description
+    hndl_log.log db_log.TYPE_WARN, str_module, "create_data_providers_read_mode", Err.Number & "->" & Err.Description
     Exit Function
 ERR_PROCESS_FILE:
     hndl_log.log db_log.TYPE_WARN, str_module, "create_data_providers_read_mode", _
-        "An error occured during creation of provider for file: " & var_file & ". Original error message>" & Err.description
+        "An error occured during creation of provider for file: " & var_file & ". Original error message>" & Err.Description
     Exit Function
 End Function
 

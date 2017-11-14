@@ -52,7 +52,7 @@ ERR_CLOSE_FILE:
     hndl_log.obj_log_record.str_type = db_log.TYPE_ERR
     hndl_log.obj_log_record.str_module = str_module
     hndl_log.obj_log_record.str_function = "close_data"
-    hndl_log.obj_log_record.str_message = "An error occured during closing file " & str_path & ". Original error message>" & Err.description
+    hndl_log.obj_log_record.str_message = "An error occured during closing file " & str_path & ". Original error message>" & Err.Description
     hndl_log.save_record
 End Function
 

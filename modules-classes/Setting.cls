@@ -33,15 +33,15 @@ setReadProtectedWrite = 3 ' read-write with password
 End Enum
 
 ' Setting Description
-Property Get description() As String
+Property Get Description() As String
     If mrgSetting Is Nothing Then
-        description = ""
+        Description = ""
     Else
-        description = mrgSetting.Offset(0, DESCRIPTION_OFFSET).Value
+        Description = mrgSetting.Offset(0, DESCRIPTION_OFFSET).Value
     End If
 End Property
 
-Property Let description(PropertyDescription As String)
+Property Let Description(PropertyDescription As String)
     If mrgSetting Is Nothing Then
         UninitializedError
     Else

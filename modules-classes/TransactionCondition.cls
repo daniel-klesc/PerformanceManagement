@@ -61,11 +61,11 @@ Public Function is_match(obj_record As DBHistoryRecord) As Boolean
     End If
     ' check place from
     If is_match Then
-        is_match = is_match_single(obj_regex, str_place_from, bin_place_grp.get_place_grp(obj_record.str_bin_from)) 'obj_record.str_process_step_place_from)
+        is_match = is_match_single(obj_regex, str_place_from, bin_place_grp.get_place_grp_level_aisle(obj_record.str_bin_from)) 'obj_record.str_process_step_place_from)
     End If
     ' check place to
     If is_match Then
-        is_match = is_match_single(obj_regex, str_place_to, bin_place_grp.get_place_grp(obj_record.str_bin_to))
+        is_match = is_match_single(obj_regex, str_place_to, bin_place_grp.get_place_grp_level_aisle(obj_record.str_bin_to))
     End If
 End Function
 

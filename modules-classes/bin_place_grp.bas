@@ -19,7 +19,7 @@ Public Const str_prod_hall As String = "PROD_HALL"
 Public Const STR_PROD_LINE_IN As String = "PROD_LINE_IN"
 Public Const STR_PROD_LINE_OUT As String = "PROD_LINE_OUT"
 Public Const STR_RA_OTHERS As String = "RA_OTHERS"
-Public Const STR_RA_GATE_IN As String = "RA_BULK"
+Public Const STR_RA_GATE_IN As String = "RA_INBOUND"
 Public Const STR_RA_GATE_OUT As String = "RA_OUTBOUND"
 Public Const STR_QUALITY As String = "QUALITY"
 Public Const STR_SCALE_STATION As String = "SCALE_STATION"
@@ -30,58 +30,126 @@ Public Const STR_VNA_RACK As String = "VNA_RACK"
 
 Public Const STR_USER_BIN As String = "USERBIN"
 
-Public Function get_place_grp(str_bin As String) As String
+Public Const STR_DETAIL_LEVEL_HALL As String = "HALL"
+Public Const STR_DETAIL_LEVEL_AISLE As String = "AISLE"
+
+Public Function get_place_grp(str_bin As String, str_detail_level As String) As String
+    Select Case str_detail_level
+        Case STR_DETAIL_LEVEL_HALL
+            get_place_grp = get_place_grp_level_hall(str_bin)
+        Case STR_DETAIL_LEVEL_AISLE
+            get_place_grp = get_place_grp_level_aisle(str_bin)
+    End Select
+End Function
+
+Public Function get_place_grp_level_hall(str_bin As String) As String
+'    If bin.is_user_bin(str_bin) Then
+'        get_place_grp = bin_place_grp.STR_USER_BIN
+'    Else
+'        If bin.is_vna_rack(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_VNA_RACK
+'        ElseIf bin.is_vna_bulk(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_VNA_BULK
+'        ElseIf bin.is_production_hall_side(str_bin) Then
+'            get_place_grp = bin_place_grp.str_prod_hall
+'        ElseIf bin.is_production_hall(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_PROD_LINE_OUT
+'        ElseIf bin.is_production_line_in(str_bin) And Not bin.is_material_handling(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_PROD_LINE_IN
+'        ElseIf bin.is_ta_bulk(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_TA_BULK
+'        ElseIf bin.is_ta_rack(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_TA_RACK
+'        ElseIf bin.is_hbw_conveyor_in(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_HBW_CONVEYOR_IN
+'        ElseIf bin.is_hbw_conveyor_out(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_HBW_CONVEYOR_OUT
+'        ElseIf bin.is_hbw_gate(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_HBW_GATE
+'        ElseIf bin.is_hbw_robot_in(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_HBW_ROBOT_IN
+'        ElseIf bin.is_hbw_robot_out(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_HBW_ROBOT_OUT
+'        ElseIf bin.is_hbw_wh(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_HBW_WH
+'        ElseIf bin.is_hbw_lift(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_HBW_LIFT
+'        ElseIf bin.is_hbw(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_HBW_OTHERS
+'        ElseIf bin.is_material_handling(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_MATERIAL_HANDLING
+'        ElseIf bin.is_scale_station(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_SCALE_STATION
+'        ElseIf bin.is_dummy(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_DUMMY
+'        ElseIf bin.is_quality(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_QUALITY
+'        ElseIf bin.is_pa(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_PA
+'        ElseIf bin.is_ra_gate_inbound(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_RA_GATE_IN
+'        ElseIf bin.is_ra_gate_outbound(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_RA_GATE_OUT
+'        ElseIf bin.is_ra(str_bin) Then
+'            get_place_grp = bin_place_grp.STR_RA_OTHERS
+'        Else
+'            hndl_log.log db_log.TYPE_WARN, str_module, "get_place_grp", "Not found place group for BIN: " & str_bin
+'        End If
+'    End If
+End Function
+
+Public Function get_place_grp_level_aisle(str_bin As String) As String
     If bin.is_user_bin(str_bin) Then
-        get_place_grp = bin_place_grp.STR_USER_BIN
+        get_place_grp_level_aisle = bin_place_grp.STR_USER_BIN
     Else
         If bin.is_vna_rack(str_bin) Then
-            get_place_grp = bin_place_grp.STR_VNA_RACK
+            get_place_grp_level_aisle = bin_place_grp.STR_VNA_RACK
         ElseIf bin.is_vna_bulk(str_bin) Then
-            get_place_grp = bin_place_grp.STR_VNA_BULK
+            get_place_grp_level_aisle = bin_place_grp.STR_VNA_BULK
         ElseIf bin.is_production_hall_side(str_bin) Then
-            get_place_grp = bin_place_grp.str_prod_hall
+            get_place_grp_level_aisle = bin_place_grp.str_prod_hall
         ElseIf bin.is_production_hall(str_bin) Then
-            get_place_grp = bin_place_grp.STR_PROD_LINE_OUT
+            get_place_grp_level_aisle = bin_place_grp.STR_PROD_LINE_OUT
         ElseIf bin.is_production_line_in(str_bin) And Not bin.is_material_handling(str_bin) Then
-            get_place_grp = bin_place_grp.STR_PROD_LINE_IN
+            get_place_grp_level_aisle = bin_place_grp.STR_PROD_LINE_IN
         ElseIf bin.is_ta_bulk(str_bin) Then
-            get_place_grp = bin_place_grp.STR_TA_BULK
+            get_place_grp_level_aisle = bin_place_grp.STR_TA_BULK
         ElseIf bin.is_ta_rack(str_bin) Then
-            get_place_grp = bin_place_grp.STR_TA_RACK
+            get_place_grp_level_aisle = bin_place_grp.STR_TA_RACK
         ElseIf bin.is_hbw_conveyor_in(str_bin) Then
-            get_place_grp = bin_place_grp.STR_HBW_CONVEYOR_IN
+            get_place_grp_level_aisle = bin_place_grp.STR_HBW_CONVEYOR_IN
         ElseIf bin.is_hbw_conveyor_out(str_bin) Then
-            get_place_grp = bin_place_grp.STR_HBW_CONVEYOR_OUT
+            get_place_grp_level_aisle = bin_place_grp.STR_HBW_CONVEYOR_OUT
         ElseIf bin.is_hbw_gate(str_bin) Then
-            get_place_grp = bin_place_grp.STR_HBW_GATE
+            get_place_grp_level_aisle = bin_place_grp.STR_HBW_GATE
         ElseIf bin.is_hbw_robot_in(str_bin) Then
-            get_place_grp = bin_place_grp.STR_HBW_ROBOT_IN
+            get_place_grp_level_aisle = bin_place_grp.STR_HBW_ROBOT_IN
         ElseIf bin.is_hbw_robot_out(str_bin) Then
-            get_place_grp = bin_place_grp.STR_HBW_ROBOT_OUT
+            get_place_grp_level_aisle = bin_place_grp.STR_HBW_ROBOT_OUT
         ElseIf bin.is_hbw_wh(str_bin) Then
-            get_place_grp = bin_place_grp.STR_HBW_WH
+            get_place_grp_level_aisle = bin_place_grp.STR_HBW_WH
         ElseIf bin.is_hbw_lift(str_bin) Then
-            get_place_grp = bin_place_grp.STR_HBW_LIFT
+            get_place_grp_level_aisle = bin_place_grp.STR_HBW_LIFT
         ElseIf bin.is_hbw(str_bin) Then
-            get_place_grp = bin_place_grp.STR_HBW_OTHERS
+            get_place_grp_level_aisle = bin_place_grp.STR_HBW_OTHERS
         ElseIf bin.is_material_handling(str_bin) Then
-            get_place_grp = bin_place_grp.STR_MATERIAL_HANDLING
+            get_place_grp_level_aisle = bin_place_grp.STR_MATERIAL_HANDLING
         ElseIf bin.is_scale_station(str_bin) Then
-            get_place_grp = bin_place_grp.STR_SCALE_STATION
+            get_place_grp_level_aisle = bin_place_grp.STR_SCALE_STATION
         ElseIf bin.is_dummy(str_bin) Then
-            get_place_grp = bin_place_grp.STR_DUMMY
+            get_place_grp_level_aisle = bin_place_grp.STR_DUMMY
         ElseIf bin.is_quality(str_bin) Then
-            get_place_grp = bin_place_grp.STR_QUALITY
+            get_place_grp_level_aisle = bin_place_grp.STR_QUALITY
         ElseIf bin.is_pa(str_bin) Then
-            get_place_grp = bin_place_grp.STR_PA
+            get_place_grp_level_aisle = bin_place_grp.STR_PA
         ElseIf bin.is_ra_gate_inbound(str_bin) Then
-            get_place_grp = bin_place_grp.STR_RA_GATE_IN
+            get_place_grp_level_aisle = bin_place_grp.STR_RA_GATE_IN
         ElseIf bin.is_ra_gate_outbound(str_bin) Then
-            get_place_grp = bin_place_grp.STR_RA_GATE_OUT
+            get_place_grp_level_aisle = bin_place_grp.STR_RA_GATE_OUT
         ElseIf bin.is_ra(str_bin) Then
-            get_place_grp = bin_place_grp.STR_RA_OTHERS
+            get_place_grp_level_aisle = bin_place_grp.STR_RA_OTHERS
         Else
-            hndl_log.log db_log.TYPE_WARN, str_module, "get_place_grp", "Not found place group for BIN: " & str_bin
+            hndl_log.log db_log.TYPE_WARN, str_module, "get_place_grp_level_aisle", "Not found place group for BIN: " & str_bin
         End If
     End If
 End Function
