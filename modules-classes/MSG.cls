@@ -14,8 +14,12 @@ Public text_ As String
 Public params As Variant
 
 
-Public Function source(str_module As String, str_function As String) As MSG
-    Me.source_ = str_module & log4VBA.DEFAULT_SEPARATOR & str_function
+Public Function source(str_module As String, Optional str_function As String = "") As MSG
+    If str_function <> "" Then
+        Me.source_ = str_module & log4VBA.DEFAULT_SEPARATOR & str_function
+    Else
+        Me.source_ = str_module
+    End If
     Set source = Me
 End Function
 
