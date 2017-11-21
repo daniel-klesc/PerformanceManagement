@@ -11,7 +11,7 @@ Option Explicit
 
 Public source_ As String
 Public text_ As String
-Public params As Variant
+Public params As Collection
 
 
 Public Function source(str_module As String, Optional str_function As String = "") As MSG
@@ -29,7 +29,11 @@ Public Function text(str_text As String) As MSG
 End Function
 
 
-Public Function addParams(var_params As Variant) As MSG
-    Me.params = var_params
+Public Function addParams(var_params As Variant, Optional paramName As String = "") As MSG
+    Me.params.add var_params, paramName
     Set addParams = Me
 End Function
+
+Private Sub Class_Initialize()
+    Set params = New Collection
+End Sub
