@@ -13,4 +13,5 @@ Public Const BOOL_RUN_KPI_RESULT_YES As Boolean = True
 Public Const BOOL_RUN_KPI_RESULT_NO As Boolean = False
 
 
-
+Public Const STR_CHECKPOINT_KPI_VISIBILITY_VISIBLE = "Visible"
+Public Const STR_CHECKPOINT_KPI_VISIBILITY_HIDDEN = "Hidden"

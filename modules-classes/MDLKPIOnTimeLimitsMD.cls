@@ -20,6 +20,7 @@ Public INT_OFFSET_CHECKPOINT_PLACE_TYPE As Integer
 Public INT_OFFSET_CHECKPOINT_PLACE_NEXT As Integer
 Public INT_OFFSET_MAT_GRP_WH_ID As Integer
 Public INT_OFFSET_SOURCE As Integer
+Public INT_OFFSET_KPI_VISIBILITY As Integer
 Public INT_OFFSET_LIMIT As Integer
 
 
@@ -37,10 +38,8 @@ Public Function add_listener(obj_listener As Object)
 End Function
 
 Public Function load_data()
-    
     single_data_provider.add_listener Me
     single_data_provider.load_data
-    
 End Function
 
 Public Function load_record(rg_record As Range)
@@ -72,6 +71,7 @@ For Each obj_listener In col_listeners
     obj_limit_checkpoint_place.str_id = rg_record.Offset(0, INT_OFFSET_CHECKPOINT_PLACE).Value
     obj_limit_checkpoint_place.str_type = rg_record.Offset(0, INT_OFFSET_CHECKPOINT_PLACE_TYPE).Value
     obj_limit_checkpoint_place.str_next_checkpoint_id = rg_record.Offset(0, INT_OFFSET_CHECKPOINT_PLACE_NEXT).Value
+    obj_limit_checkpoint_place.str_kpi_visibility = rg_record.Offset(0, INT_OFFSET_KPI_VISIBILITY).Value
     obj_limit_checkpoint_place.obj_limit = rg_record.Offset(0, INT_OFFSET_LIMIT).Value
     If Not obj_kpi_last_limit Is Nothing Then
         Set obj_limit_checkpoint_place.obj_previous_limit = obj_kpi_last_limit
@@ -153,6 +153,7 @@ Set single_data_provider = New FileExcelDataProvider
     INT_OFFSET_CHECKPOINT_PLACE_NEXT = 6
     INT_OFFSET_MAT_GRP_WH_ID = 7
     INT_OFFSET_SOURCE = 8
-    INT_OFFSET_LIMIT = 9
+    INT_OFFSET_KPI_VISIBILITY = 9
+    INT_OFFSET_LIMIT = 10
     
 End Sub

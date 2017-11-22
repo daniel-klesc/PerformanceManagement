@@ -7,6 +7,10 @@ Public Const LEVEL_INFO As Integer = 4
 
 Public Const ERR_NUMBER = 1024
 
+Public Const CTRL_KPI_ON_TIME_PALLET_DEFAULT As Integer = 100
+Public Const CTRL_KPI_ON_TIME_PALLET_PREVIOUS_CHECKPOINT_NOT_EXIST = 1
+Public Const CTRL_KPI_ON_TIME_PALLET_NEXT_CHECKPOINT_NOT_EXIST = 2
+
 Public Function raise(int_err_num As Integer, str_source As String, str_msg As String)
     Err.raise get_err_num(int_err_num), str_source, str_msg
 End Function
