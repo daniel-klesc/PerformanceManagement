@@ -162,8 +162,9 @@ Public Function process_steps(col_steps As Collection, col_kpi_intervals As Coll
                 obj_kpi_on_time_pallet_step_interval.str_date_last_checkpoint = obj_kpi_on_time_pallet_step.str_date_last_checkpoint
                 Set obj_kpi_on_time_pallet_step_interval.obj_checkpoint = obj_kpi_on_time_pallet_step.obj_checkpoint
                 
-                ' update full live pallet
+                ' update full live pallet - to have latest pallet status in interval
                 Set obj_kpi_on_time_pallet_full_live_interval = obj_kpi_on_time_pallet_step_interval.create_copy
+                Set obj_kpi_on_time_pallet_full_live_interval.obj_kpi_interval = obj_kpi_on_time_interval
                 
                 ' # implement - when pallet step interval is closed then remove this specific pallet step from following intervals
                 Set obj_kpi_on_time_next_interval = obj_kpi_on_time_interval.obj_next_interval
@@ -171,6 +172,7 @@ Public Function process_steps(col_steps As Collection, col_kpi_intervals As Coll
                 Do While Not obj_kpi_on_time_next_interval Is Nothing
                     On Error GoTo INFO_TRY_TO_REMOVE
                     obj_kpi_on_time_next_interval.col_pallets_step.Remove retrieve_pallet_id_interval(obj_kpi_on_time_pallet_step_interval)
+                    obj_kpi_on_time_next_interval.col_pallets_full_live.Remove obj_kpi_on_time_pallet_full_live_interval.str_id
                     On Error GoTo 0
                     Set obj_kpi_on_time_next_interval = obj_kpi_on_time_next_interval.obj_next_interval
                 Loop
@@ -538,6 +540,14 @@ Public Function save(obj_provider_info As FileExcelDataProviderInfo)
                 DoEvents ' # debug - clear out
             End If ' # debug - clear out
         
+            obj_mdl_kpi_on_time_pallet.save_record_dynamic obj_kpi_on_time_pallet
+        Next
+        
+        ' process all full pallets in interval
+        For Each obj_kpi_on_time_pallet In obj_kpi_on_time_interval.col_pallets_full_live
+            obj_kpi_on_time_pallet.str_place_from = "START"
+            obj_kpi_on_time_pallet.str_place_to = "END"
+            
             obj_mdl_kpi_on_time_pallet.save_record_dynamic obj_kpi_on_time_pallet
         Next
     Next
