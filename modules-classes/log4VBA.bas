@@ -11,6 +11,7 @@ Public Const ERRO As Integer = 5
 Public Const DEFAULT_SEPARATOR As String = "/"
 
 Public Const DEFAULT_DESTINATION As String = "defaultLOG"
+Public Const TEST_DESTINATION As String = "testLOG"
 
 Public logging_is_enabled As Boolean
 
@@ -56,5 +57,9 @@ Public Function add_logger(obj_logger As Object)
 End Function
 
 Public Function remove_logger(logger_name As String)
+    Dim logger As Object
+    Set logger = loggers(logger_name)
     loggers.Remove logger_name
+    Set logger = Nothing
+    
 End Function

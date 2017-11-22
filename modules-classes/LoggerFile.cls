@@ -103,7 +103,7 @@ Private Function openFile() As Workbook
     Exit Function
 ERR_CANT_OPEN:
     lApp.Quit
-    Err.raise Err.Number, Err.source, "LogovacÌ soubor se nepoda¯ilo otev¯Ìt. Zkontrolujte zda je n·sledujÌcÌ cesta spr·vn·: " & logFilePath
+    Err.raise Err.Number, Err.source, "Logovac√≠ soubor se nepoda√∏ilo otev√∏√≠t. Zkontrolujte zda je n√°sleduj√≠c√≠ cesta spr√°vn√°: " & logFilePath
 End Function
 
 Public Function closeFile()
