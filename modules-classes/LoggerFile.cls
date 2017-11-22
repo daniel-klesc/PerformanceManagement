@@ -59,8 +59,8 @@ Private Function save(message As MSG, lvl As Integer)
     actualRng.Offset(0, SOURCE_OFFSET).Value = message.source_
     actualRng.Offset(0, MESSAGE_OFFSET).Value = message.text_
     
-    If Not IsEmpty(message.params) Then
-        actualRng.Offset(0, RESULT_TYPE).Value = message.params
+    If Not message.params.Count <> 0 Then
+        actualRng.Offset(0, RESULT_TYPE).Value = message.params(1)
     End If
     
 End Function
@@ -103,7 +103,7 @@ Private Function openFile() As Workbook
     Exit Function
 ERR_CANT_OPEN:
     lApp.Quit
-    Err.raise Err.Number, Err.source, "LogovacÌ soubor se nepoda¯ilo otev¯Ìt. Zkontrolujte zda je n·sledujÌcÌ cesta spr·vn·: " & logFilePath
+    Err.raise Err.Number, Err.source, "Logovac√≠ soubor se nepoda√∏ilo otev√∏√≠t. Zkontrolujte zda je n√°sleduj√≠c√≠ cesta spr√°vn√°: " & logFilePath
 End Function
 
 Public Function closeFile()
