@@ -90,7 +90,7 @@ INFO_PROVIDER_NOT_FOUND:
     Set obj_data_provider = _
         obj_multi_data_provider.create_data_provider_read_mode( _
             str_provider_id, obj_data_provider_util.retrieve_creation_file_name)
-    obj_data_provider.bool_save_mode_on = True ' to be able save the file as empty one when loading is finished
+    obj_data_provider.bool_save_mode_on = True ' to be able save the file as empty one after loading is finished
     Resume Next
 INFO_FILE_NOT_EXISTS:
     ' file not exists yet => remove provider
