@@ -199,7 +199,7 @@ Private Function create_mdl_kpi_on_time_pallet() As MDLKPIOnTimePallet
     obj_data_provider_util.str_save_mode = new_const_excel_data_provider.STR_SAVE_MODE_HOURLY_MINUTE
           ' file
             ' tmpl
-    obj_data_provider_util.str_tmpl_path = "C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\data\inbound\history-kpi_pallet\tmpl\"
+    obj_data_provider_util.str_tmpl_path = ThisWorkbook.Path & "\data\inbound\history-kpi_pallet\tmpl\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\data\inbound\history-kpi_pallet\tmpl\"
     obj_data_provider_util.str_tmpl_file_name_prefix = "history-kpi_pallet"
     obj_data_provider_util.str_tmpl_file_name_appendix = "tmpl-v0_1"
             ' new

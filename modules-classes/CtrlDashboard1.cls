@@ -140,7 +140,7 @@ Private Function init_mdl_data_process(obj_dashboard_listener As MDLProcessDashb
           ' sheet
     obj_multi_data_provider.STR_WS_NAME = "data"
           ' file
-    obj_multi_data_provider.str_path = ThisWorkbook.Path & "\data\inbound\history-process\finished\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\data\inbound\history-process\"
+    obj_multi_data_provider.str_path = ThisWorkbook.Path & "\data\inbound\history-process\finished\" 'ThisWorkbook.Path & "\data\inbound\history-process\test\"  'ThisWorkbook.Path & "\data\inbound\history-process\finished\"
           ' processed file
     obj_multi_data_provider.STR_PROCESSED_FILE_PATH = ThisWorkbook.Path & "\log\"
     obj_multi_data_provider.STR_PROCESSED_FILE_NAME = "history_process_finished-file_processed.xlsx" '"file_processed.xlsx"
@@ -188,7 +188,7 @@ Private Function init_mdl_data_pallet(obj_dashboard_listener As MDLKPIPalletDash
     obj_data_provider_util.str_save_mode = new_const_excel_data_provider.STR_SAVE_MODE_HOURLY_MINUTE
           ' file
             ' tmpl
-    obj_data_provider_util.str_tmpl_path = "C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\data\inbound\history-kpi_pallet\tmpl\"
+    obj_data_provider_util.str_tmpl_path = ThisWorkbook.Path & "\data\inbound\history-kpi_pallet\tmpl\" ' "C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\data\inbound\history-kpi_pallet\tmpl\"
     obj_data_provider_util.str_tmpl_file_name_prefix = "history-kpi_pallet"
     obj_data_provider_util.str_tmpl_file_name_appendix = "tmpl-v0_1"
             ' new
@@ -242,7 +242,7 @@ Private Function init_mdl_data_result(obj_dashboard_listener As MDLKPIResultDash
     obj_data_provider_util.str_save_mode = new_const_excel_data_provider.STR_SAVE_MODE_HOURLY_MINUTE
           ' file
             ' tmpl
-    obj_data_provider_util.str_tmpl_path = "C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\data\inbound\history-result\tmpl\"
+    obj_data_provider_util.str_tmpl_path = ThisWorkbook.Path & "\data\inbound\history-result\tmpl\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\data\inbound\history-result\tmpl\"
     obj_data_provider_util.str_tmpl_file_name_prefix = "history-result"
     obj_data_provider_util.str_tmpl_file_name_appendix = "tmpl-v0_1"
             ' new

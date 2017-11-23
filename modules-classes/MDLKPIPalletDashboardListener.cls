@@ -139,7 +139,7 @@ Private Function create_mdl_kpi_on_time_result() As MDLKPIOnTimeResult
     obj_data_provider_util.str_save_mode = new_const_excel_data_provider.STR_SAVE_MODE_HOURLY_MINUTE
           ' file
             ' tmpl
-    obj_data_provider_util.str_tmpl_path = "C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\data\inbound\history-result\tmpl\"
+    obj_data_provider_util.str_tmpl_path = ThisWorkbook.Path & "\data\inbound\history-result\tmpl\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\data\inbound\history-result\tmpl\"
     obj_data_provider_util.str_tmpl_file_name_prefix = "history-result"
     obj_data_provider_util.str_tmpl_file_name_appendix = "tmpl-v0_1"
             ' new
