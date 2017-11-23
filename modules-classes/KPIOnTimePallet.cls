@@ -72,3 +72,22 @@ Public Function create_copy() As KPIOnTimePallet
     
     create_copy.byte_process_status = byte_process_status
 End Function
+
+
+Public Function toString() As String
+    toString = "str_id" & const_separator.SEPARATOR_VALUE & str_id & const_separator.SEPARATOR_CLASS_ELEMENT & "str_process_id" & const_separator.SEPARATOR_VALUE & str_process_id & _
+    const_separator.SEPARATOR_CLASS_ELEMENT & "str_process_version_id" & const_separator.SEPARATOR_VALUE & str_process_version_id & const_separator.SEPARATOR_CLASS_ELEMENT & _
+    "str_process_version_name" & const_separator.SEPARATOR_VALUE & str_process_version_name & const_separator.SEPARATOR_CLASS_ELEMENT & "str_material_vendor" & _
+    const_separator.SEPARATOR_VALUE & str_material_vendor & const_separator.SEPARATOR_CLASS_ELEMENT & "str_material_bin_storage_group" & const_separator.SEPARATOR_VALUE & _
+    str_material_bin_storage_group & const_separator.SEPARATOR_CLASS_ELEMENT & "str_building_source" & const_separator.SEPARATOR_VALUE & str_building_source & const_separator.SEPARATOR_CLASS_ELEMENT & _
+    "str_building_destination" & const_separator.SEPARATOR_VALUE & str_building_destination & const_separator.SEPARATOR_CLASS_ELEMENT & "str_place_building" & _
+    const_separator.SEPARATOR_VALUE & str_place_building & const_separator.SEPARATOR_CLASS_ELEMENT & "str_place_from" & const_separator.SEPARATOR_VALUE & str_place_from & _
+    const_separator.SEPARATOR_CLASS_ELEMENT & "str_place_to" & const_separator.SEPARATOR_VALUE & str_place_to & const_separator.SEPARATOR_CLASS_ELEMENT & _
+    "str_date_start" & const_separator.SEPARATOR_VALUE & str_date_start & const_separator.SEPARATOR_CLASS_ELEMENT & "str_date_end" & const_separator.SEPARATOR_VALUE & str_date_end & _
+    const_separator.SEPARATOR_CLASS_ELEMENT & "str_date_last_checkpoint" & const_separator.SEPARATOR_VALUE & str_date_last_checkpoint & const_separator.SEPARATOR_CLASS_ELEMENT & _
+    "obj_checkpoint" & const_separator.SEPARATOR_VALUE & obj_checkpoint.toString & const_separator.SEPARATOR_CLASS_ELEMENT & "obj_kpi_interval" & const_separator.SEPARATOR_VALUE & _
+    obj_kpi_interval.str_id & const_separator.SEPARATOR_CLASS_ELEMENT & "str_process_status" & const_separator.SEPARATOR_VALUE & str_process_status & const_separator.SEPARATOR_CLASS_ELEMENT & _
+    "byte_process_status" & const_separator.SEPARATOR_VALUE & CStr(byte_process_status) & const_separator.SEPARATOR_CLASS_ELEMENT & "private_bool_status_ok" & const_separator.SEPARATOR_VALUE & _
+    CStr(private_bool_status_ok) & const_separator.SEPARATOR_CLASS_ELEMENT
+    
+End Function
