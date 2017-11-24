@@ -7,6 +7,8 @@ Option Explicit
 Public Function setup()
     Dim obj_mdl_bin_prod_line As MDLBINProdLine
 
+    Application.DisplayAlerts = False
+
     bin.init
     Set obj_mdl_bin_prod_line = New MDLBINProdLine
     Set obj_mdl_bin_prod_line.obj_data_provider = New FileExcelDataProvider
