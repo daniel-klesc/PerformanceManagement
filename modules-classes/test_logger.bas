@@ -33,7 +33,7 @@ Dim message As MSG
 Set obj_logger = New LoggerFile
 
 obj_logger.init "test", log4VBA.ERRO, "test_destination"
-obj_logger.logFilePath = "C:\Users\czJiRost\Desktop\log-format-example.xlsx"
+obj_logger.logFilePath = ThisWorkbook.Path & "\log\log-performance.xlsx" '"C:\Users\czJiRost\Desktop\log-format-example.xlsx"
 
 
 

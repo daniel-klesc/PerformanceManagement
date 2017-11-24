@@ -3,8 +3,8 @@ Option Explicit
 
 Public Function setup()
     hndl_log.init
-    hndl_log.str_path = "C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\log\"
-    hndl_log.str_file_name = "log.xlsx"
+    hndl_log.str_path = ThisWorkbook.Path & "\log\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\log\"
+    hndl_log.str_file_name = "log-performance.xlsx"
     hndl_log.open_data
 End Function
 
@@ -24,9 +24,9 @@ Public Function test_load()
     
     dbl_start = Now
     Set obj_multi_provider = New MultiFileExcelDataProvider
-    obj_multi_provider.str_path = "C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\data\inbound\history-pallet\files\"
+    obj_multi_provider.str_path = ThisWorkbook.Path & "\data\inbound\history-pallet\files\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\data\inbound\history-pallet\files\"
     obj_multi_provider.str_file_appendix = ".xlsx"
-    obj_multi_provider.STR_PROCESSED_FILE_PATH = "C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\log\"
+    obj_multi_provider.STR_PROCESSED_FILE_PATH = ThisWorkbook.Path & "\log\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\log\"
     obj_multi_provider.STR_PROCESSED_FILE_NAME = "file_processed.xlsx"
     obj_multi_provider.STR_WS_NAME = "data"
     obj_multi_provider.BOOL_IS_DYNAMIC_LOADING_PROVIDERS_FROM_FILES_ON = True

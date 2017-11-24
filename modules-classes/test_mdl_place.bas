@@ -3,8 +3,8 @@ Option Explicit
 
 Public Function setup()
     hndl_log.init
-    hndl_log.str_path = "C:\Users\czjirost\Desktop\"
-    hndl_log.str_file_name = "log.xlsx"
+    hndl_log.str_path = ThisWorkbook.Path & "\log\" '"C:\Users\czjirost\Desktop\"
+    hndl_log.str_file_name = "log-performance.xlsx"
     hndl_log.open_data
 End Function
 
