@@ -2,15 +2,16 @@ VERSION 1.0 CLASS
 BEGIN
   MultiUse = -1  'True
 END
-Attribute VB_Name = "testSuite"
+Attribute VB_Name = "TestSuite"
 Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
+
 Option Explicit
 
 Private reporter As LogFileReporter
-Private suitName As String
+Private suitName_ As String
 
 
 Private testCases As Collection
@@ -30,45 +31,27 @@ Private Property Get noOfPassed() As Integer
     noOfPassed = counter
 End Property
 
-Public Function init()
+Public Property Let suitName(name As String)
+    Me.suitName_ = name
+End Property
 
-    Dim logger As New LoggerFile
-    Dim testSettings As SettingsMDLTest
+Public Property Get suitName() As String
+    suitName = suitName_
+End Property
+
+
+Public Function addTestCase(setting As SettingsMDLTest)
     Dim testCase As TestCaseMDLGeneral
-    Dim MDLObject As MDLBINProdLine
     
-    log4VBA.init
-    logger.init suitName, log4VBA.INF, log4VBA.TEST_DESTINATION
-    logger.logFilePath = "C:\Users\czJiRost\Desktop\log.xlsx"
-    log4VBA.add_logger logger
+    Set setting.reporter = Me.reporter
     
     Set testCase = New TestCaseMDLGeneral
-    Set testSettings = New SettingsMDLTest
+    testCase.init setting
     
-    Set MDLObject = New MDLBINProdLine
-    MDLObject.obj_data_provider.str_source_type = new_const_excel_data_provider.STR_SOURCE_TYPE_EXTERNAL
-    MDLObject.obj_data_provider.str_path = "C:\Users\czJiRost\Desktop\"
-    MDLObject.obj_data_provider.str_file_name = "test.xlsx"
-    MDLObject.obj_data_provider.STR_WS_NAME = "data"
-    Set testSettings.checkedMDL = MDLObject
-    
-    Set MDLObject = New MDLBINProdLine
-    MDLObject.obj_data_provider.str_source_type = new_const_excel_data_provider.STR_SOURCE_TYPE_EXTERNAL
-    MDLObject.obj_data_provider.str_path = "C:\Users\czJiRost\Desktop\"
-    MDLObject.obj_data_provider.str_file_name = "test2.xlsx"
-    MDLObject.obj_data_provider.STR_WS_NAME = "data"
-    Set testSettings.testedMDL = MDLObject
-    
-    Set testSettings.reporter = reporter
-    testSettings.testName = "Check MDLBINProdLine"
-    
-    Set testSettings.testedMDL = MDLObject
-    
-    testCase.init testSettings
-    
-    testCases.add testCase
+    testCases.add testCase, testCase.testName
     
 End Function
+
 
 Public Function runTests()
     Dim testCase As TestCaseMDLGeneral
@@ -87,9 +70,7 @@ Private Sub Class_Initialize()
     Set reporter = New LogFileReporter
     
     
-    suitName = "MDLTestSuite"
+    suitName_ = "MDLTestSuiteGeneric"
 End Sub
 
-Private Sub Class_Terminate()
-    log4VBA.remove_logger suitName
-End Sub
+
