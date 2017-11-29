@@ -34,6 +34,7 @@ Public str_building As String
 
 Public str_datetime_shift As String
 
+Public is_ready_for_update As Boolean
 
 Private int_good_results_num As Integer
 Private int_bad_results_num As Integer
@@ -52,4 +53,10 @@ Public Function calculate()
     If int_good_results_num > 0 Or int_bad_results_num > 0 Then
         dbl_kpi_actual = int_good_results_num / (int_good_results_num + int_bad_results_num)
     End If
+End Function
+
+Public Function reset()
+    dbl_kpi_actual = 0
+    dbl_task_actual = 0
+    int_tasks_num = 0
 End Function

@@ -29,16 +29,23 @@ End Function
 
 Public Function kpi_result_process_record(obj_kpi_on_time_result_pallet As KPIOnTimeResultPallet)
     Dim obj_result_client As KPIOnTimeResultClient
+    Dim bool_reset As Boolean
     
     On Error GoTo INFO_NEW_RECORD
     Set obj_result_client = col_kpi_result_client(retrieve_kpi_result_client_id_from_pallet(obj_kpi_on_time_result_pallet))
     On Error GoTo 0
+    
+    If Not obj_result_client.is_ready_for_update Then
+        obj_result_client.reset ' for data which were loaded from result-client file contains old data
+        obj_result_client.is_ready_for_update = True
+    End If
     
     obj_result_client.add_result_pallet obj_kpi_on_time_result_pallet
     
     Exit Function
 INFO_NEW_RECORD:
     Set obj_result_client = create_result_client(obj_kpi_on_time_result_pallet)
+    obj_result_client.is_ready_for_update = True
     col_kpi_result_client.add obj_result_client, retrieve_kpi_result_client_id_from_pallet(obj_kpi_on_time_result_pallet)
     Resume Next
 End Function
@@ -62,6 +69,7 @@ Public Function kpi_result_client_loading_data_is_about_to_start(obj_provider_in
 End Function
 
 Public Function kpi_result_client_process_record(obj_kpi_on_time_result_client As KPIOnTimeResultClient)
+    obj_kpi_on_time_result_client.is_ready_for_update = False
     col_kpi_result_client.add obj_kpi_on_time_result_client, retrieve_kpi_result_client_id(obj_kpi_on_time_result_client)
 End Function
 
