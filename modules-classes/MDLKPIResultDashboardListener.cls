@@ -73,6 +73,32 @@ WARN_KPI_NOT_FOUND:
     hndl_log.log db_log.TYPE_WARN, str_module, "load_data", "Unexpected error occurred during loading data. Listener: " & rg_record.Offset(0, INT_OFFSET_ID).Value
 End Function
 
+' # interface MDLKPIOnTimeResultPallet
+Public Function loading_data_is_about_to_start(obj_provider_info As FileExcelDataProviderInfo)
+    Dim obj_listener As Object
+    
+    For Each obj_listener In col_listeners
+        obj_listener.kpi_result_loading_data_is_about_to_start obj_provider_info
+    Next
+End Function
+
+Public Function kpi_result_process_record(obj_kpi_on_time_result_pallet As KPIOnTimeResultPallet)
+    Dim obj_listener As Object
+    
+    For Each obj_listener In col_listeners
+        obj_listener.kpi_result_process_record obj_kpi_on_time_result_pallet
+    Next
+End Function
+
+Public Function loading_data_has_finished(obj_provider_info As FileExcelDataProviderInfo)
+    Dim obj_listener As Object
+    
+    For Each obj_listener In col_listeners
+        obj_listener.kpi_result_loading_data_has_finished obj_provider_info
+    Next
+End Function
+
+
 '' # interface method for listening MDLKPIOnTImePallet
 'Public Function kpi_pallet_loading_data_is_about_to_start(obj_period As Period)
 '    Dim obj_listener As Object
@@ -110,43 +136,59 @@ End Function
 ''    Next
 'End Function
 
+' THIS model is used for saving new data. Model in CtrlDashboard1 is used for loading data
 Private Function create_mdl_kpi_on_time_result_client() As MDLKPIOnTimeResultClient
     ' # implement loading settings via configuration file
     Dim obj_multi_data_provider As MultiFileExcelDataProvider
-    Dim obj_data_provider_util As FileExcelDataProviderUtil
-    
+    Dim obj_data_provider As FileExcelDataProvider
     Dim obj_listener As Object
+    Dim str_data_provider_id As String
+    
+    str_data_provider_id = "final"
     
     Set create_mdl_kpi_on_time_result_client = New MDLKPIOnTimeResultClient
+    create_mdl_kpi_on_time_result_client.str_static_data_provider_id = str_data_provider_id
         ' multi data provider
     Set obj_multi_data_provider = New MultiFileExcelDataProvider
           ' general
     obj_multi_data_provider.str_source_type = new_const_excel_data_provider.STR_SOURCE_TYPE_EXTERNAL
           ' sheet
-    obj_multi_data_provider.STR_WS_NAME = "data"
+    obj_multi_data_provider.STR_WS_NAME = "db.raw_data"
           ' file
     obj_multi_data_provider.str_path = ThisWorkbook.Path & "\data\inbound\history-result-client\"
-          ' processed file
-    obj_multi_data_provider.STR_PROCESSED_FILE_PATH = ThisWorkbook.Path & "\log\"
-    obj_multi_data_provider.STR_PROCESSED_FILE_NAME = "history_result-file_processed.xlsx" '"file_processed.xlsx"
+'          ' processed file
+'    obj_multi_data_provider.STR_PROCESSED_FILE_PATH = ThisWorkbook.Path & "\log\"
+'    obj_multi_data_provider.STR_PROCESSED_FILE_NAME = "history_result-file_processed.xlsx" '"file_processed.xlsx"
           ' add to model
     Set create_mdl_kpi_on_time_result_client.obj_multi_data_provider = obj_multi_data_provider
-    obj_multi_data_provider.add_listener create_mdl_kpi_on_time_result_client
-        ' data provider util
-    Set obj_data_provider_util = New FileExcelDataProviderUtil
-          ' save mode
-    obj_data_provider_util.str_save_mode = new_const_excel_data_provider.STR_SAVE_MODE_HOURLY_MINUTE
-          ' file
-            ' tmpl
-    obj_data_provider_util.str_tmpl_path = ThisWorkbook.Path & "\data\inbound\history-result-client\tmpl\"
-    obj_data_provider_util.str_tmpl_file_name_prefix = "history-result-client"
-    obj_data_provider_util.str_tmpl_file_name_appendix = "tmpl-v0_1"
-            ' new
-    obj_data_provider_util.str_file_prefix = "history-result-client"
-    obj_data_provider_util.str_file_name_separator = "-"
-    obj_data_provider_util.str_file_appendix = ".xlsx"
-          ' add to multi data provider
-    Set obj_multi_data_provider.obj_data_provider_util = obj_data_provider_util
+    'obj_multi_data_provider.add_listener create_mdl_kpi_on_time_result_client
+    
+    Set obj_data_provider = New FileExcelDataProvider
+    obj_data_provider.str_id = str_data_provider_id
+    obj_data_provider.STR_WS_NAME = "db.raw_data"
+    obj_data_provider.STR_DATA_FIRST_CELL = "A3"
+    obj_data_provider.str_source_type = new_const_excel_data_provider.STR_SOURCE_TYPE_EXTERNAL
+    obj_data_provider.str_path = ThisWorkbook.Path & "\data\inbound\history-result-client\"
+    obj_data_provider.str_file_name = "history-result-client.xlsx"
+    obj_data_provider.bool_save_mode_on = True
+    obj_data_provider.add_listener create_mdl_kpi_on_time_result_client
+    obj_multi_data_provider.add_provider obj_data_provider
+    
+'        ' data provider util
+'    Set obj_data_provider_util = New FileExcelDataProviderUtil
+'          ' save mode
+'    obj_data_provider_util.str_save_mode = new_const_excel_data_provider.STR_SAVE_MODE_HOURLY_MINUTE
+'          ' file
+'            ' tmpl
+'    obj_data_provider_util.str_tmpl_path = ThisWorkbook.Path & "\data\inbound\history-result-client\tmpl\"
+'    obj_data_provider_util.str_tmpl_file_name_prefix = "history-result-client"
+'    obj_data_provider_util.str_tmpl_file_name_appendix = "tmpl-v0_1"
+'            ' new
+'    obj_data_provider_util.str_file_prefix = "history-result-client"
+'    obj_data_provider_util.str_file_name_separator = "-"
+'    obj_data_provider_util.str_file_appendix = ".xlsx"
+'          ' add to multi data provider
+'    Set obj_multi_data_provider.obj_data_provider_util = obj_data_provider_util
 End Function
 
 Private Sub Class_Initialize()
