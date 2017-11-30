@@ -122,8 +122,8 @@ Public Function load_record(rg_record As Range)
     Set obj_kpi_on_time_result_client = New KPIOnTimeResultClient
     
       ' date and time
-    obj_kpi_on_time_result_client.str_date = rg_record.Offset(0, INT_OFFSET_DATE).Value
-    obj_kpi_on_time_result_client.str_time = rg_record.Offset(0, INT_OFFSET_TIME).Value
+    obj_kpi_on_time_result_client.str_date = Format(rg_record.Offset(0, INT_OFFSET_DATE).Value, "DD.MM.YYYY")
+    obj_kpi_on_time_result_client.str_time = Format(rg_record.Offset(0, INT_OFFSET_TIME).Value, "hh:mm:ss")
       ' shift
     obj_kpi_on_time_result_client.str_shift = rg_record.Offset(0, INT_OFFSET_SHIFT).Value
       ' process
@@ -218,9 +218,9 @@ End Function
 Public Function save_record(obj_kpi_on_time_result_client As KPIOnTimeResultClient, rg_record As Range)
     ' date and time
     rg_record.Offset(0, INT_OFFSET_DATE).NumberFormat = "@"
-    rg_record.Offset(0, INT_OFFSET_DATE).Value = obj_kpi_on_time_result_client.str_date
+    rg_record.Offset(0, INT_OFFSET_DATE).Value = Format(obj_kpi_on_time_result_client.str_date, "DD.MM.YY")
     rg_record.Offset(0, INT_OFFSET_TIME).NumberFormat = "@"
-    rg_record.Offset(0, INT_OFFSET_TIME).Value = obj_kpi_on_time_result_client.str_time
+    rg_record.Offset(0, INT_OFFSET_TIME).Value = Format(obj_kpi_on_time_result_client.str_time, "hh:mm")
     ' shift
     rg_record.Offset(0, INT_OFFSET_SHIFT).Value = obj_kpi_on_time_result_client.str_shift
     ' process
