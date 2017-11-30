@@ -43,6 +43,9 @@ End Function
 
 ' # method is called from MDLProcessDashboardListener
 Public Function process_record(obj_db_data_process As DBDataProcess)
+    If obj_db_data_process.str_pallet = "357020105533470531" Then
+        DoEvents
+    End If
     process_db_data_process_record obj_db_data_process
 End Function
 
@@ -105,12 +108,13 @@ Public Function process_db_data_process_record(obj_data_process As DBDataProcess
     Dim obj_kpi_on_time_pallet_full_live_interval As KPIOnTimePallet
     Dim str_date_end_for_status_calculation As String
 
-    If obj_data_process.str_pallet = "357020105502489588" Then
+    If obj_data_process.str_creation_id = "Supply-Autopick" Then
         DoEvents
     End If
 
     ' check if kpi on time is interested into current obj_data_process
-    If obj_kpi.obj_process.str_process_id = obj_data_process.str_creation_id Then
+    'If obj_kpi.obj_process.str_process_id = obj_data_process.str_creation_id Then
+    If is_relevant_for_kpi(obj_data_process) Then
         On Error GoTo INFO_NEW_PALLET
         Set obj_kpi_on_time_pallet = col_kpi_pallets(obj_data_process.str_pallet)
         On Error GoTo 0
@@ -593,7 +597,7 @@ Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePal
 WARN_PALLET_ALREADY_EXISTS:
     hndl_log.log db_log.TYPE_WARN, STR_CLASS_NAME, "kpi_pallet_process_record", _
         "An error occured while adding pallet: " & obj_kpi_on_time_pallet.str_id & _
-        ". The original error content: " & Err.description
+        ". The original error content: " & Err.Description
 End Function
 
 ' # interface method for listening MDLKPIOnTImePallet
@@ -615,9 +619,25 @@ Public Function kpi_pallet_loading_data_has_finished(obj_provider_info As FileEx
         set_clear_data_before_close_status False
 End Function
 
+Public Function is_relevant_for_kpi(obj_data_process As DBDataProcess) As Boolean
+    Dim obj_version As Object
+
+    is_relevant_for_kpi = False
+
+    If obj_kpi.obj_process.str_process_id = obj_data_process.str_creation_id Then
+        For Each obj_version In obj_kpi.col_process_versions
+            If obj_version.str_id = obj_data_process.str_version Then
+                is_relevant_for_kpi = True
+                Exit For
+            End If
+        Next
+    End If
+End Function
+
 Private Sub Class_Initialize()
     Set col_kpi_intervals = New Collection
     Set col_kpi_pallets = New Collection
     
     Set obj_checkpoint_type_resolver = New CheckpointTypeResolver ' # implement - cross check if this is the correct place where to initialize it
+    str_id = STR_CLASS_NAME
 End Sub

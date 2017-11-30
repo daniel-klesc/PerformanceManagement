@@ -59,6 +59,22 @@ ERR_FULL_SHEET:
     MsgBox "Log of processed files is full.", vbCritical, "Log error"
 End Function
 
+Public Function delete_record()
+    Dim rg As Range
+    
+    Set rg = ws.Range(STR_DATA_START_RG)
+    
+    Do While rg.Value <> ""
+        If rg.Offset(0, new_db_file_processed.INT_DATA_COL_OFFSET_NAME).Value = obj_file_record.str_name Then
+            rg.EntireRow.Delete
+            Exit Do
+        End If
+        
+        ' move to next row
+        Set rg = rg.Offset(1)
+    Loop
+End Function
+
 Public Function next_row() As Range
     Set next_row = ws.Cells(ws.Range("A:A").CountLarge, 1).End(xlUp).Offset(1)
 End Function

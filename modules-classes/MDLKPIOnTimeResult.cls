@@ -36,6 +36,11 @@ Public str_id As String
       ' loading_data_is_about_to_start obj_provider_info: FileExcelDataProviderInfo
 'Public col_provider_info_listeners As Collection
 
+' tracking management
+Public STR_PROCESSED_FILE_PATH_NEXT_MODULE As String
+Public STR_PROCESSED_FILE_NAME_NEXT_MODULE As String
+
+
 Private Sub Class_Initialize()
     STR_DB_TYPE_FILE_EXCEL = "file:excel"
 
@@ -145,13 +150,15 @@ Public Function loading_data_has_finished(obj_provider_info As FileExcelDataProv
     Set obj_current_data_provider_info = obj_provider_info
     
     For Each obj_listener In col_listeners
-        obj_listener.loading_data_is_about_to_start obj_provider_info.obj_period
+        obj_listener.loading_data_has_finished obj_provider_info 'obj_provider_info.obj_period
     Next
 End Function
 
 Public Function save_record_dynamic(obj_kpi_on_time_result_pallet As KPIOnTimeResultPallet)
     Dim obj_data_provider As FileExcelDataProvider
     Dim obj_data_provider_util As FileExcelDataProviderUtil
+    Dim obj_mdl_processed_file_next_module As MDLProcessedFile
+    Dim obj_file_record_next_module As DBProcessedFileRecord
     'Dim str_provider_id As String
 
     Set obj_data_provider_util = obj_multi_data_provider.obj_data_provider_util
@@ -169,6 +176,16 @@ INFO_PROVIDER_NOT_FOUND:
             obj_data_provider_util.str_provider_id, _
             obj_data_provider_util.retrieve_creation_file_name, _
             obj_data_provider_util.retrieve_creation_tmpl_file_name)
+    ' delete record in processed files of following module (e.g. kpi_result_client)
+    Set obj_mdl_processed_file_next_module = New MDLProcessedFile
+    obj_mdl_processed_file_next_module.str_path = STR_PROCESSED_FILE_PATH_NEXT_MODULE
+    obj_mdl_processed_file_next_module.str_file_name = STR_PROCESSED_FILE_NAME_NEXT_MODULE
+    obj_mdl_processed_file_next_module.open_data
+    Set obj_mdl_processed_file_next_module.obj_file_record = New DBProcessedFileRecord
+    obj_mdl_processed_file_next_module.obj_file_record.str_name = obj_data_provider.str_file_name
+    obj_mdl_processed_file_next_module.delete_record
+    obj_mdl_processed_file_next_module.close_data
+        
     ' open file to start saving data
     obj_data_provider.open_data
     Resume Next

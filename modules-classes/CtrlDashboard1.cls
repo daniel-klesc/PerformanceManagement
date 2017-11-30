@@ -18,7 +18,7 @@ Public obj_mdl_kpi_result_dashboard_listener As MDLKPIResultDashboardListener
 Public obj_mdl_data_process As MDLDataProcessExcel
 Public obj_mdl_data_process_unfinished As MDLDataProcessExcel
 Public obj_mdl_data_kpi_pallet As MDLKPIOnTimePallet
-Public obj_mdl_data_result As MDLKPIOnTimeResult
+Public obj_mdl_data_kpi_result As MDLKPIOnTimeResult
 Public obj_current_data_process_provider_info As FileExcelDataProviderInfo
 
 ' run parameters
@@ -112,11 +112,16 @@ Public Function data_kpi_result_before_run()
 End Function
 
 Public Function data_kpi_result_run()
-    'obj_mdl_data_kpi_pallet.load
+    obj_mdl_data_kpi_result.load
 End Function
 
 Public Function data_kpi_result_after_run()
     ' # implement - not yet decided
+    Dim obj_listener As Object
+    
+    For Each obj_listener In obj_mdl_kpi_result_dashboard_listener.col_listeners
+        obj_listener.after_run
+    Next
 End Function
 
 Private Function init_mdl_data_process(obj_dashboard_listener As MDLProcessDashboardListener)
@@ -168,6 +173,9 @@ Private Function init_mdl_data_pallet(obj_dashboard_listener As MDLKPIPalletDash
     ' # implement - all settings for initialization of obj_mdl_data_pallet are taken from a file
     Set obj_mdl_data_kpi_pallet = New MDLKPIOnTimePallet
     obj_mdl_data_kpi_pallet.add_listener obj_dashboard_listener
+'        ' next module - processed files
+'    obj_mdl_data_kpi_pallet.STR_PROCESSED_FILE_PATH_NEXT_MODULE = ThisWorkbook.Path & "\log\"
+'    obj_mdl_data_kpi_pallet.STR_PROCESSED_FILE_NAME_NEXT_MODULE = "history_result-file_processed.xlsx"
         ' multi data provider
     Set obj_multi_data_provider = New MultiFileExcelDataProvider
           ' general
@@ -209,24 +217,25 @@ Private Function init_mdl_data_result(obj_dashboard_listener As MDLKPIResultDash
     
     Dim obj_listener As Object
 
-    ' # implement - all settings for initialization of obj_mdl_data_result are taken from a file
+    ' # implement - all settings for initialization of obj_mdl_data_kpi_result are taken from a file
     
     ' data process model for closed records
-    Set obj_mdl_data_result = New MDLKPIOnTimeResult
-    'obj_mdl_data_result.BYTE_STEP_STATUS = new_ctrl_process.BYTE_STATUS_CLOSED
+    Set obj_mdl_data_kpi_result = New MDLKPIOnTimeResult
+    'obj_mdl_data_kpi_result.BYTE_STEP_STATUS = new_ctrl_process.BYTE_STATUS_CLOSED
         ' add listeners from dashboard
           ' process_provider_info obj_provider_info: FileExcelDataProviderInfo
-'    obj_mdl_data_result.add_provider_info_listener obj_dashboard_listener
+'    obj_mdl_data_kpi_result.add_provider_info_listener obj_dashboard_listener
           ' process_record obj_db_data_process: DBDataProcess
-    obj_mdl_data_result.add_listener obj_dashboard_listener
+    obj_mdl_data_kpi_result.add_listener obj_dashboard_listener
 '    For Each obj_listener In obj_dashboard_listener.col_listeners
-'        obj_mdl_data_result.add_listener obj_listener
+'        obj_mdl_data_kpi_result.add_listener obj_listener
 '    Next
 
         ' multi data provider
     Set obj_multi_data_provider = New MultiFileExcelDataProvider
           ' general
     obj_multi_data_provider.str_source_type = new_const_excel_data_provider.STR_SOURCE_TYPE_EXTERNAL
+    obj_multi_data_provider.BOOL_IS_DYNAMIC_LOADING_PROVIDERS_FROM_FILES_ON = True
           ' sheet
     obj_multi_data_provider.STR_WS_NAME = "data"
           ' file
@@ -235,7 +244,8 @@ Private Function init_mdl_data_result(obj_dashboard_listener As MDLKPIResultDash
     obj_multi_data_provider.STR_PROCESSED_FILE_PATH = ThisWorkbook.Path & "\log\"
     obj_multi_data_provider.STR_PROCESSED_FILE_NAME = "history_result-file_processed.xlsx" '"file_processed.xlsx"
           ' add to model
-    Set obj_mdl_data_result.obj_multi_data_provider = obj_multi_data_provider
+    Set obj_mdl_data_kpi_result.obj_multi_data_provider = obj_multi_data_provider
+    
         ' data provider util
     Set obj_data_provider_util = New FileExcelDataProviderUtil
           ' save mode

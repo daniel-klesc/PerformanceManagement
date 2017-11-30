@@ -119,6 +119,9 @@ Private Function create_mdl_kpi_on_time_result() As MDLKPIOnTimeResult
     Dim obj_listener As Object
     
     Set create_mdl_kpi_on_time_result = New MDLKPIOnTimeResult
+        ' next module - processed files
+    create_mdl_kpi_on_time_result.STR_PROCESSED_FILE_PATH_NEXT_MODULE = ThisWorkbook.Path & "\log\"
+    create_mdl_kpi_on_time_result.STR_PROCESSED_FILE_NAME_NEXT_MODULE = "history_result-file_processed.xlsx"
         ' multi data provider
     Set obj_multi_data_provider = New MultiFileExcelDataProvider
           ' general
