@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-Private Const str_module As String = "MDLKPIOnTimeResult"
+Private Const str_module As String = "MDLKPIOnTimeResultClient"
 
 Public STR_DB_TYPE_FILE_EXCEL As String
 
@@ -44,6 +44,8 @@ Public str_id As String
       ' loading_data_is_about_to_start obj_provider_info: FileExcelDataProviderInfo
 'Public col_provider_info_listeners As Collection
 
+Public str_datetime_shift_separator As String
+
 Private Sub Class_Initialize()
     STR_DB_TYPE_FILE_EXCEL = "file:excel"
 
@@ -69,6 +71,8 @@ Private Sub Class_Initialize()
         
     str_static_data_provider_id = "static"
     Set col_listeners = New Collection
+    
+    str_datetime_shift_separator = "-"
 End Sub
 
 Public Function set_clear_data()
@@ -122,7 +126,8 @@ Public Function load_record(rg_record As Range)
     Set obj_kpi_on_time_result_client = New KPIOnTimeResultClient
     
       ' date and time
-    obj_kpi_on_time_result_client.str_date = Format(rg_record.Offset(0, INT_OFFSET_DATE).Value, "DD.MM.YYYY")
+    'obj_kpi_on_time_result_client.str_date = Format(rg_record.Offset(0, INT_OFFSET_DATE).Value, "DD.MM.YYYY")
+    obj_kpi_on_time_result_client.str_date = Format(rg_record.Offset(0, INT_OFFSET_DATE).Value, "D.M.YYYY")
     obj_kpi_on_time_result_client.str_time = Format(rg_record.Offset(0, INT_OFFSET_TIME).Value, "hh:mm:ss")
       ' shift
     obj_kpi_on_time_result_client.str_shift = rg_record.Offset(0, INT_OFFSET_SHIFT).Value
@@ -139,7 +144,9 @@ Public Function load_record(rg_record As Range)
     obj_kpi_on_time_result_client.int_tasks_num = rg_record.Offset(0, INT_OFFSET_TASK_NUM).Value
       ' place
     obj_kpi_on_time_result_client.str_building = rg_record.Offset(0, INT_OFFSET_BUILDING).Value
-    obj_kpi_on_time_result_client.str_datetime_shift = rg_record.Offset(0, INT_OFFSET_DATETIME_SHIFT).Value
+    'obj_kpi_on_time_result_client.str_datetime_shift = rg_record.Offset(0, INT_OFFSET_DATETIME_SHIFT).Value
+    obj_kpi_on_time_result_client.str_datetime_shift_separator = str_datetime_shift_separator
+    obj_kpi_on_time_result_client.str_shift_type = hndl_master_shift.find_type(Hour(obj_kpi_on_time_result_client.str_time))
     
     For Each obj_listener In col_listeners
         obj_listener.kpi_result_client_process_record obj_kpi_on_time_result_client

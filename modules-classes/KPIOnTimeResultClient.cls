@@ -32,12 +32,29 @@ Public int_tasks_num As Integer
 
 Public str_building As String
 
-Public str_datetime_shift As String
+'Public str_datetime_shift As String
+Public str_shift_type As String
+Public str_datetime_shift_separator As String
 
 Public is_ready_for_update As Boolean
 
 Private int_good_results_num As Integer
 Private int_bad_results_num As Integer
+
+Public Property Get str_datetime_shift() As String
+    Dim str_date_shift_start As String ' date when shift actually started
+    Dim int_hour As Integer
+
+    int_hour = Hour(str_time)
+
+    If int_hour >= 0 And int_hour < 7 Then
+        str_date_shift_start = DateAdd("d", -1, str_date)
+    Else
+        str_date_shift_start = str_date
+    End If
+
+    str_datetime_shift = str_date_shift_start & str_datetime_shift_separator & str_shift_type
+End Property
 
 Public Function add_result_pallet(obj_result_pallet As KPIOnTimeResultPallet)
     If obj_result_pallet.str_kpi_status = "True" Then

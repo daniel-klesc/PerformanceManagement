@@ -19,7 +19,7 @@ Public obj_mdl_kpi_on_time_result_client As MDLKPIOnTimeResultClient
 
 Public col_kpi_result_client As Collection
 Public str_id_separator As String
-Public str_datetime_shift_separator As String
+'Public str_datetime_shift_separator As String
 
 ' MDLKPIOnTImeResult interface
 Public Function kpi_result_loading_data_is_about_to_start(obj_provider_info As FileExcelDataProviderInfo)
@@ -94,7 +94,9 @@ Public Function create_result_client(obj_result_pallet As KPIOnTimeResultPallet)
     obj_result_client.str_kpi = obj_result_pallet.str_kpi_id
     obj_result_client.dbl_kpi_target = obj_kpi.dbl_target
     obj_result_client.str_building = obj_result_pallet.str_building
-    obj_result_client.str_datetime_shift = obj_result_pallet.str_date & str_datetime_shift_separator & obj_result_pallet.str_shift_type
+    obj_result_client.str_datetime_shift_separator = obj_mdl_kpi_on_time_result_client.str_datetime_shift_separator
+    obj_result_client.str_shift_type = obj_result_pallet.str_shift_type
+    'obj_result_client.str_datetime_shift = obj_result_pallet.str_date & str_datetime_shift_separator & obj_result_pallet.str_shift_type
     
     Set create_result_client = obj_result_client
 End Function
@@ -133,5 +135,5 @@ End Function
 Private Sub Class_Initialize()
     Set col_kpi_result_client = New Collection
     str_id_separator = "-"
-    str_datetime_shift_separator = "-"
+    'str_datetime_shift_separator = "-"
 End Sub

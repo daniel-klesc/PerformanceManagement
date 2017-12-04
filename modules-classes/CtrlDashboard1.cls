@@ -145,7 +145,7 @@ Private Function init_mdl_data_process(obj_dashboard_listener As MDLProcessDashb
           ' sheet
     obj_multi_data_provider.STR_WS_NAME = "data"
           ' file
-    obj_multi_data_provider.str_path = ThisWorkbook.Path & "\data\inbound\history-process\finished\" 'ThisWorkbook.Path & "\data\inbound\history-process\test\"  'ThisWorkbook.Path & "\data\inbound\history-process\finished\"
+    obj_multi_data_provider.str_path = ThisWorkbook.Path & "\data\inbound\history-process\finished\" 'ThisWorkbook.Path & "\data\inbound\history-process\test\no-1\"  'ThisWorkbook.Path & "\data\inbound\history-process\finished\"
           ' processed file
     obj_multi_data_provider.STR_PROCESSED_FILE_PATH = ThisWorkbook.Path & "\log\"
     obj_multi_data_provider.STR_PROCESSED_FILE_NAME = "history_process_finished-file_processed.xlsx" '"file_processed.xlsx"
