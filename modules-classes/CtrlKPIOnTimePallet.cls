@@ -423,11 +423,11 @@ Public Function update_pallet_step_places(obj_pallet_step As KPIOnTimePallet, is
     
     Exit Function
 WARN_PREVIOUS_CHECKPOINT_NOT_EXIST:
-    hndl_log.log db_log.TYPE_WARN, STR_CLASS_NAME, "add_pallet_step", "During adding pallet: " & obj_pallet_step.str_id & " into col_pallet_steps collection checkpoint predecessor wasn't found."
+    hndl_log.log db_log.TYPE_WARN, STR_CLASS_NAME, "update_pallet_step_places", "During adding pallet: " & obj_pallet_step.str_id & " into col_pallet_steps collection checkpoint predecessor wasn't found."
     'Err.raise app_error.ERR_NUMBER + app_error.CTRL_KPI_ON_TIME_PALLET_DEFAULT + app_error.CTRL_KPI_ON_TIME_PALLET_PREVIOUS_CHECKPOINT_NOT_EXIST
     'Exit Function
 WARN_NEXT_CHECKPOINT_NOT_EXIST:
-    hndl_log.log db_log.TYPE_WARN, STR_CLASS_NAME, "add_pallet_step", "During adding pallet: " & obj_pallet_step.str_id & " into col_pallet_steps collection checkpoint predecessor wasn't found."
+    hndl_log.log db_log.TYPE_WARN, STR_CLASS_NAME, "update_pallet_step_places", "During adding pallet: " & obj_pallet_step.str_id & " into col_pallet_steps collection checkpoint predecessor wasn't found."
     'Err.raise app_error.ERR_NUMBER + app_error.CTRL_KPI_ON_TIME_PALLET_DEFAULT + app_error.CTRL_KPI_ON_TIME_PALLET_NEXT_CHECKPOINT_NOT_EXIST
     'Exit Function
 End Function
