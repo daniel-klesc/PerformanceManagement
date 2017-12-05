@@ -73,6 +73,8 @@ Private Sub Class_Initialize()
     Set col_listeners = New Collection
     
     str_datetime_shift_separator = "-"
+    
+    str_id = str_module
 End Sub
 
 Public Function set_clear_data()
@@ -128,7 +130,7 @@ Public Function load_record(rg_record As Range)
       ' date and time
     'obj_kpi_on_time_result_client.str_date = Format(rg_record.Offset(0, INT_OFFSET_DATE).Value, "DD.MM.YYYY")
     obj_kpi_on_time_result_client.str_date = Format(rg_record.Offset(0, INT_OFFSET_DATE).Value, "D.M.YYYY")
-    obj_kpi_on_time_result_client.str_time = Format(rg_record.Offset(0, INT_OFFSET_TIME).Value, "hh:mm:ss")
+    obj_kpi_on_time_result_client.str_time = Format(rg_record.Offset(0, INT_OFFSET_TIME).Value, "h:mm:ss")
       ' shift
     obj_kpi_on_time_result_client.str_shift = rg_record.Offset(0, INT_OFFSET_SHIFT).Value
       ' process

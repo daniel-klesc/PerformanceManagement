@@ -38,6 +38,8 @@ Public str_process_status As String
 Public byte_process_status As Byte
 Public private_bool_status_ok As Boolean
 
+Public bool_is_synchronized_with_process As Boolean
+
 Public Property Get bool_status_ok() As Boolean
     bool_status_ok = retrieve_actual_duration <= obj_checkpoint.obj_limit
 End Property
@@ -91,3 +93,7 @@ Public Function toString() As String
     CStr(private_bool_status_ok) & const_separator.SEPARATOR_CLASS_ELEMENT
     
 End Function
+
+Private Sub Class_Initialize()
+    bool_is_synchronized_with_process = True
+End Sub

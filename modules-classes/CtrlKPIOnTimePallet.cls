@@ -119,6 +119,9 @@ Public Function process_db_data_process_record(obj_data_process As DBDataProcess
         Set obj_kpi_on_time_pallet = col_kpi_pallets(obj_data_process.str_pallet)
         On Error GoTo 0
         
+        ' set synchronization status with data process records
+        obj_kpi_on_time_pallet.bool_is_synchronized_with_process = True
+        
         If Not obj_kpi_on_time_pallet.obj_checkpoint Is Nothing Then ' check to not process pallets which already reached final checkpoint
             Set obj_kpi_on_time_pallet_steps = update_kpi_on_time_pallet(obj_kpi_on_time_pallet, obj_data_process)
             process_steps obj_kpi_on_time_pallet_steps, col_kpi_intervals
@@ -560,16 +563,14 @@ End Function
 ' Processing of unfinished pallets
 Public Function save_unfinished(obj_provider_info As FileExcelDataProviderInfo)
     Dim obj_pallet As KPIOnTimePallet
-    Dim obj_pallet_valid_places As KPIOnTimePallet
 
     For Each obj_pallet In col_kpi_pallets
         ' find out if pallet should be saved into unfinished
         On Error GoTo ERR_TEST
-        If Not obj_pallet.obj_checkpoint.obj_next_limit Is Nothing Then
-'            Set obj_pallet_valid_places = obj_pallet.create_copy
-'            update_pallet_step_places obj_pallet_valid_places, False
-'            obj_mdl_kpi_on_time_pallet_unfinished.save_record_static obj_pallet_valid_places
-            obj_mdl_kpi_on_time_pallet_unfinished.save_record_static obj_pallet
+        If obj_pallet.bool_is_synchronized_with_process Then
+            If Not obj_pallet.obj_checkpoint.obj_next_limit Is Nothing Then
+                obj_mdl_kpi_on_time_pallet_unfinished.save_record_static obj_pallet
+            End If
         End If
         On Error GoTo 0
     Next
@@ -590,6 +591,8 @@ Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePal
     ' register pallet
     On Error GoTo WARN_PALLET_ALREADY_EXISTS
     Set obj_kpi_on_time_pallet.obj_checkpoint = retrieve_checkpoint(obj_kpi_on_time_pallet)
+    ' set pallet synchronization status
+    obj_kpi_on_time_pallet.bool_is_synchronized_with_process = False
     col_kpi_pallets.add obj_kpi_on_time_pallet, obj_kpi_on_time_pallet.str_id
     On Error GoTo 0
 
