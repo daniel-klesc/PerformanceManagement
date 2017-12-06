@@ -34,7 +34,7 @@ Public Function find_shift(str_id As String) As String
 End Function
 
 Public Function find_type(int_hour As Integer) As String
-    If int_hour > 6 And int_hour < 18 Then
+    If int_hour > 6 And int_hour < 19 Then
         find_type = "D"
     Else
         find_type = "N"

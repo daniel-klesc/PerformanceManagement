@@ -10,6 +10,7 @@ log/
 
 # ignore settings-local
 settings-local.xlsx
+MDsettings.xlsx
 
 # ignore VBA_Import_Export_Tool
 VBA_Import_Export_Tool.xlsm

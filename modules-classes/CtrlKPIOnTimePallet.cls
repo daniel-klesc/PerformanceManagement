@@ -23,7 +23,7 @@ Public col_kpi_pallets As Collection '
 
 ' master data
 Public obj_md_dashboard As MDDashboard1
-Public obj_mdl_kpi_on_time_pallet As MDLKPIOnTimePallet ' load current update data about pallets
+Public obj_mdl_kpi_on_time_pallet As MDLKPIOnTimePallet ' save data about pallets
 Public obj_mdl_kpi_on_time_pallet_unfinished As MDLKPIOnTimePallet ' load last state of active pallets
 
 Public obj_checkpoint_type_resolver As CheckpointTypeResolver
@@ -36,9 +36,9 @@ Public Function loading_data_is_about_to_start(obj_provider_info As FileExcelDat
     
     create_intervals obj_provider_info.obj_period.str_start, obj_provider_info.obj_period.str_end
     
-    ' load last state of active pallets
-    obj_mdl_kpi_on_time_pallet_unfinished.add_listener Me
-    obj_mdl_kpi_on_time_pallet_unfinished.load_static
+'    ' load last state of active pallets
+'    obj_mdl_kpi_on_time_pallet_unfinished.add_listener Me
+'    obj_mdl_kpi_on_time_pallet_unfinished.load_static
 End Function
 
 ' # method is called from MDLProcessDashboardListener
@@ -57,9 +57,9 @@ Public Function loading_data_has_finished(obj_provider_info As FileExcelDataProv
     ' clean up
     Set col_kpi_intervals = New Collection
     Set col_kpi_pallets = New Collection ' # check - is it ok to clean it right here
-    ' release resources
-    obj_mdl_kpi_on_time_pallet.close_data
-    obj_mdl_kpi_on_time_pallet_unfinished.close_data
+'    ' release resources
+'    obj_mdl_kpi_on_time_pallet.close_data
+'    obj_mdl_kpi_on_time_pallet_unfinished.close_data
 
     Set obj_current_provider_info = Nothing
 End Function
