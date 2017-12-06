@@ -78,7 +78,7 @@ ERR_SAVE:
     hndl_log.obj_log_record.str_message = "SAVE METHOD FAILED: " & _
         rg_record.Offset(0, db_history_record.STR_HISTORY_FLOW_OFFSET_COMBI_VHU_TO).Value & _
         rg_record.Offset(0, db_history_record.STR_HISTORY_FLOW_OFFSET_TRANSACTION_STARTED).Value & _
-        "Original message>" & Err.description
+        "Original message>" & Err.Description
     hndl_log.save_record
 INFO_DEPICKED_RECORD_NOT_FOUND:
     Set hndl_log.obj_log_record = New DBLogRecord

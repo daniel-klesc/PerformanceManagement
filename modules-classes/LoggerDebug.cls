@@ -9,7 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-Public Name As String
+Public name As String
 Public destination As String
 Public Level As Integer
 Public category As Variant
@@ -27,7 +27,7 @@ Public Function save(message As MSG)
 End Function
 
 Public Function init(str_name As String, lvl As Integer, str_dest As String)
-    Name = str_name
+    name = str_name
     Level = lvl
     destination = str_dest
 End Function

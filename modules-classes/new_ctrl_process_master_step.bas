@@ -86,7 +86,7 @@ End Function
 
 Public Function close_data()
     If Not wb Is ThisWorkbook Then
-        Windows(wb.Name).Visible = True
+        Windows(wb.name).Visible = True
         wb.Close SaveChanges:=False
     End If
 

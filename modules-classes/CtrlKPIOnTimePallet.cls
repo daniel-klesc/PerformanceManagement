@@ -212,6 +212,7 @@ End Function
 
 Public Function create_kpi_on_time_pallet(obj_data_process As DBDataProcess) As KPIOnTimePallet
     Dim obj_checkpoint As KPIOnTimeLimitCheckpoint
+    Dim message As MSG
 
     Set create_kpi_on_time_pallet = New KPIOnTimePallet
     create_kpi_on_time_pallet.str_id = obj_data_process.str_pallet
@@ -244,10 +245,14 @@ Public Function create_kpi_on_time_pallet(obj_data_process As DBDataProcess) As 
         Set obj_checkpoint = retrieve_checkpoint(create_kpi_on_time_pallet)
         
         If obj_checkpoint Is Nothing Then
-            hndl_log.log db_log.TYPE_INFO, STR_CLASS_NAME, "create_kpi_on_time_pallet", "Checkpoint not found for pallet: " & obj_data_process.str_pallet
+            Set message = New MSG
+            log4VBA.debg log4VBA.DEFAULT_DESTINATION, message.source(STR_CLASS_NAME, "create_kpi_on_time_pallet") _
+                .text("Checkpoint not found for pallet: " & obj_data_process.str_pallet)
             Set create_kpi_on_time_pallet = Nothing
         Else
-            hndl_log.log db_log.TYPE_INFO, STR_CLASS_NAME, "create_kpi_on_time_pallet", "Checkpoint found in end place for pallet: " & obj_data_process.str_pallet
+            Set message = New MSG
+            log4VBA.debg log4VBA.DEFAULT_DESTINATION, message.source(STR_CLASS_NAME, "create_kpi_on_time_pallet") _
+                .text("Checkpoint found in end place for pallet: " & obj_data_process.str_pallet)
             update_kpi_on_time_pallet_with_new_checkpoint create_kpi_on_time_pallet, obj_checkpoint
             ' update pallet datetime data
             create_kpi_on_time_pallet.str_date_start = obj_data_process.str_date_end
@@ -256,7 +261,9 @@ Public Function create_kpi_on_time_pallet(obj_data_process As DBDataProcess) As 
             col_kpi_pallets.add create_kpi_on_time_pallet, create_kpi_on_time_pallet.str_id
         End If
     Else
-        hndl_log.log db_log.TYPE_INFO, STR_CLASS_NAME, "create_kpi_on_time_pallet", "Checkpoint found in start place for pallet: " & obj_data_process.str_pallet
+        Set message = New MSG
+        log4VBA.debg log4VBA.DEFAULT_DESTINATION, message.source(STR_CLASS_NAME, "create_kpi_on_time_pallet") _
+            .text("Checkpoint found in start place for pallet: " & obj_data_process.str_pallet)
         update_kpi_on_time_pallet_with_new_checkpoint create_kpi_on_time_pallet, obj_checkpoint
         ' register pallet
         col_kpi_pallets.add create_kpi_on_time_pallet, create_kpi_on_time_pallet.str_id
@@ -372,6 +379,8 @@ End Function
 'End Function
 
 Public Function add_pallet_step(col_pallet_steps As Collection, obj_pallet_step As KPIOnTimePallet)
+    Dim message As MSG
+
     On Error GoTo WARN_UPDATE_PLACES_FAILED
     update_pallet_step_places obj_pallet_step, False
     On Error GoTo 0
@@ -382,7 +391,8 @@ Public Function add_pallet_step(col_pallet_steps As Collection, obj_pallet_step 
     
     Exit Function
 WARN_UPDATE_PLACES_FAILED:
-    hndl_log.log db_log.TYPE_WARN, STR_CLASS_NAME, "add_pallet_step", "Update of places for pallet: " & obj_pallet_step.str_id & " has failed."
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(STR_CLASS_NAME, "add_pallet_step").text("Update of places for pallet: " & obj_pallet_step.str_id & " has failed.")
     Exit Function
 INFO_PALLET_STEP_ALREADY_EXIST:
     Dim str_id As String
@@ -391,13 +401,16 @@ INFO_PALLET_STEP_ALREADY_EXIST:
     col_pallet_steps.Item(str_id).str_date_last_checkpoint = obj_pallet_step.str_date_last_checkpoint
     col_pallet_steps.Item(str_id).str_date_end = obj_pallet_step.str_date_end
     Set col_pallet_steps.Item(str_id).obj_checkpoint = obj_pallet_step.obj_checkpoint
-    hndl_log.log db_log.TYPE_INFO, STR_CLASS_NAME, "add_pallet_step", "Pallet: " & obj_pallet_step.str_id & " stays on the same place. Current checkpoint: " & obj_pallet_step.obj_checkpoint.str_id & "."
+    Set message = New MSG
+    log4VBA.debg log4VBA.DEFAULT_DESTINATION, message.source(STR_CLASS_NAME, "add_pallet_step") _
+        .text("add_pallet_step", "Pallet: " & obj_pallet_step.str_id & " stays on the same place. Current checkpoint: " & obj_pallet_step.obj_checkpoint.str_id & ".")
     Resume Next
 End Function
 
 Public Function update_pallet_step_places(obj_pallet_step As KPIOnTimePallet, is_hidden_allowed As Boolean)
     Dim obj_checkpoint_from As KPIOnTimeLimitCheckpoint
     Dim obj_checkpoint_to As KPIOnTimeLimitCheckpoint
+    Dim message As MSG
 
     Set obj_checkpoint_from = obj_pallet_step.obj_checkpoint
     Set obj_checkpoint_to = obj_pallet_step.obj_checkpoint.obj_next_limit
@@ -426,11 +439,15 @@ Public Function update_pallet_step_places(obj_pallet_step As KPIOnTimePallet, is
     
     Exit Function
 WARN_PREVIOUS_CHECKPOINT_NOT_EXIST:
-    hndl_log.log db_log.TYPE_WARN, STR_CLASS_NAME, "update_pallet_step_places", "During adding pallet: " & obj_pallet_step.str_id & " into col_pallet_steps collection checkpoint predecessor wasn't found."
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(STR_CLASS_NAME, "update_pallet_step_places") _
+    .text("During adding pallet: " & obj_pallet_step.str_id & " into col_pallet_steps collection checkpoint predecessor wasn't found.")
     'Err.raise app_error.ERR_NUMBER + app_error.CTRL_KPI_ON_TIME_PALLET_DEFAULT + app_error.CTRL_KPI_ON_TIME_PALLET_PREVIOUS_CHECKPOINT_NOT_EXIST
     'Exit Function
 WARN_NEXT_CHECKPOINT_NOT_EXIST:
-    hndl_log.log db_log.TYPE_WARN, STR_CLASS_NAME, "update_pallet_step_places", "During adding pallet: " & obj_pallet_step.str_id & " into col_pallet_steps collection checkpoint predecessor wasn't found."
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(STR_CLASS_NAME, "update_pallet_step_places") _
+        .text("During adding pallet: " & obj_pallet_step.str_id & " into col_pallet_steps collection checkpoint predecessor wasn't found.")
     'Err.raise app_error.ERR_NUMBER + app_error.CTRL_KPI_ON_TIME_PALLET_DEFAULT + app_error.CTRL_KPI_ON_TIME_PALLET_NEXT_CHECKPOINT_NOT_EXIST
     'Exit Function
 End Function
@@ -476,6 +493,8 @@ Public Function retrieve_checkpoint(obj_kpi_on_time_pallet As KPIOnTimePallet) A
     Dim obj_kpi_limit_mat_grp_wh As KPIOnTimeLimitMatGrpWH
     Dim obj_kpi_limit_source As KPIOnTimeLimitSource
     
+    Dim message As MSG
+    
     ' # implement - all retrievals must be error handled - these will lead to warning error
     Set obj_kpi_limit_process = obj_kpi.col_limits_process(obj_kpi_on_time_pallet.str_process_id)
     Set obj_kpi_limit_process_version = obj_kpi_limit_process.col_limits_version(obj_kpi_on_time_pallet.str_process_version_id)
@@ -504,26 +523,31 @@ Public Function retrieve_checkpoint(obj_kpi_on_time_pallet As KPIOnTimePallet) A
     
     Exit Function
 WARN_NOT_FOUND_MATERIAL_GROUP_WH_RESOLVER:
-    hndl_log.log db_log.TYPE_WARN, STR_CLASS_NAME, "retrieve_checkpoint", _
-        "Material group wh resolver for BIN storage group:" & obj_kpi_on_time_pallet.str_material_bin_storage_group & _
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(STR_CLASS_NAME, "retrieve_checkpoint") _
+        .text("Material group wh resolver for BIN storage group:" & obj_kpi_on_time_pallet.str_material_bin_storage_group & _
         " and Vendor:" & obj_kpi_on_time_pallet.str_material_vendor & _
-        " doesn't exist. Checkpoint:" & obj_kpi_on_time_pallet.str_place_to & " for process:" & obj_kpi_on_time_pallet.str_process_id & ">" & obj_kpi_on_time_pallet.str_process_version_id
+        " doesn't exist. Checkpoint:" & obj_kpi_on_time_pallet.str_place_to & " for process:" & obj_kpi_on_time_pallet.str_process_id & ">" & obj_kpi_on_time_pallet.str_process_version_id)
     Set obj_kpi_limit_mat_grp_wh = obj_kpi_limit_process_version.col_limits_mat_grp_wh("default") ' # implement - change default string to constant
     bool_only_default = True
     Resume Next
     Exit Function
 WARN_NOT_FOUND_CONDITION_PROCESS_MATERIAL:
-    hndl_log.log db_log.TYPE_WARN, STR_CLASS_NAME, "retrieve_checkpoint", _
-        "Condition for Process:" & obj_kpi_on_time_pallet.str_process_id & _
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(STR_CLASS_NAME, "retrieve_checkpoint") _
+        .text("Condition for Process:" & obj_kpi_on_time_pallet.str_process_id & _
         ", Process version:" & obj_kpi_on_time_pallet.str_process_version_id & _
         " and Vendor:" & obj_kpi_on_time_pallet.str_material_vendor & _
-        " doesn't exist. Checkpoint:" & obj_kpi_on_time_pallet.str_place_to & " for process:" & obj_kpi_on_time_pallet.str_process_id & ">" & obj_kpi_on_time_pallet.str_process_version_id
+        " doesn't exist. Checkpoint:" & obj_kpi_on_time_pallet.str_place_to & " for process:" & obj_kpi_on_time_pallet.str_process_id & ">" & obj_kpi_on_time_pallet.str_process_version_id)
     Set obj_kpi_limit_source = obj_kpi_limit_mat_grp_wh.col_limits_source("default") ' # implement - change default string to constant
     bool_only_default = True
     Resume Next
     Exit Function
 INFO_NOT_REGISTERED_CHECKPOINT:
-    hndl_log.log db_log.TYPE_INFO, STR_CLASS_NAME, "retrieve_checkpoint", "Checkpoint:" & obj_kpi_on_time_pallet.str_place_to & " for process:" & obj_kpi_on_time_pallet.str_process_id & ">" & obj_kpi_on_time_pallet.str_process_version_id & ", for pallet: " & obj_kpi_on_time_pallet.str_id
+    Set message = New MSG
+    log4VBA.debg log4VBA.DEFAULT_DESTINATION, message.source(STR_CLASS_NAME, "retrieve_checkpoint") _
+        .text("Checkpoint:" & obj_kpi_on_time_pallet.str_place_to & " for process:" & obj_kpi_on_time_pallet.str_process_id & ">" & obj_kpi_on_time_pallet.str_process_version_id & ", for pallet: " & obj_kpi_on_time_pallet.str_id)
+    
 End Function
 
 Public Function retrieve_pallet_step_id(obj_kpi_on_time_pallet As KPIOnTimePallet)
@@ -588,6 +612,7 @@ End Function
 
 ' # interface method for listening MDLKPIOnTImePallet
 Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePallet)
+    Dim message As MSG
     ' register pallet
     On Error GoTo WARN_PALLET_ALREADY_EXISTS
     Set obj_kpi_on_time_pallet.obj_checkpoint = retrieve_checkpoint(obj_kpi_on_time_pallet)
@@ -598,9 +623,10 @@ Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePal
 
     Exit Function
 WARN_PALLET_ALREADY_EXISTS:
-    hndl_log.log db_log.TYPE_WARN, STR_CLASS_NAME, "kpi_pallet_process_record", _
-        "An error occured while adding pallet: " & obj_kpi_on_time_pallet.str_id & _
-        ". The original error content: " & Err.Description
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(STR_CLASS_NAME, "kpi_pallet_process_record") _
+        .text("An error occured while adding pallet: " & obj_kpi_on_time_pallet.str_id & _
+        ". The original error content: " & Err.Description)
 End Function
 
 ' # interface method for listening MDLKPIOnTImePallet

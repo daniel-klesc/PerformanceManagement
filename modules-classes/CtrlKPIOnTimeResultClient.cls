@@ -18,7 +18,7 @@ Public obj_md_dashboard As MDDashboard1
 Public obj_mdl_kpi_on_time_result_client As MDLKPIOnTimeResultClient
 
 Public col_kpi_result_client As Collection
-Public str_id_separator As String
+Public STR_ID_SEPARATOR As String
 'Public str_datetime_shift_separator As String
 
 ' MDLKPIOnTImeResult interface
@@ -105,11 +105,11 @@ Public Function retrieve_kpi_result_client_id(obj_result_client As KPIOnTimeResu
     Dim str_id As String
     
     str_id = obj_result_client.str_date
-    str_id = str_id & str_id_separator & obj_result_client.str_time
-    str_id = str_id & str_id_separator & obj_result_client.str_process
-    str_id = str_id & str_id_separator & obj_result_client.str_process_step
-    str_id = str_id & str_id_separator & obj_result_client.str_kpi
-    str_id = str_id & str_id_separator & obj_result_client.str_building
+    str_id = str_id & STR_ID_SEPARATOR & obj_result_client.str_time
+    str_id = str_id & STR_ID_SEPARATOR & obj_result_client.str_process
+    str_id = str_id & STR_ID_SEPARATOR & obj_result_client.str_process_step
+    str_id = str_id & STR_ID_SEPARATOR & obj_result_client.str_kpi
+    str_id = str_id & STR_ID_SEPARATOR & obj_result_client.str_building
     
     retrieve_kpi_result_client_id = str_id
 End Function
@@ -118,11 +118,11 @@ Public Function retrieve_kpi_result_client_id_from_pallet(obj_result_pallet As K
     Dim str_id As String
     
     str_id = obj_result_pallet.str_date
-    str_id = str_id & str_id_separator & obj_result_pallet.str_time
-    str_id = str_id & str_id_separator & obj_result_pallet.str_process_name
-    str_id = str_id & str_id_separator & obj_result_pallet.str_process_step
-    str_id = str_id & str_id_separator & obj_result_pallet.str_kpi_id
-    str_id = str_id & str_id_separator & obj_result_pallet.str_building
+    str_id = str_id & STR_ID_SEPARATOR & obj_result_pallet.str_time
+    str_id = str_id & STR_ID_SEPARATOR & obj_result_pallet.str_process_name
+    str_id = str_id & STR_ID_SEPARATOR & obj_result_pallet.str_process_step
+    str_id = str_id & STR_ID_SEPARATOR & obj_result_pallet.str_kpi_id
+    str_id = str_id & STR_ID_SEPARATOR & obj_result_pallet.str_building
     
     retrieve_kpi_result_client_id_from_pallet = str_id
 End Function
@@ -134,6 +134,6 @@ End Function
 
 Private Sub Class_Initialize()
     Set col_kpi_result_client = New Collection
-    str_id_separator = "-"
+    STR_ID_SEPARATOR = "-"
     'str_datetime_shift_separator = "-"
 End Sub

@@ -71,6 +71,7 @@ Public Function set_clear_data_before_close_status(bool_yes_no As Boolean)
 End Function
 
 Public Function open_data()
+    Dim message As MSG
     'If file_path = "" Then
     If str_source_type = new_const_excel_data_provider.STR_SOURCE_TYPE_INTERNAL Then
         Set wb = ThisWorkbook
@@ -93,6 +94,8 @@ ERR_FILE_NOT_FOUND:
         wb.SaveAs file_path ', WriteResPassword:=STR_PASSWD
         Resume Next
     Else
+        log4VBA.error log4VBA.DEFAULT_DESTINATION, message.source(str_module, "open_data") _
+            .text("File not found. Original message: " & Err.Number & " -> " & Err.Description)
         Err.raise Err.Number, Err.source, Err.Description
     End If
 End Function
@@ -113,6 +116,7 @@ End Function
 Public Function load_data()
     Dim obj_listener As Object
     Dim rg_record As Range
+    Dim message As MSG
 
     Application.StatusBar = STR_STATUS_BAR_PREFIX & STR_STATUS_BAR_PREFIX_LOADING
 
@@ -145,7 +149,9 @@ Public Function load_data()
     Application.StatusBar = STR_STATUS_BAR_PREFIX & STR_STATUS_BAR_PREFIX_LOADING_FINISHED
     Exit Function
 ERR_PROCESS:
-    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", "Unexpected error occurred during loading data. Listener: " & obj_listener.str_id & ", Record first column: " & rg_record.Value
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "load_data") _
+        .text("Unexpected error occurred during loading data. Listener: " & obj_listener.str_id & ", Record first column: " & rg_record.Value)
     Resume Next
 End Function
 

@@ -72,7 +72,7 @@ ERR_LOCAL_SETTING:
     init = False
     Exit Function
 ERR_OPEN_SETTINGS:
-    MsgBox Err.description, vbCritical, "Application Initiation -> Loading settings"
+    MsgBox Err.Description, vbCritical, "Application Initiation -> Loading settings"
     init = False
     Exit Function
 ERR_INVALID_SETTING:

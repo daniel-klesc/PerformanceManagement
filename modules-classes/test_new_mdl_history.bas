@@ -218,7 +218,7 @@ Public Function test_process()
     obj_mdl_data_process_unfinished.load_static
     'obj_mdl_data_process_unfinished.obj_multi_data_provider.close_providers
 '    new_mdl_data_process.obj_model.obj_unfinished.load_multi
-    new_mdl_history.process
+    new_mdl_history.Process
     ' make post process actions in listeners
       ' save unfinished
     obj_mdl_data_process_unfinished.reset_clear_data
