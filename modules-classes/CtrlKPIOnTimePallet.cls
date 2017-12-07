@@ -108,7 +108,7 @@ Public Function process_db_data_process_record(obj_data_process As DBDataProcess
     Dim obj_kpi_on_time_pallet_full_live_interval As KPIOnTimePallet
     Dim str_date_end_for_status_calculation As String
 
-    If obj_data_process.str_creation_id = "Supply-Autopick" Then
+    If obj_data_process.str_version = "PP-2" Then
         DoEvents
     End If
 
@@ -582,8 +582,7 @@ End Function
 ' Listening to model with unfinished kpi pallets
 ' # interface method for listening MDLKPIOnTImePallet
 Public Function kpi_pallet_loading_data_is_about_to_start(obj_provider_info As FileExcelDataProviderInfo)
-    obj_mdl_kpi_on_time_pallet_unfinished.obj_multi_data_provider.retrieve_provider(obj_provider_info.str_provider_id). _
-        set_clear_data_before_close_status True
+    ' # nothing to do, only interface requirement
 End Function
 
 ' # interface method for listening MDLKPIOnTImePallet
@@ -610,16 +609,12 @@ Public Function kpi_pallet_loading_data_has_finished(obj_provider_info As FileEx
 
     ' create first pallet step
     Set col_pallet_steps = New Collection
-    
+
     For Each obj_pallet In col_kpi_pallets
         add_pallet_step col_pallet_steps, obj_pallet.create_copy
     Next
-    
+
     process_steps col_pallet_steps, col_kpi_intervals
-    'process_steps col_kpi_pallets, col_kpi_intervals
-    
-    obj_mdl_kpi_on_time_pallet_unfinished.obj_multi_data_provider.retrieve_provider(obj_provider_info.str_provider_id). _
-        set_clear_data_before_close_status False
 End Function
 
 Public Function is_relevant_for_kpi(obj_data_process As DBDataProcess) As Boolean

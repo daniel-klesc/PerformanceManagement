@@ -43,6 +43,7 @@ Public Function load_data()
 End Function
 
 Public Function load_record(rg_record As Range)
+Dim obj_kpi As KPIOnTime
 Dim obj_listener As Object
 Dim obj_limit_process As KPIOnTimeLimitProc
 Dim obj_limit_process_version As KPIOnTimeLimitProcVersion
@@ -50,9 +51,15 @@ Dim obj_limit_mat_grp_wh As KPIOnTimeLimitMatGrpWH
 Dim obj_limit_source As KPIOnTimeLimitSource
 Dim obj_limit_checkpoint_place As KPIOnTimeLimitCheckpoint
 
+If rg_record.Offset(0, INT_OFFSET_PROCESS_VERSION_ID).Value = "PP-1" Then
+    DoEvents
+End If
+
 For Each obj_listener In col_listeners
+    Set obj_kpi = obj_listener.get_collection(str_module)(rg_record.Offset(0, INT_OFFSET_KPI_ID).Value)
+
     On Error GoTo INFO_NEW_PROCESS
-    Set obj_limit_process = col_kpi_limits(rg_record.Offset(0, INT_OFFSET_PROCESS_ID).Value)
+    Set obj_limit_process = obj_kpi.col_limits_process(rg_record.Offset(0, INT_OFFSET_PROCESS_ID).Value) 'col_kpi_limits(rg_record.Offset(0, INT_OFFSET_PROCESS_ID).Value)
     On Error GoTo 0
     
     On Error GoTo INFO_NEW_PROCESS_VERSION
@@ -83,7 +90,7 @@ For Each obj_listener In col_listeners
 Next obj_listener
 Exit Function
 INFO_NEW_PROCESS:
-    Set obj_limit_process = create_process(rg_record, obj_listener.get_collection(str_module))
+    Set obj_limit_process = create_process(rg_record, obj_kpi) 'obj_listener.get_collection(str_module))
     Set obj_kpi_last_limit = Nothing
     Resume Next
 INFO_NEW_PROCESS_VERSION:
@@ -102,15 +109,26 @@ INFO_NEW_SOURCE:
 
 End Function
 
-Public Function create_process(rg_record As Range, col_kpis As Collection) As KPIOnTimeLimitProc
+'Public Function create_process(rg_record As Range, col_kpis As Collection) As KPIOnTimeLimitProc
+'    Set create_process = New KPIOnTimeLimitProc
+'    create_process.str_id = rg_record.Offset(0, INT_OFFSET_PROCESS_ID).Value
+'
+'    If Not col_kpis Is Nothing Then
+'        create_process.obj_kpi = col_kpis(rg_record.Offset(0, INT_OFFSET_KPI_ID).Value)
+'    End If
+'
+'    col_kpi_limits.add create_process, create_process.str_id
+'End Function
+
+Public Function create_process(rg_record As Range, obj_kpi As KPIOnTime) As KPIOnTimeLimitProc
     Set create_process = New KPIOnTimeLimitProc
     create_process.str_id = rg_record.Offset(0, INT_OFFSET_PROCESS_ID).Value
     
-    If Not col_kpis Is Nothing Then
-        create_process.obj_kpi = col_kpis(rg_record.Offset(0, INT_OFFSET_KPI_ID).Value)
+    If Not obj_kpi Is Nothing Then
+        create_process.obj_kpi = obj_kpi 'col_kpis(rg_record.Offset(0, INT_OFFSET_KPI_ID).Value)
     End If
     
-    col_kpi_limits.add create_process, create_process.str_id
+    'col_kpi_limits.add create_process, create_process.str_id
 End Function
 
 Public Function create_process_version(rg_record As Range, obj_limit_process As KPIOnTimeLimitProc) As KPIOnTimeLimitProcVersion

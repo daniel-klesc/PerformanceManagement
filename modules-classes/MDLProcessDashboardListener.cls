@@ -105,26 +105,13 @@ Public Function loading_data_is_about_to_start(obj_provider_info As FileExcelDat
     Dim obj_date_start As Date
     Dim obj_date_end As Date
     
-    
-    
     For Each obj_listener In col_listeners
-        obj_mdl_kpi_on_time_pallet_unfinished.add_listener obj_listener
         obj_listener.loading_data_is_about_to_start obj_provider_info
     Next
     
     ' load last state of active pallets
+    obj_mdl_kpi_on_time_pallet_unfinished.add_listener Me
     obj_mdl_kpi_on_time_pallet_unfinished.load_static
-    
-'    If obj_provider_info.str_type = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC Then
-'        obj_date_start = DateValue(obj_provider_info.obj_period.str_start) + TimeValue(obj_provider_info.obj_period.str_start)
-'        obj_date_end = DateValue(obj_provider_info.obj_period.str_end) + TimeValue(obj_provider_info.obj_period.str_end)
-'
-'        For Each obj_listener In col_listeners
-'            obj_listener.create_intervals obj_date_start, obj_date_end
-'        Next
-'    Else
-'
-'    End If
 End Function
 
   ' # interface method for listening MDLDataProcessExcel
@@ -147,6 +134,72 @@ Public Function loading_data_has_finished(obj_provider_info As FileExcelDataProv
     ' release resources
     obj_mdl_kpi_on_time_pallet.close_data
     obj_mdl_kpi_on_time_pallet_unfinished.close_data
+End Function
+
+
+' Listening to model with unfinished kpi pallets
+  ' # interface method for listening MDLKPIOnTImePallet
+Public Function kpi_pallet_loading_data_is_about_to_start(obj_provider_info As FileExcelDataProviderInfo)
+    Dim obj_listener As Object
+
+    obj_mdl_kpi_on_time_pallet_unfinished.obj_multi_data_provider.retrieve_provider(obj_provider_info.str_provider_id). _
+        set_clear_data_before_close_status True
+        
+    On Error GoTo WARN_ERROR_IN_LISTENER
+    For Each obj_listener In col_listeners
+        obj_listener.kpi_pallet_loading_data_is_about_to_start obj_provider_info
+    Next
+    On Error GoTo 0
+
+    Exit Function
+WARN_ERROR_IN_LISTENER:
+    hndl_log.log db_log.TYPE_WARN, str_module, "kpi_pallet_loading_data_is_about_to_start", _
+        "An error occured while processing listener: " & obj_listener.str_id & _
+        ". The original error content: " & Err.Description
+End Function
+
+  ' # interface method for listening MDLKPIOnTImePallet
+Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePallet)
+    Dim obj_listener As Object
+
+    On Error GoTo WARN_ERROR_IN_LISTENER
+    For Each obj_listener In col_listeners
+        obj_listener.kpi_pallet_process_record obj_kpi_on_time_pallet
+    Next
+    On Error GoTo 0
+
+    Exit Function
+WARN_ERROR_IN_LISTENER:
+    Dim log_msg As MSG
+    
+    Set log_msg = New MSG
+'    log4VBA.warn log4VBA.DEFAULT_DESTINATION, log_msg.source(str_module, "kpi_pallet_process_record"). _
+'        text("An error occured while processing listener: " & obj_listener.str_id & _
+'            ". The original error content: " & Err.Description)
+    
+    hndl_log.log db_log.TYPE_WARN, str_module, "kpi_pallet_process_record", _
+        "An error occured while processing listener: " & obj_listener.str_id & _
+        ". The original error content: " & Err.Description
+End Function
+
+  ' # interface method for listening MDLKPIOnTImePallet
+Public Function kpi_pallet_loading_data_has_finished(obj_provider_info As FileExcelDataProviderInfo)
+    Dim obj_listener As Object
+
+    On Error GoTo WARN_ERROR_IN_LISTENER
+    For Each obj_listener In col_listeners
+        obj_listener.kpi_pallet_loading_data_has_finished obj_provider_info
+    Next
+    On Error GoTo 0
+
+    obj_mdl_kpi_on_time_pallet_unfinished.obj_multi_data_provider.retrieve_provider(obj_provider_info.str_provider_id). _
+        set_clear_data_before_close_status False
+
+    Exit Function
+WARN_ERROR_IN_LISTENER:
+    hndl_log.log db_log.TYPE_WARN, str_module, "kpi_pallet_loading_data_is_about_to_start", _
+        "An error occured while processing listener: " & obj_listener.str_id & _
+        ". The original error content: " & Err.Description
 End Function
 
 '' MDLKPIOnTimePallet
