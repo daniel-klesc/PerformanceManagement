@@ -31,6 +31,8 @@ Public Const STR_VNA_RACK As String = "VNA_RACK"
 Public Const STR_USER_BIN As String = "USERBIN"
 
 Public Function get_place_grp(str_bin As String) As String
+    Dim message As MSG
+
     If bin.is_user_bin(str_bin) Then
         get_place_grp = bin_place_grp.STR_USER_BIN
     Else
@@ -81,7 +83,8 @@ Public Function get_place_grp(str_bin As String) As String
         ElseIf bin.is_ra(str_bin) Then
             get_place_grp = bin_place_grp.STR_RA_OTHERS
         Else
-            hndl_log.log db_log.TYPE_WARN, str_module, "get_place_grp", "Not found place group for BIN: " & str_bin
+            Set message = New MSG
+            log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "get_place_grp").text("Not found place group for BIN: " & str_bin)
         End If
     End If
 End Function
