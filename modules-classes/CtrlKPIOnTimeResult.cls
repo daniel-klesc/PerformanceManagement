@@ -31,7 +31,8 @@ End Function
 ' # interface method for listening MDLKPIOnTImePallet
 'Public Function kpi_pallet_loading_data_is_about_to_start(obj_date_start As Date, obj_date_end As Date)
 Public Function kpi_pallet_loading_data_is_about_to_start(obj_data_provider_info As FileExcelDataProviderInfo)
-    obj_mdl_kpi_on_time_result.load_data_for_interval CDate(obj_data_provider_info.obj_period.str_start)
+    ' # defined only because of interface
+    
 End Function
 
 ' # interface method for listening MDLKPIOnTImePallet
@@ -39,27 +40,42 @@ Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePal
     Dim obj_kpi_on_time_result_pallet As KPIOnTimeResultPallet
     Dim str_pallet_id As String
     Dim bool_action_create As Boolean
-
+        
+    Dim obj_process_version As ProcessMasterVersion
+    Dim bool_is_interested_in_pallet As Boolean
+        
     If obj_kpi_on_time_pallet.str_id = "357020105500768128" Then
         DoEvents
     End If
 
-    bool_action_create = False
+    bool_is_interested_in_pallet = False
+    ' check if KPI is interested in this process and version
+    For Each obj_process_version In obj_kpi.col_process_versions
+        If obj_kpi_on_time_pallet.str_process_version_name = obj_process_version.str_name Then
+            bool_is_interested_in_pallet = True
+            Exit For
+        End If
+    Next
 
-    str_pallet_id = retrieve_col_result_pallet_id( _
-        obj_kpi_on_time_pallet.str_id, _
-        obj_kpi_on_time_pallet.str_place_from, _
-        obj_kpi_on_time_pallet.str_place_to)
-    On Error GoTo INFO_NEW_PALLET
-    Set obj_kpi_on_time_result_pallet = col_result_pallets(str_pallet_id)
-    On Error GoTo 0
+    If bool_is_interested_in_pallet Then
+        bool_action_create = False
     
-    If Not bool_action_create Then
-        col_result_pallets.Remove str_pallet_id
+        str_pallet_id = retrieve_col_result_pallet_id( _
+            obj_kpi_on_time_pallet.str_id, _
+            obj_kpi_on_time_pallet.str_place_from, _
+            obj_kpi_on_time_pallet.str_place_to)
+        On Error GoTo INFO_NEW_PALLET
+        Set obj_kpi_on_time_result_pallet = col_result_pallets(str_pallet_id)
+        On Error GoTo 0
+        
+        If Not bool_action_create Then
+            col_result_pallets.Remove str_pallet_id
+        End If
+        update_pallet obj_kpi_on_time_pallet, obj_kpi_on_time_result_pallet
+    
+        obj_mdl_kpi_on_time_result.save_record_dynamic obj_kpi_on_time_result_pallet
     End If
-    update_pallet obj_kpi_on_time_pallet, obj_kpi_on_time_result_pallet
-
-    obj_mdl_kpi_on_time_result.save_record_dynamic obj_kpi_on_time_result_pallet
+    
     Exit Function
 INFO_NEW_PALLET:
     Set obj_kpi_on_time_result_pallet = create_pallet(obj_kpi_on_time_pallet)
@@ -78,17 +94,29 @@ Public Function kpi_pallet_loading_data_has_finished(obj_data_provider_info As F
 
     ' clean up
     Set col_result_pallets = New Collection
-    obj_mdl_kpi_on_time_result.obj_multi_data_provider.close_providers
 End Function
 
 ' # interface method for listening MDLKPIOnTimeResult
 Public Function kpi_result_process_record(obj_kpi_on_time_result_pallet As KPIOnTimeResultPallet)
+    Dim obj_process_version As ProcessMasterVersion
+    Dim bool_is_interested_in_pallet As Boolean
     Dim arr_process_step As Variant
     
-    arr_process_step = Split(obj_kpi_on_time_result_pallet.str_process_step, str_process_step_separator)
-    col_result_pallets.add obj_kpi_on_time_result_pallet, _
-        retrieve_col_result_pallet_id( _
-            obj_kpi_on_time_result_pallet.str_id, CStr(arr_process_step(0)), CStr(arr_process_step(1)))
+    bool_is_interested_in_pallet = False
+    ' check if KPI is interested in this process and version
+    For Each obj_process_version In obj_kpi.col_process_versions
+        If obj_kpi_on_time_result_pallet.str_process_name = obj_process_version.str_name Then
+            bool_is_interested_in_pallet = True
+            Exit For
+        End If
+    Next
+    
+    If bool_is_interested_in_pallet Then
+        arr_process_step = Split(obj_kpi_on_time_result_pallet.str_process_step, str_process_step_separator)
+        col_result_pallets.add obj_kpi_on_time_result_pallet, _
+            retrieve_col_result_pallet_id( _
+                obj_kpi_on_time_result_pallet.str_id, CStr(arr_process_step(0)), CStr(arr_process_step(1)))
+    End If
 End Function
 
 Private Function create_pallet(obj_kpi_on_time_pallet As KPIOnTimePallet) As KPIOnTimeResultPallet

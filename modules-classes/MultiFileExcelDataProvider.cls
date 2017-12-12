@@ -129,19 +129,10 @@ Public Function before_load_data(obj_provider As FileExcelDataProvider)
 
     ' register processed file
       ' # implement - processed_file will be registered as usual listener  - obj_provider_info must implement property bool_record_as_processed
-    'If obj_provider.obj_info.str_completeness_status = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_STATUS_CLOSED Then
-        Set obj_mdl_processed_file.obj_file_record = New DBProcessedFileRecord
-        obj_mdl_processed_file.obj_file_record.str_name = obj_provider.str_file_name
-        obj_mdl_processed_file.obj_file_record.str_date_started = Now
-    'End If
-    ' send basic data about current processed provider
-'    Set obj_current_data_provider_info = New FileExcelDataProviderInfo
-'        obj_current_data_provider_info.str_type = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC
-'        obj_current_data_provider_info.str_provider_id = obj_provider.str_id
-'        Set obj_current_data_provider_info.obj_period = _
-'            obj_data_provider_util.retrieve_period( _
-'                obj_data_provider_util.retrieve_provider_id_reverse(obj_provider.str_file_name))
-'        obj_current_data_provider_info.str_completeness_status = obj_provider.str_completeness_status
+    Set obj_mdl_processed_file.obj_file_record = New DBProcessedFileRecord
+    obj_mdl_processed_file.obj_file_record.str_name = obj_provider.str_file_name
+    obj_mdl_processed_file.obj_file_record.str_date_started = Now
+    
     Set obj_current_data_provider_info = obj_provider.obj_info
                 
     For Each obj_listener In col_listeners
@@ -161,10 +152,8 @@ Public Function after_load_data()
     'Dim obj_provider_info As FileExcelDataProviderInfo
 
     ' # implement - processed_file will be registered as usual listener - obj_provider_info must implement property bool_record_as_processed
-    'If obj_current_data_provider_info.str_completeness_status = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_STATUS_CLOSED Then
-        obj_mdl_processed_file.obj_file_record.str_date_finished = Now
-        obj_mdl_processed_file.save_record
-    'End If
+    obj_mdl_processed_file.obj_file_record.str_date_finished = Now
+    obj_mdl_processed_file.save_record
     
     For Each obj_listener In col_listeners
         On Error GoTo WARN_LISTENER_ERROR
@@ -195,7 +184,7 @@ Public Function before_load_data_static(obj_provider As FileExcelDataProvider)
     
     Exit Function
 WARN_LISTENER_ERROR:
-    hndl_log.log db_log.TYPE_WARN, str_module, "after_load_data", "An error occured in listener: " & obj_listener.str_id
+    hndl_log.log db_log.TYPE_WARN, str_module, "before_load_data_static", "An error occured in listener: " & obj_listener.str_id
     Resume Next
 End Function
 
@@ -212,7 +201,7 @@ Public Function after_load_data_static()
     
     Exit Function
 WARN_LISTENER_ERROR:
-    hndl_log.log db_log.TYPE_WARN, str_module, "after_load_data", "An error occured in listener: " & obj_listener.str_id
+    hndl_log.log db_log.TYPE_WARN, str_module, "after_load_data_static", "An error occured in listener: " & obj_listener.str_id
     Resume Next
 End Function
 
@@ -362,5 +351,9 @@ Public Function set_clear_data_before_close_status(bool_yes_no As Boolean)
 End Function
 
 Public Function add_listener(obj_listener As Object)
-    col_listeners.add obj_listener
+    col_listeners.add obj_listener, obj_listener.str_id
+End Function
+
+Public Function remove_listener(str_id As String)
+    col_listeners.Remove str_id
 End Function
