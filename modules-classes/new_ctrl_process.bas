@@ -5,11 +5,11 @@ Public Const BYTE_STATUS_DELETE As Byte = 0
 Public Const BYTE_STATUS_OPEN As Byte = 1
 Public Const BYTE_STATUS_CLOSED As Byte = 2
 
-Public Function create_process(obj_record As DBHistoryRecord) As process
+Public Function create_process(obj_record As DBHistoryRecord) As Process
     Dim obj_master As ProcessMaster
     Dim obj_version_resolver As Object
 
-    Set create_process = New process
+    Set create_process = New Process
     
     ' retrieve master for process
     On Error GoTo INFO_MASTER_VERSION_NOT_FOUND
@@ -33,12 +33,12 @@ INFO_MASTER_VERSION_NOT_FOUND:
     create_process.byte_status = BYTE_STATUS_DELETE
 End Function
 
-Public Function update_process(obj_record As DBHistoryRecord, obj_process As process, byte_action As Byte)
+Public Function update_process(obj_record As DBHistoryRecord, obj_process As Process, byte_action As Byte)
     new_ctrl_process_step.process_step obj_record, obj_process, byte_action 'new_ctrl_process_master_action.STR_UDATE
     'obj_process.obj_actual_step.byte_process_status = new_db_process_step.BYTE_PROCESS_STATUS_CONTINUE
 End Function
 
-Public Function close_process(obj_process As process)
+Public Function close_process(obj_process As Process)
     'obj_process.obj_actual_step.byte_status = new_db_process_step.BYTE_CLOSED
     'obj_process.obj_actual_step.byte_process_status = new_db_process_step.BYTE_PROCESS_STATUS_STOP
     If obj_process.obj_actual_step.byte_process_status = new_db_process_step.BYTE_PROCESS_STATUS_STOP Then
@@ -46,7 +46,7 @@ Public Function close_process(obj_process As process)
     End If
 End Function
 
-Public Function is_transaciton_valid_for_action(str_action As String, obj_record As DBHistoryRecord, obj_process As process) As Boolean
+Public Function is_transaciton_valid_for_action(str_action As String, obj_record As DBHistoryRecord, obj_process As Process) As Boolean
     On Error GoTo INFO_ACTION_NOT_FOUND
     is_transaciton_valid_for_action = obj_process.obj_master_version.obj_master.get_action(str_action).is_valid_transaction(obj_record)
     On Error GoTo 0
@@ -87,6 +87,8 @@ Private Function resolve_master_version(obj_record As DBHistoryRecord, obj_maste
             Set resolve_master_version = New VersionOutboundHBW
         Case new_ctrl_process_master_version.STR_CREATION_METHOD_CREATE
             Set resolve_master_version = New VersionSingle
+        Case new_ctrl_process_master_version.STR_CREATION_METHOD_PUTAWAY_GR
+            Set resolve_master_version = New VersionInboundGR
     End Select
     
     resolve_master_version.init obj_record

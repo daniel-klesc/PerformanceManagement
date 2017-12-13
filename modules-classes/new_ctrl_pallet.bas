@@ -20,7 +20,7 @@ Public Function process_record(obj_record As DBHistoryRecord)
     Dim obj_pallet As Pallet
     Dim byte_record_action As Byte
 
-    If obj_record.str_combi_vhu_from = "357020105503013287" And obj_record.str_user_name = "CZVITSKO" Then
+    If obj_record.str_transaction_type_started = "PROD_ORD_GR" Then
         DoEvents
     End If
 '    Select Case obj_record.str_combi_vhu_from
@@ -40,19 +40,12 @@ Public Function process_record(obj_record As DBHistoryRecord)
         byte_record_action = byte_record_action + new_ctrl_process_master_action.BYTE_UPDATE
     End If
     
-    If obj_record.str_combi_vhu_from = "357020105502987503" Then
-        DoEvents
-    End If
     If new_ctrl_process.is_transaciton_valid_for_action(new_ctrl_process_master_action.STR_CLOSE, obj_record, obj_pallet.obj_process) Then
         byte_record_action = byte_record_action + new_ctrl_process_master_action.BYTE_CLOSE
     End If
     
     If new_ctrl_process.is_transaciton_valid_for_action(new_ctrl_process_master_action.STR_DELETE, obj_record, obj_pallet.obj_process) Then
         byte_record_action = byte_record_action + new_ctrl_process_master_action.BYTE_DELETE
-    End If
-    
-    If obj_pallet.str_id = "357020105503005961" Then
-        DoEvents
     End If
     
     'If obj_pallet.obj_process.obj_master_version.obj_master.get_action(new_ctrl_process_master_action.STR_UDATE).
@@ -95,7 +88,7 @@ INFO_NEW_PALLET:
 End Function
 
 Public Function create_record(obj_record As DBHistoryRecord) As Pallet
-    Dim obj_process As process
+    Dim obj_process As Process
 
     ' process level
     Set obj_process = new_ctrl_process.create_process(obj_record)
@@ -263,14 +256,22 @@ Private Function aggregate_pallet(obj_pallet As Pallet, obj_record As DBHistoryR
 End Function
 
 Private Function swap_pallet_id(obj_pallet As Pallet, obj_record As DBHistoryRecord) As Boolean
+    Dim obj_original_process As Process
+
     swap_pallet_id = False
 
     If obj_pallet.str_id <> obj_record.str_combi_vhu_to And obj_record.str_combi_vhu_to <> "" Then
-        'obj_pallet.obj_process.obj_actual_step.byte_status = new_db_process_step.BYTE_CLOSED
+'        ' preserve original process
+'        Set obj_original_process = obj_pallet.obj_process
+'        Set obj_original_process.obj_pallet = Nothing ' remove connection between process and old pallet
+
+        ' update and close original VHU, only new VHU is tracked further
         update_record obj_record, obj_pallet, new_ctrl_process_master_action.BYTE_UPDATE + new_ctrl_process_master_action.BYTE_CLOSE
-        'obj_pallet.obj_process.obj_actual_step.byte_process_status = new_db_process_step.BYTE_PROCESS_STATUS_STOP
         close_record obj_record, obj_pallet
+        
         obj_pallet.str_id = obj_record.str_combi_vhu_to
+        obj_pallet.obj_process.byte_status = new_ctrl_process.BYTE_STATUS_OPEN
+        
         On Error GoTo TEMP_ERR
         add_pallet obj_pallet
         On Error GoTo 0

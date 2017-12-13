@@ -29,6 +29,7 @@ Public STR_VERSION_CROSS As String
 Public STR_CREATION_METHOD_CREATE As String
 Public STR_CREATION_METHOD_SUPPLY As String
 Public STR_CREATION_METHOD_SUPPLY_HBW As String
+Public STR_CREATION_METHOD_PUTAWAY_GR As String
 '
 'Public STR_STEP_ACTION_TYPE_CREATE As String
 'Public STR_STEP_ACTION_TYPE_UPDATE As String
@@ -58,6 +59,7 @@ Public Function init()
     STR_CREATION_METHOD_CREATE = "CREATE"
     STR_CREATION_METHOD_SUPPLY = "CREATE_SUPPLY"
     STR_CREATION_METHOD_SUPPLY_HBW = "CREATE_SUPPLY_HBW"
+    STR_CREATION_METHOD_PUTAWAY_GR = "CREATE_PUTAWAY_GR"
 '
 '    STR_STEP_ACTION_TYPE_CREATE = "CREATE"
 '    STR_STEP_ACTION_TYPE_UPDATE = "UPDATE"
@@ -108,7 +110,7 @@ End Function
 
 Public Function close_data()
     If Not wb Is ThisWorkbook Then
-        Windows(wb.Name).Visible = True
+        Windows(wb.name).Visible = True
         wb.Close SaveChanges:=False
     End If
     

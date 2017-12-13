@@ -30,6 +30,7 @@ End Property
 
 Public Function is_match(obj_record As DBHistoryRecord) As Boolean
     Dim obj_regex As RegExp
+    Dim str_place As String
     
     Set obj_regex = New RegExp
     With obj_regex
@@ -61,11 +62,19 @@ Public Function is_match(obj_record As DBHistoryRecord) As Boolean
     End If
     ' check place from
     If is_match Then
-        is_match = is_match_single(obj_regex, str_place_from, bin_place_grp.get_place_grp(obj_record.str_bin_from)) 'obj_record.str_process_step_place_from)
+        str_place = ""
+        If Not obj_record.str_bin_from = "" Then
+            str_place = bin_place_grp.get_place_grp(obj_record.str_bin_from)
+        End If
+        is_match = is_match_single(obj_regex, str_place_from, str_place) 'obj_record.str_process_step_place_from)
     End If
     ' check place to
     If is_match Then
-        is_match = is_match_single(obj_regex, str_place_to, bin_place_grp.get_place_grp(obj_record.str_bin_to))
+        str_place = ""
+        If Not obj_record.str_bin_to = "" Then
+            str_place = bin_place_grp.get_place_grp(obj_record.str_bin_to)
+        End If
+        is_match = is_match_single(obj_regex, str_place_to, str_place)
     End If
 End Function
 
