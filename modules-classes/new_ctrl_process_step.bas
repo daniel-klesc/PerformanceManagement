@@ -87,11 +87,19 @@ End Function
 
 'Public Function update_part_one(obj_record As DBHistoryRecord, obj_step As ProcessStep, bool_is_single As Boolean)
 Public Function update_part_one(obj_record As DBHistoryRecord, obj_step As ProcessStep)
+    Dim str_bin As String
+    
     obj_step.str_user = obj_record.str_user_name
 
     obj_step.str_date_start = obj_record.str_transaction_started 'obj_record.str_transaction_started
-    obj_step.str_bin_from = obj_record.str_bin_from 'obj_record.str_bin_from
-    obj_step.str_place_from = bin_place_grp.get_place_grp(obj_record.str_bin_from)
+    If obj_record.str_bin_from <> "" Then
+        str_bin = obj_record.str_bin_from
+    Else
+        str_bin = obj_record.str_bin_to
+    End If
+    
+    obj_step.str_bin_from = str_bin
+    obj_step.str_place_from = str_bin
 
     obj_step.str_transaction_type_start = obj_record.str_transaction_type_started
     obj_step.byte_status = new_db_process_step.BYTE_OPEN

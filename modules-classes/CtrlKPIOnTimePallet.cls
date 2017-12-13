@@ -23,7 +23,7 @@ Public col_kpi_pallets As Collection '
 
 ' master data
 Public obj_md_dashboard As MDDashboard1
-Public obj_mdl_kpi_on_time_pallet As MDLKPIOnTimePallet ' load current update data about pallets
+Public obj_mdl_kpi_on_time_pallet As MDLKPIOnTimePallet ' save data about pallets
 Public obj_mdl_kpi_on_time_pallet_unfinished As MDLKPIOnTimePallet ' load last state of active pallets
 
 Public obj_checkpoint_type_resolver As CheckpointTypeResolver
@@ -36,9 +36,9 @@ Public Function loading_data_is_about_to_start(obj_provider_info As FileExcelDat
     
     create_intervals obj_provider_info.obj_period.str_start, obj_provider_info.obj_period.str_end
     
-    ' load last state of active pallets
-    obj_mdl_kpi_on_time_pallet_unfinished.add_listener Me
-    obj_mdl_kpi_on_time_pallet_unfinished.load_static
+'    ' load last state of active pallets
+'    obj_mdl_kpi_on_time_pallet_unfinished.add_listener Me
+'    obj_mdl_kpi_on_time_pallet_unfinished.load_static
 End Function
 
 ' # method is called from MDLProcessDashboardListener
@@ -57,9 +57,9 @@ Public Function loading_data_has_finished(obj_provider_info As FileExcelDataProv
     ' clean up
     Set col_kpi_intervals = New Collection
     Set col_kpi_pallets = New Collection ' # check - is it ok to clean it right here
-    ' release resources
-    obj_mdl_kpi_on_time_pallet.close_data
-    obj_mdl_kpi_on_time_pallet_unfinished.close_data
+'    ' release resources
+'    obj_mdl_kpi_on_time_pallet.close_data
+'    obj_mdl_kpi_on_time_pallet_unfinished.close_data
 
     Set obj_current_provider_info = Nothing
 End Function
@@ -108,13 +108,12 @@ Public Function process_db_data_process_record(obj_data_process As DBDataProcess
     Dim obj_kpi_on_time_pallet_full_live_interval As KPIOnTimePallet
     Dim str_date_end_for_status_calculation As String
 
-    If obj_data_process.str_creation_id = "Supply-Autopick" Then
+    If obj_data_process.str_version = "PP-2" Then
         DoEvents
     End If
 
     ' check if kpi on time is interested into current obj_data_process
-    'If obj_kpi.obj_process.str_process_id = obj_data_process.str_creation_id Then
-    If is_relevant_for_kpi(obj_data_process) Then
+    If is_relevant_for_kpi(obj_data_process.str_creation_id, obj_data_process.str_version) Then
         On Error GoTo INFO_NEW_PALLET
         Set obj_kpi_on_time_pallet = col_kpi_pallets(obj_data_process.str_pallet)
         On Error GoTo 0
@@ -606,20 +605,21 @@ End Function
 ' Listening to model with unfinished kpi pallets
 ' # interface method for listening MDLKPIOnTImePallet
 Public Function kpi_pallet_loading_data_is_about_to_start(obj_provider_info As FileExcelDataProviderInfo)
-    obj_mdl_kpi_on_time_pallet_unfinished.obj_multi_data_provider.retrieve_provider(obj_provider_info.str_provider_id). _
-        set_clear_data_before_close_status True
+    ' # nothing to do, only interface requirement
 End Function
 
 ' # interface method for listening MDLKPIOnTImePallet
 Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePallet)
-    Dim message As MSG
-    ' register pallet
-    On Error GoTo WARN_PALLET_ALREADY_EXISTS
-    Set obj_kpi_on_time_pallet.obj_checkpoint = retrieve_checkpoint(obj_kpi_on_time_pallet)
-    ' set pallet synchronization status
-    obj_kpi_on_time_pallet.bool_is_synchronized_with_process = False
-    col_kpi_pallets.add obj_kpi_on_time_pallet, obj_kpi_on_time_pallet.str_id
-    On Error GoTo 0
+    ' check if kpi on time is interested into current obj_data_process
+    If is_relevant_for_kpi(obj_kpi_on_time_pallet.str_process_id, obj_kpi_on_time_pallet.str_process_version_id) Then
+        ' register pallet
+        On Error GoTo WARN_PALLET_ALREADY_EXISTS
+        Set obj_kpi_on_time_pallet.obj_checkpoint = retrieve_checkpoint(obj_kpi_on_time_pallet)
+        ' set pallet synchronization status
+        obj_kpi_on_time_pallet.bool_is_synchronized_with_process = False
+        col_kpi_pallets.add obj_kpi_on_time_pallet, obj_kpi_on_time_pallet.str_id
+        On Error GoTo 0
+    End If
 
     Exit Function
 WARN_PALLET_ALREADY_EXISTS:
@@ -636,26 +636,23 @@ Public Function kpi_pallet_loading_data_has_finished(obj_provider_info As FileEx
 
     ' create first pallet step
     Set col_pallet_steps = New Collection
-    
+
     For Each obj_pallet In col_kpi_pallets
         add_pallet_step col_pallet_steps, obj_pallet.create_copy
     Next
-    
+
     process_steps col_pallet_steps, col_kpi_intervals
-    'process_steps col_kpi_pallets, col_kpi_intervals
-    
-    obj_mdl_kpi_on_time_pallet_unfinished.obj_multi_data_provider.retrieve_provider(obj_provider_info.str_provider_id). _
-        set_clear_data_before_close_status False
 End Function
 
-Public Function is_relevant_for_kpi(obj_data_process As DBDataProcess) As Boolean
+'Public Function is_relevant_for_kpi(obj_data_process As DBDataProcess) As Boolean
+Public Function is_relevant_for_kpi(str_process_id As String, str_process_version_id As String) As Boolean
     Dim obj_version As Object
 
     is_relevant_for_kpi = False
 
-    If obj_kpi.obj_process.str_process_id = obj_data_process.str_creation_id Then
+    If obj_kpi.obj_process.str_process_id = str_process_id Then
         For Each obj_version In obj_kpi.col_process_versions
-            If obj_version.str_id = obj_data_process.str_version Then
+            If obj_version.str_id = str_process_version_id Then
                 is_relevant_for_kpi = True
                 Exit For
             End If

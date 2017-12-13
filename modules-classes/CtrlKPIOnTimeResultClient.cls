@@ -23,24 +23,24 @@ Public STR_ID_SEPARATOR As String
 
 ' MDLKPIOnTImeResult interface
 Public Function kpi_result_loading_data_is_about_to_start(obj_provider_info As FileExcelDataProviderInfo)
-    ' load data from result client file
-    obj_mdl_kpi_on_time_result_client.load_static
 End Function
 
 Public Function kpi_result_process_record(obj_kpi_on_time_result_pallet As KPIOnTimeResultPallet)
     Dim obj_result_client As KPIOnTimeResultClient
     Dim bool_reset As Boolean
     
-    On Error GoTo INFO_NEW_RECORD
-    Set obj_result_client = col_kpi_result_client(retrieve_kpi_result_client_id_from_pallet(obj_kpi_on_time_result_pallet))
-    On Error GoTo 0
-    
-    If Not obj_result_client.is_ready_for_update Then
-        obj_result_client.reset ' for data which were loaded from result-client file contains old data
-        obj_result_client.is_ready_for_update = True
+    If is_interested_in_process(obj_kpi_on_time_result_pallet.str_process_name) Then
+        On Error GoTo INFO_NEW_RECORD
+        Set obj_result_client = col_kpi_result_client(retrieve_kpi_result_client_id_from_pallet(obj_kpi_on_time_result_pallet))
+        On Error GoTo 0
+        
+        If Not obj_result_client.is_ready_for_update Then
+            obj_result_client.reset ' for data which were loaded from result-client file contains old data
+            obj_result_client.is_ready_for_update = True
+        End If
+        
+        obj_result_client.add_result_pallet obj_kpi_on_time_result_pallet
     End If
-    
-    obj_result_client.add_result_pallet obj_kpi_on_time_result_pallet
     
     Exit Function
 INFO_NEW_RECORD:
@@ -57,24 +57,22 @@ Public Function kpi_result_loading_data_has_finished(obj_provider_info As FileEx
         obj_result_client.calculate
         obj_mdl_kpi_on_time_result_client.save_record_static obj_result_client
     Next
-    
-    ' clean up
+        
     Set col_kpi_result_client = New Collection
-    obj_mdl_kpi_on_time_result_client.obj_multi_data_provider.close_providers True
 End Function
 
 ' MDLKPIOnTImeResultClient interface
 Public Function kpi_result_client_loading_data_is_about_to_start(obj_provider_info As FileExcelDataProviderInfo)
-    
 End Function
 
 Public Function kpi_result_client_process_record(obj_kpi_on_time_result_client As KPIOnTimeResultClient)
-    obj_kpi_on_time_result_client.is_ready_for_update = False
-    col_kpi_result_client.add obj_kpi_on_time_result_client, retrieve_kpi_result_client_id(obj_kpi_on_time_result_client)
+    If is_interested_in_process(obj_kpi_on_time_result_client.str_process) Then
+        obj_kpi_on_time_result_client.is_ready_for_update = False
+        col_kpi_result_client.add obj_kpi_on_time_result_client, retrieve_kpi_result_client_id(obj_kpi_on_time_result_client)
+    End If
 End Function
 
 Public Function kpi_result_client_loading_data_has_finished(obj_provider_info As FileExcelDataProviderInfo)
-    
 End Function
 
 Public Function add_mdl_kpi_on_time_result_client(obj_mdl As MDLKPIOnTimeResultClient)
@@ -131,6 +129,20 @@ End Function
 Public Function after_run()
     
 End Function
+
+Private Function is_interested_in_process(str_process_name) As Boolean
+    Dim obj_process_version As ProcessMasterVersion
+    
+    is_interested_in_process = False
+    
+    For Each obj_process_version In obj_kpi.col_process_versions
+        If obj_process_version.str_name = str_process_name Then
+            is_interested_in_process = True
+            Exit For
+        End If
+    Next
+End Function
+
 
 Private Sub Class_Initialize()
     Set col_kpi_result_client = New Collection

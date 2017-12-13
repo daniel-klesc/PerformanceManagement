@@ -25,6 +25,7 @@ Public INT_OFFSET_LINK As Integer
 
 Public obj_data_provider As FileExcelDataProvider
 Public obj_md_dashboard As MDDashboard1
+Public obj_mdl_kpi_on_time_result_client As MDLKPIOnTimeResultClient
 
 Public str_id As String
 Public col_listeners As Collection
@@ -63,10 +64,14 @@ Private Function create_kpi(rg_record As Range, obj_md_dashboard As MDDashboard1
     
     Select Case rg_record.Offset(0, INT_OFFSET_SUB_TYPE).Value
         Case STR_SUB_TYPE_ON_TIME
+            If obj_mdl_kpi_on_time_result_client Is Nothing Then
+                Set obj_mdl_kpi_on_time_result_client = create_mdl_kpi_on_time_result_client
+            End If
+            
             Set create_kpi = New CtrlKPIOnTimeResultClient
             On Error GoTo WARN_KPI_NOT_FOUND
             Set create_kpi.obj_kpi = obj_md_dashboard.col_kpis(rg_record.Offset(0, INT_OFFSET_LINK).Value)
-            create_kpi.add_mdl_kpi_on_time_result_client create_mdl_kpi_on_time_result_client
+            Set create_kpi.obj_mdl_kpi_on_time_result_client = obj_mdl_kpi_on_time_result_client
             On Error GoTo 0
     End Select
     
@@ -84,6 +89,11 @@ Public Function loading_data_is_about_to_start(obj_provider_info As FileExcelDat
     For Each obj_listener In col_listeners
         obj_listener.kpi_result_loading_data_is_about_to_start obj_provider_info
     Next
+    
+    ' load data from result client file
+    obj_mdl_kpi_on_time_result_client.add_listener Me
+    obj_mdl_kpi_on_time_result_client.load_static
+    obj_mdl_kpi_on_time_result_client.remove_listener str_id
 End Function
 
 Public Function kpi_result_process_record(obj_kpi_on_time_result_pallet As KPIOnTimeResultPallet)
@@ -100,45 +110,35 @@ Public Function loading_data_has_finished(obj_provider_info As FileExcelDataProv
     For Each obj_listener In col_listeners
         obj_listener.kpi_result_loading_data_has_finished obj_provider_info
     Next
+    
+    ' clean up
+    obj_mdl_kpi_on_time_result_client.obj_multi_data_provider.close_providers True
 End Function
 
+' MDLKPIOnTImeResultClient interface
+Public Function kpi_result_client_loading_data_is_about_to_start(obj_provider_info As FileExcelDataProviderInfo)
+    Dim obj_listener As Object
+    
+    For Each obj_listener In col_listeners
+        obj_listener.kpi_result_client_loading_data_is_about_to_start obj_provider_info
+    Next
+End Function
 
-'' # interface method for listening MDLKPIOnTImePallet
-'Public Function kpi_pallet_loading_data_is_about_to_start(obj_period As Period)
-'    Dim obj_listener As Object
-'    Dim obj_date_start As Date
-'    Dim obj_date_end As Date
-'
-'    For Each obj_listener In col_listeners
-'        obj_listener.kpi_pallet_loading_data_is_about_to_start obj_period.str_start, obj_period.str_end
-'    Next
-'End Function
-'
-'' # interface method for listening MDLKPIOnTImePallet
-'Public Function kpi_pallet_process_record(obj_kpi_on_pallet As KPIOnTimePallet)
-'    Dim obj_listener As Object
-'
-'    For Each obj_listener In col_listeners
-'        obj_listener.kpi_pallet_process_record obj_kpi_on_pallet
-'    Next
-'End Function
-'
-'' # interface method for listening MDLKPIOnTImePallet
-'Public Function kpi_pallet_loading_data_has_finished(obj_period As Period)
-'    Dim obj_listener As Object
-'
-'    For Each obj_listener In col_listeners
-'        obj_listener.kpi_pallet_loading_data_has_finished obj_period
-'    Next
-'End Function
-'
-'Public Function after_run()
-''    Dim obj_listener As Object
-''
-''    For Each obj_listener In col_listeners
-''        obj_listener.after_process
-''    Next
-'End Function
+Public Function kpi_result_client_process_record(obj_kpi_on_time_result_client As KPIOnTimeResultClient)
+    Dim obj_listener As Object
+    
+    For Each obj_listener In col_listeners
+        obj_listener.kpi_result_client_process_record obj_kpi_on_time_result_client
+    Next
+End Function
+
+Public Function kpi_result_client_loading_data_has_finished(obj_provider_info As FileExcelDataProviderInfo)
+    Dim obj_listener As Object
+    
+    For Each obj_listener In col_listeners
+        obj_listener.kpi_result_client_loading_data_has_finished obj_provider_info
+    Next
+End Function
 
 ' THIS model is used for saving new data. Model in CtrlDashboard1 is used for loading data
 Private Function create_mdl_kpi_on_time_result_client() As MDLKPIOnTimeResultClient
@@ -177,22 +177,6 @@ Private Function create_mdl_kpi_on_time_result_client() As MDLKPIOnTimeResultCli
     obj_data_provider.bool_save_mode_on = True
     obj_data_provider.add_listener create_mdl_kpi_on_time_result_client
     obj_multi_data_provider.add_provider obj_data_provider
-    
-'        ' data provider util
-'    Set obj_data_provider_util = New FileExcelDataProviderUtil
-'          ' save mode
-'    obj_data_provider_util.str_save_mode = new_const_excel_data_provider.STR_SAVE_MODE_HOURLY_MINUTE
-'          ' file
-'            ' tmpl
-'    obj_data_provider_util.str_tmpl_path = ThisWorkbook.Path & "\data\inbound\history-result-client\tmpl\"
-'    obj_data_provider_util.str_tmpl_file_name_prefix = "history-result-client"
-'    obj_data_provider_util.str_tmpl_file_name_appendix = "tmpl-v0_1"
-'            ' new
-'    obj_data_provider_util.str_file_prefix = "history-result-client"
-'    obj_data_provider_util.str_file_name_separator = "-"
-'    obj_data_provider_util.str_file_appendix = ".xlsx"
-'          ' add to multi data provider
-'    Set obj_multi_data_provider.obj_data_provider_util = obj_data_provider_util
 End Function
 
 Private Sub Class_Initialize()
@@ -207,6 +191,8 @@ Private Sub Class_Initialize()
     INT_OFFSET_TYPE = 1
     INT_OFFSET_SUB_TYPE = 2
     INT_OFFSET_LINK = 3
+    
+    str_id = str_module
 End Sub
 
 

@@ -58,6 +58,8 @@ Private Sub Class_Initialize()
         
     str_static_data_provider_id = "static"
     Set col_listeners = New Collection
+    
+    str_id = str_module
 End Sub
 
 Public Function set_clear_data()
@@ -71,6 +73,7 @@ End Function
 Public Function load()
     obj_multi_data_provider.add_listener Me
     obj_multi_data_provider.load_data
+    obj_multi_data_provider.remove_listener str_id
 End Function
 
 Public Function load_data_for_interval(obj_date_start As Date)

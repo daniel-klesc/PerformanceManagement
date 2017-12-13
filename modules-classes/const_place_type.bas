@@ -3,6 +3,7 @@ Option Explicit
 
 Public Const str_bin As String = "BIN"
 Public Const str_wc As String = "WC"
+Public Const str_bin_stor_grp As String = "BIN_STORAGE_GROUP"
 Public Const STR_IMPLICIT As String = "IMPLICIT"
 
 ' # implement - temporary solution these data will be taken from table

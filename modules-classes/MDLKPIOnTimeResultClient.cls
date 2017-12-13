@@ -88,6 +88,7 @@ End Function
 Public Function load_static()
     obj_multi_data_provider.add_listener Me
     obj_multi_data_provider.load_data_static
+    obj_multi_data_provider.remove_listener str_id
 End Function
 
 'Public Function load_data_for_interval(obj_date_start As Date)
@@ -250,6 +251,9 @@ Public Function save_record(obj_kpi_on_time_result_client As KPIOnTimeResultClie
 End Function
 
 Public Function add_listener(obj_listener As Object)
-    col_listeners.add obj_listener
+    col_listeners.add obj_listener, obj_listener.str_id
 End Function
 
+Public Function remove_listener(str_id As String)
+    col_listeners.Remove str_id
+End Function

@@ -87,6 +87,8 @@ Private Function resolve_master_version(obj_record As DBHistoryRecord, obj_maste
             Set resolve_master_version = New VersionOutboundHBW
         Case new_ctrl_process_master_version.STR_CREATION_METHOD_CREATE
             Set resolve_master_version = New VersionSingle
+        Case new_ctrl_process_master_version.STR_CREATION_METHOD_PUTAWAY_GR
+            Set resolve_master_version = New VersionInboundGR
     End Select
     
     resolve_master_version.init obj_record
