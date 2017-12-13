@@ -63,3 +63,15 @@ Public Function remove_logger(logger_name As String)
     Set logger = Nothing
     
 End Function
+
+Public Function remove_all_loggers()
+    Dim logger As Object
+    
+    If Not loggers Is Nothing Then
+        If loggers.Count <> 0 Then
+            For Each logger In loggers
+                remove_logger logger.name
+            Next logger
+        End If
+    End If
+End Function

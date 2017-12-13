@@ -6,6 +6,8 @@ Public int_week_beginning As Integer
 
 Public Function init()
     Dim obj_settings As Settings
+    Dim file_logger As LoggerFile
+    Dim mail_logger As LoggerMail
 
     init = True ' if anything critical fails then init will be turned to False
 
@@ -37,6 +39,21 @@ Public Function init()
     On Error GoTo 0
 
     On Error GoTo ERR_INVALID_SETTING
+    ' set new logging environment
+    log4VBA.init
+
+    Set file_logger = New LoggerFile
+    file_logger.init obj_settings.Item("Performance:app.init.DEFAULT_FILE_LOGGER_NAME").Value, log4VBA.INF, log4VBA.DEFAULT_DESTINATION
+    file_logger.logFilePath = ThisWorkbook.Path & obj_settings.Item("Performance:app.file_logger.logFilePath").Value
+    file_logger.wsName = obj_settings.Item("Performance:file_logger.wsName").Value
+    log4VBA.add_logger file_logger
+    
+    Set mail_logger = New LoggerMail
+    mail_logger.init obj_settings.Item("Performance:app.init.DEFAULT_MAIL_LOGGER_NAME").Value, log4VBA.ERRO, log4VBA.DEFAULT_DESTINATION
+    mail_logger.mailAddress = obj_settings.Item("Performance:mail_logger.mailAddress1").Value & ";" & obj_settings.Item("Performance:mail_logger.mailAddress2").Value
+    mail_logger.subjMsgLenght = CInt(obj_settings.Item("Performance:mail_logger.subjMsgLenght").Value)
+    log4VBA.add_logger mail_logger
+    
     ' hndl_log settings
     hndl_log.str_path = obj_settings.Item("performance:file\\hndl_log.str_path").Value
     hndl_log.str_file_name = obj_settings.Item("performance:file\\hndl_log.str_file_name.log").Value
