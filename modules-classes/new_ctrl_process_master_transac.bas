@@ -42,6 +42,7 @@ Public Function load_data()
     'Dim obj_condition As ProcessMasterAction
     'Dim obj_condition As TransactionCondition
     Dim bool_create As Boolean
+    Dim message As MSG
 
     Application.StatusBar = STR_STATUS_BAR_PREFIX & STR_STATUS_BAR_PREFIX_LOADING
 
@@ -64,7 +65,9 @@ Public Function load_data()
     Application.StatusBar = STR_STATUS_BAR_PREFIX & STR_STATUS_BAR_PREFIX_LOADING_FINISHED
     Exit Function
 WARN_CONDITION_ALREADY_EXISTS:
-    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", "During creation of condition: " & rg_record.Offset(0, new_db_process_master_action.INT_OFFSET_ACTION).Value & " occured an unxpected error."
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "load_data") _
+        .text("During creation of condition: " & rg_record.Offset(0, new_db_process_master_action.INT_OFFSET_ACTION).Value & " occured an unxpected error.")
     Resume Next
 End Function
 
@@ -78,7 +81,7 @@ End Function
 
 Public Function close_data()
     If Not wb Is ThisWorkbook Then
-        Windows(wb.Name).Visible = True
+        Windows(wb.name).Visible = True
         wb.Close SaveChanges:=False
     End If
 

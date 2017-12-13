@@ -71,6 +71,7 @@ End Function
 Public Function load_data()
     Dim obj_version As ProcessMasterVersion
     Dim bool_create As Boolean
+    Dim message As MSG
 
     Application.StatusBar = STR_STATUS_BAR_PREFIX & STR_STATUS_BAR_PREFIX_LOADING
 
@@ -96,7 +97,9 @@ Public Function load_data()
     new_ctrl_process_master_step.load_data
     Exit Function
 WARN_VERSION_ALREADY_EXISTS:
-    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", "Version: " & rg_record.Offset(0, new_db_process_master_version.INT_OFFSET_VERSION).Value & " is already registered."
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "load_data") _
+        .text("Version: " & rg_record.Offset(0, new_db_process_master_version.INT_OFFSET_VERSION).Value & " is already registered.")
     Resume Next
 End Function
 

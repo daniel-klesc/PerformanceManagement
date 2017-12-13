@@ -156,6 +156,7 @@ End Function
 
 Public Function save_open_pallets()
     Dim obj_pallet As Pallet
+    Dim message As MSG
     
     ' clear old records
     'new_mdl_data_process.obj_model.obj_unfinished.clear
@@ -164,8 +165,9 @@ Public Function save_open_pallets()
         If obj_pallet.obj_process.byte_status = new_ctrl_process.BYTE_STATUS_OPEN Then
             save_pallet obj_pallet, obj_mdl_finished, obj_mdl_unfinished  'new_mdl_data_process.obj_model.obj_unfinished
         Else
-            hndl_log.log db_log.TYPE_WARN, str_module, "save_open_pallets", _
-                "After processing all history record there's pallet: " & obj_pallet.str_id & " which is closed, but not saved."
+            Set message = New MSG
+            log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "save_open_pallets") _
+                .text("After processing all history record there's pallet: " & obj_pallet.str_id & " which is closed, but not saved.")
         End If
     Next
 End Function

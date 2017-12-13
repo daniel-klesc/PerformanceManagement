@@ -33,3 +33,9 @@ Public Function test_md_dashboard_data()
     Debug.Print Format(dbl_end - dbl_start, "HH:MM:SS")
     
 End Function
+
+Public Function test_logging()
+    Dim message As New MSG
+
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source("testovací_modul", "testovací funkce").text("Ještì jeden test")
+End Function

@@ -100,7 +100,7 @@ Public Function save_daily_kpi()
 
             'sort wb_history
         ' run update
-        Application.run "'" & wb_history.Name & "'!app.update"
+        Application.run "'" & wb_history.name & "'!app.update"
 
     End If
     
@@ -364,7 +364,7 @@ Public Function update_data(wb As Workbook)
         
     For Each ws In wb.Worksheets
         For Each pt In ws.PivotTables
-            Debug.Print pt.Name
+            Debug.Print pt.name
             Set pt_cache = wb.PivotCaches.create( _
                 xlDatabase, _
                 ws_data.Range("A1").CurrentRegion)

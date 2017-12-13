@@ -11,7 +11,7 @@ Option Explicit
 
 Public name As String
 Public destination As String
-Public level As Integer
+Public Level As Integer
 Public category As Variant
 
 
@@ -30,7 +30,7 @@ Private RESULT_TYPE As Integer
 
 
 Public Function log(lvl As Integer, dest As String, message As MSG)
-    If Not lvl < Me.level Then
+    If Not lvl < Me.Level Then
         If dest = Me.destination Then
             save message, lvl
         End If
@@ -67,7 +67,7 @@ End Function
 
 Public Function init(str_name As String, lvl As Integer, str_dest As String)
     name = str_name
-    level = lvl
+    Level = lvl
     destination = str_dest
     
 End Function
@@ -111,7 +111,7 @@ Public Function closeFile()
     
     If logIsOpen Then
         Set lApp = logWB.Parent
-        logWB.Close saveChanges:=True
+        logWB.Close SaveChanges:=True
         lApp.Quit
         logIsOpen = False
     End If

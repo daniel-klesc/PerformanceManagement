@@ -39,6 +39,7 @@ Public Function load_data()
     Dim obj_step As ProcessMasterStep
     Dim col_steps As Collection
     Dim bool_create As Boolean
+    Dim message As MSG
 
     Application.StatusBar = STR_STATUS_BAR_PREFIX & STR_STATUS_BAR_PREFIX_LOADING
 
@@ -72,7 +73,8 @@ INFO_NEW_STEP:
     On Error GoTo 0
     Resume Next
 WARN_STEP_ALREADY_EXISTS:
-    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", "Step defined on row: " & rg_record.Row & " is already registered."
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "load_data").text("Step defined on row: " & rg_record.Row & " is already registered.")
     Resume Next
 End Function
 
@@ -86,7 +88,7 @@ End Function
 
 Public Function close_data()
     If Not wb Is ThisWorkbook Then
-        Windows(wb.Name).Visible = True
+        Windows(wb.name).Visible = True
         wb.Close SaveChanges:=False
     End If
 
@@ -105,12 +107,15 @@ Public Function create(rg_record As Range) As ProcessMasterStep
 End Function
 
 Public Function update(obj_process_master_step As ProcessMasterStep, rg_record As Range)
+    Dim message As MSG
+
     On Error GoTo WARN_ORDER_ALREADY_EXISTS
     obj_process_master_step.add_order rg_record.Offset(0, new_db_process_master_step.INT_OFFSET_STEP_ORDER).Value
     On Error GoTo 0
     Exit Function
 WARN_ORDER_ALREADY_EXISTS:
-    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", "Step order defined on row: " & rg_record.Row & " is already registered."
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "load_data").text("Step order defined on row: " & rg_record.Row & " is already registered.")
     Resume Next
 End Function
 

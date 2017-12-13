@@ -67,7 +67,7 @@ Public Function process_data()
     hndl_performance.clear
     Exit Function
 ERR_RETRIEVE_FILES:
-    Debug.Print Err.Number & "->" & Err.description
+    Debug.Print Err.Number & "->" & Err.Description
     Exit Function
 ERR_PROCESS_FILE:
     Set hndl_log.obj_log_record = New DBLogRecord
@@ -75,7 +75,7 @@ ERR_PROCESS_FILE:
     hndl_log.obj_log_record.str_type = db_log.TYPE_ERR
     hndl_log.obj_log_record.str_module = hndl_history.str_module
     hndl_log.obj_log_record.str_function = "process_data"
-    hndl_log.obj_log_record.str_message = "An error occured during processing file " & var_file & ". Original error message>" & Err.description
+    hndl_log.obj_log_record.str_message = "An error occured during processing file " & var_file & ". Original error message>" & Err.Description
     hndl_log.save_record
     Resume Next
 End Function
