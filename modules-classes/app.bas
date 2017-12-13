@@ -14,13 +14,13 @@ Public Function init()
     BOOL_CLOSE_APP = False
     int_week_beginning = 2
         
-    'bin.init
-    'hndl_history.init
-    'hndl_history_file_processed.init
-    'hndl_log.init
-    'hndl_performance.init
-    'hndl_performance_output.init
-    'hndl_process.init
+    bin.init
+    hndl_history.init
+    hndl_history_file_processed.init
+    hndl_log.init
+    hndl_performance.init
+    hndl_performance_output.init
+    hndl_process.init
     'hndl_proc_in_ra_vna_rack.init
     'hndl_proc_inbound_vna_in_rack.init
 

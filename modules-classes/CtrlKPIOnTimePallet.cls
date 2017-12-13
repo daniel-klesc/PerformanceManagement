@@ -403,7 +403,7 @@ INFO_PALLET_STEP_ALREADY_EXIST:
     Set col_pallet_steps.Item(str_id).obj_checkpoint = obj_pallet_step.obj_checkpoint
     Set message = New MSG
     log4VBA.debg log4VBA.DEFAULT_DESTINATION, message.source(STR_CLASS_NAME, "add_pallet_step") _
-        .text("add_pallet_step", "Pallet: " & obj_pallet_step.str_id & " stays on the same place. Current checkpoint: " & obj_pallet_step.obj_checkpoint.str_id & ".")
+        .text("Pallet: " & obj_pallet_step.str_id & " stays on the same place. Current checkpoint: " & obj_pallet_step.obj_checkpoint.str_id & ".")
     Resume Next
 End Function
 

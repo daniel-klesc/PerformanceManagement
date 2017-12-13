@@ -140,7 +140,7 @@ Public Function retrieve_provider_id_reverse(str_file_name) As String
     On Error GoTo 0
     Exit Function
 ERR_RETRIEVAL_FAILED:
-    Set MSG = New MSG
+    Set message = New MSG
     log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "retrieve_provider_id") _
         .text("Retrieval of provider has failed. Pattern: " & str_regex_pattern & ", Filename: " & str_file_name & ".")
 End Function
