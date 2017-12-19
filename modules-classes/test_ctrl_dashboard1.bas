@@ -7,6 +7,8 @@ Option Explicit
 Public Function setup()
     Dim obj_mdl_bin_prod_line As MDLBINProdLine
 
+    app.init
+
     bin.init
     Set obj_mdl_bin_prod_line = New MDLBINProdLine
     Set obj_mdl_bin_prod_line.obj_data_provider = New FileExcelDataProvider
@@ -28,6 +30,7 @@ End Function
 
 Public Function tear_down()
     hndl_log.close_data
+    log4VBA.remove_all_loggers
     
     Application.DisplayAlerts = True
 End Function
@@ -45,7 +48,7 @@ Public Function test_run()
     ' run setting
     obj_dashboard.bool_run_process = new_const_ctrl_dashboard1.BOOL_RUN_PROCESS_YES 'new_const_ctrl_dashboard1.BOOL_RUN_PROCESS_YES
     'obj_dashboard.bool_run_process_load_unfinished = new_const_ctrl_dashboard1.BOOL_RUN_PROCESS_LOAD_UNFINISHED_NO
-    obj_dashboard.bool_run_kpi_pallet = new_const_ctrl_dashboard1.BOOL_RUN_KPI_PALLET_YES
+    obj_dashboard.bool_run_kpi_pallet = new_const_ctrl_dashboard1.BOOL_RUN_KPI_PALLET_NO
     obj_dashboard.bool_run_kpi_result = new_const_ctrl_dashboard1.BOOL_RUN_KPI_RESULT_NO
     
     obj_dashboard.before_run

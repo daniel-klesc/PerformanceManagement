@@ -108,15 +108,16 @@ Public Function before_run()
     Application.DisplayAlerts = False
     Application.StatusBar = ""
     
-    hndl_log.open_data
-    hndl_history_file_processed.open_data
+    app.init
+    'hndl_log.open_data
+    'hndl_history_file_processed.open_data
 End Function
 
 Public Function after_run()
     Dim wb As Workbook
     
-    hndl_log.close_data
-    hndl_history_file_processed.close_data
+'    hndl_log.close_data
+'    hndl_history_file_processed.close_data
     
     If BOOL_CLOSE_APP Then
         ThisWorkbook.Close SaveChanges:=True
@@ -127,6 +128,8 @@ Public Function after_run()
         
         Application.Quit
     Else
+        log4VBA.remove_all_loggers
+        
         Application.DisplayAlerts = True
         Application.ScreenUpdating = True
         Application.StatusBar = False
@@ -141,9 +144,12 @@ Function run()
 '        app.init
 '        after_run
 '    End If
+    before_run
     
     app_process.run
     app_dashboard.run
+    
+    after_run
 End Function
 
 Public Sub background_job()
