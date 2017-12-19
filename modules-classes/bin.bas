@@ -149,6 +149,9 @@ Public STR_SCALE_STATION_PREFIX_C As String
 
 Public STR_BIN_DUMMY As String
 
+Public INT_PRODUCTION_STORAGE_LEN As Integer
+Public STR_PRODUCTION_STORAGE_PREFIX As String
+
 Public INT_VNA_INBOUND_HOUSE_LIMIT As Integer
 
 Public col_bin_prod_lines As Collection
@@ -298,6 +301,9 @@ Public Function init()
     STR_SCALE_STATION_PREFIX_C = "6-13-08"
     
     STR_BIN_DUMMY = "999"
+    
+    INT_PRODUCTION_STORAGE_LEN = 12
+    STR_PRODUCTION_STORAGE_PREFIX = "6-13-03-02-8"
     
     INT_VNA_INBOUND_HOUSE_LIMIT = 800
     
@@ -621,6 +627,15 @@ End Function
 
 Public Function is_dummy(str_bin) As Boolean
     is_dummy = str_bin = STR_BIN_DUMMY
+End Function
+
+Public Function is_production_hall_storage(str_bin) As Boolean
+    is_production_hall_storage = False
+        
+    Select Case Left(str_bin, INT_PRODUCTION_STORAGE_LEN)
+        Case STR_PRODUCTION_STORAGE_PREFIX
+            is_production_hall_storage = True
+    End Select
 End Function
 
 Public Function get_building(str_bin As String) As String

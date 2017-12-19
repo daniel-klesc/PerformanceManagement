@@ -15,7 +15,8 @@ Public Const STR_HBW_WH As String = "HBW_WH"
 Public Const STR_HBW_OTHERS As String = "HBW_OTHERS"
 Public Const STR_MATERIAL_HANDLING As String = "MATERIAL_HANDLING"
 Public Const STR_PA As String = "PA"
-Public Const str_prod_hall As String = "PROD_HALL"
+Public Const STR_PROD_HALL As String = "PROD_HALL"
+Public Const STR_PRODUCTION_HALL_STORAGE As String = "PRODUCTION_HALL_STORAGE"
 Public Const STR_PROD_LINE_IN As String = "PROD_LINE_IN"
 Public Const STR_PROD_LINE_OUT As String = "PROD_LINE_OUT"
 Public Const STR_RA_OTHERS As String = "RA_OTHERS"
@@ -40,8 +41,10 @@ Public Function get_place_grp(str_bin As String) As String
             get_place_grp = bin_place_grp.STR_VNA_RACK
         ElseIf bin.is_vna_bulk(str_bin) Then
             get_place_grp = bin_place_grp.STR_VNA_BULK
+        ElseIf bin.is_production_hall_storage(str_bin) Then
+            get_place_grp = bin_place_grp.STR_PRODUCTION_HALL_STORAGE
         ElseIf bin.is_production_hall_side(str_bin) Then
-            get_place_grp = bin_place_grp.str_prod_hall
+            get_place_grp = bin_place_grp.STR_PROD_HALL
         ElseIf bin.is_production_hall(str_bin) Then
             get_place_grp = bin_place_grp.STR_PROD_LINE_OUT
         ElseIf bin.is_production_line_in(str_bin) And Not bin.is_material_handling(str_bin) Then

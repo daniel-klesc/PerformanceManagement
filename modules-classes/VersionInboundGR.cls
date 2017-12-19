@@ -13,6 +13,10 @@ Public STR_VERSION_SINGLE As String
 Public STR_VERSION_CROSS_B_C As String
 Public STR_VERSION_CROSS_A_BC As String
 
+Public STR_STORAGE_TYPE_VNA As String
+Public STR_STORAGE_TYPE_TA As String
+Public STR_STORAGE_TYPE_PROD_HALL As String
+
 Public str_version_id As String
 Public str_source As String
 Public str_source_type As String
@@ -24,6 +28,7 @@ Public Function init(obj_record As DBHistoryRecord)
     Dim str_building_from As String
     Dim str_building_to As String
     Dim str_module As String
+    Dim str_storage_type As String
     Dim str_sub_version As String
     
     ' from
@@ -38,7 +43,16 @@ Public Function init(obj_record As DBHistoryRecord)
     If str_building_to = bin_stor_grp.STR_BUILDING_GENERAL Then
         str_building_to = str_building_from
     End If
+    
     str_module = wc.get_module(obj_record.str_wc_ship_to)
+    
+    If bin_stor_grp.is_production_hall(obj_record.str_storage_group_material) Then
+        str_storage_type = STR_STORAGE_TYPE_PROD_HALL
+    ElseIf bin_stor_grp.is_ta(obj_record.str_storage_group_material) Then
+        str_storage_type = STR_STORAGE_TYPE_TA
+    Else
+        str_storage_type = STR_STORAGE_TYPE_VNA
+    End If
     
     Select Case str_building_from & str_building_to
         Case "AA", "BB", "CC"
@@ -49,12 +63,16 @@ Public Function init(obj_record As DBHistoryRecord)
             str_sub_version = STR_VERSION_CROSS_A_BC
     End Select
     
-    str_version_id = str_module & "-" & str_sub_version
+    str_version_id = str_module & "-" & str_storage_type & "-" & str_sub_version
 End Function
 
 Private Sub Class_Initialize()
     STR_VERSION_SINGLE = "1"
     STR_VERSION_CROSS_B_C = "2"
     STR_VERSION_CROSS_A_BC = "3"
+    
+    STR_STORAGE_TYPE_VNA = "VNA"
+    STR_STORAGE_TYPE_PROD_HALL = "PROD_HALL"
+    STR_STORAGE_TYPE_TA = "TA"
 End Sub
 
