@@ -224,6 +224,9 @@ Public Function create_kpi_on_time_pallet(obj_data_process As DBDataProcess) As 
         obj_checkpoint_type_resolver.retrieve_building(obj_data_process.str_source, obj_data_process.str_source_type)
     create_kpi_on_time_pallet.str_building_destination = _
         obj_checkpoint_type_resolver.retrieve_building(obj_data_process.str_destination, obj_data_process.str_destination_type)
+    If create_kpi_on_time_pallet.str_building_destination = bin_stor_grp.STR_BUILDING_GENERAL Then
+        create_kpi_on_time_pallet.str_building_destination = create_kpi_on_time_pallet.str_building_source
+    End If
         
     ' set datetime values
     create_kpi_on_time_pallet.str_date_start = obj_data_process.str_date_start
