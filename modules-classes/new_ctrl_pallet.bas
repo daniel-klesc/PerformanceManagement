@@ -20,13 +20,17 @@ Public Function process_record(obj_record As DBHistoryRecord)
     Dim obj_pallet As Pallet
     Dim byte_record_action As Byte
 
-    If obj_record.str_transaction_type_started = "PROD_ORD_GR" Then
-        DoEvents
-    End If
+'    If obj_record.str_transaction_type_started = "PROD_ORD_GR" Then
+'        DoEvents
+'    End If
 '    Select Case obj_record.str_combi_vhu_from
 '        Case "357020105467288981"
 '            DoEvents
 '    End Select
+
+    If obj_record.str_combi_vhu_from = "357020105567990401" Or obj_record.str_combi_vhu_to = "357020105567990401" Then
+        DoEvents
+    End If
 
     On Error GoTo INFO_NEW_PALLET
     Set obj_pallet = get_pallet(obj_record.str_combi_vhu_from) 'get_pallet_from_record(obj_record)

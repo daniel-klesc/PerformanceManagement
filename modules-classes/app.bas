@@ -15,12 +15,12 @@ Public Function init()
     int_week_beginning = 2
         
     bin.init
-    hndl_history.init
-    hndl_history_file_processed.init
-    hndl_log.init
-    hndl_performance.init
-    hndl_performance_output.init
-    hndl_process.init
+    'hndl_history.init
+    'hndl_history_file_processed.init
+    'hndl_log.init
+    'hndl_performance.init
+    'hndl_performance_output.init
+    'hndl_process.init
     'hndl_proc_in_ra_vna_rack.init
     'hndl_proc_inbound_vna_in_rack.init
 
@@ -46,6 +46,7 @@ Public Function init()
     file_logger.init obj_settings.Item("Performance:app.init.DEFAULT_FILE_LOGGER_NAME").Value, log4VBA.INF, log4VBA.DEFAULT_DESTINATION
     file_logger.logFilePath = ThisWorkbook.Path & obj_settings.Item("Performance:app.file_logger.logFilePath").Value
     file_logger.wsName = obj_settings.Item("Performance:file_logger.wsName").Value
+    file_logger.is_same_app = True
     log4VBA.add_logger file_logger
     
     Set mail_logger = New LoggerMail
@@ -54,29 +55,29 @@ Public Function init()
     mail_logger.subjMsgLenght = CInt(obj_settings.Item("Performance:mail_logger.subjMsgLenght").Value)
     log4VBA.add_logger mail_logger
     
-    ' hndl_log settings
-    hndl_log.str_path = obj_settings.Item("performance:file\\hndl_log.str_path").Value
-    hndl_log.str_file_name = obj_settings.Item("performance:file\\hndl_log.str_file_name.log").Value
-    ' hndl_file_processed settings
-    hndl_history_file_processed.STR_PATH_INBOUND = obj_settings.Item("performance:file\\hndl_log.str_path").Value
-    hndl_history_file_processed.str_file_name = obj_settings.Item("performance:file\\hndl_log.str_file_name.file_processed").Value
-    
-    ' hndl_history
-    hndl_history.STR_PATH_INBOUND = obj_settings.Item("history pallet:file\\history.str_path_outbound").Value ' path inbound is really taken as output from application history pallet
-    
-    ' hndl_performance
-    hndl_performance.STR_DAILY_WS_NAME_KPI = obj_settings.Item("performance:module\\performance.str_daily_ws_name_kpi").Value
-    hndl_performance.STR_DAILY_WS_NAME_ADDITIONAL = obj_settings.Item("performance:module\\performance.str_daily_ws_name_additional").Value
-    
-    ' hndl_performance_output
-    hndl_performance_output.STR_OUTBOUND_PATH = obj_settings.Item("performance:file\\history.str_outbound_path").Value
-    hndl_performance_output.STR_OUTBOUND_FILE = obj_settings.Item("performance:file\\history.str_outbound_file").Value ' ThisWorkbook.Path & "\data\outbound\"
-    hndl_performance_output.STR_OUTBOUND_TMPL_PATH = obj_settings.Item("performance:file\\history.str_outbound_tmpl_path").Value 'ThisWorkbook.Path & "\tmpl\"
-    hndl_performance_output.str_passwd = "db_history"
-    hndl_performance_output.str_save_mode = obj_settings.Item("performance:module\\performance_output.str_save_mode").Value 'hndl_performance_output.STR_SAVE_MODE_MONTHLY
-    hndl_performance_output.STR_DAILY_WS_NAME_KPI = obj_settings.Item("performance:module\\performance_output.str_daily_ws_name_kpi").Value
-    hndl_performance_output.STR_DAILY_WS_NAME_ADDITIONAL = obj_settings.Item("performance:module\\performance_output.str_daily_ws_name_additional").Value
-    hndl_process.STR_DURATION_UNIT = "n" ' n = minutes, s = seconds
+'    ' hndl_log settings
+'    hndl_log.str_path = obj_settings.Item("performance:file\\hndl_log.str_path").Value
+'    hndl_log.str_file_name = obj_settings.Item("performance:file\\hndl_log.str_file_name.log").Value
+'    ' hndl_file_processed settings
+'    hndl_history_file_processed.STR_PATH_INBOUND = obj_settings.Item("performance:file\\hndl_log.str_path").Value
+'    hndl_history_file_processed.str_file_name = obj_settings.Item("performance:file\\hndl_log.str_file_name.file_processed").Value
+'
+'    ' hndl_history
+'    hndl_history.STR_PATH_INBOUND = obj_settings.Item("history pallet:file\\history.str_path_outbound").Value ' path inbound is really taken as output from application history pallet
+'
+'    ' hndl_performance
+'    hndl_performance.STR_DAILY_WS_NAME_KPI = obj_settings.Item("performance:module\\performance.str_daily_ws_name_kpi").Value
+'    hndl_performance.STR_DAILY_WS_NAME_ADDITIONAL = obj_settings.Item("performance:module\\performance.str_daily_ws_name_additional").Value
+'
+'    ' hndl_performance_output
+'    hndl_performance_output.STR_OUTBOUND_PATH = obj_settings.Item("performance:file\\history.str_outbound_path").Value
+'    hndl_performance_output.STR_OUTBOUND_FILE = obj_settings.Item("performance:file\\history.str_outbound_file").Value ' ThisWorkbook.Path & "\data\outbound\"
+'    hndl_performance_output.STR_OUTBOUND_TMPL_PATH = obj_settings.Item("performance:file\\history.str_outbound_tmpl_path").Value 'ThisWorkbook.Path & "\tmpl\"
+'    hndl_performance_output.str_passwd = "db_history"
+'    hndl_performance_output.str_save_mode = obj_settings.Item("performance:module\\performance_output.str_save_mode").Value 'hndl_performance_output.STR_SAVE_MODE_MONTHLY
+'    hndl_performance_output.STR_DAILY_WS_NAME_KPI = obj_settings.Item("performance:module\\performance_output.str_daily_ws_name_kpi").Value
+'    hndl_performance_output.STR_DAILY_WS_NAME_ADDITIONAL = obj_settings.Item("performance:module\\performance_output.str_daily_ws_name_additional").Value
+'    hndl_process.STR_DURATION_UNIT = "n" ' n = minutes, s = seconds
     On Error GoTo 0
     
     On Error GoTo ERR_CLOSE_SETTINGS

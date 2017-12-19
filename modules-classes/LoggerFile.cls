@@ -14,6 +14,7 @@ Public destination As String
 Public Level As Integer
 Public category As Variant
 
+Public is_same_app As Boolean
 
 Public wsName As String
 Public logFilePath As String
@@ -90,12 +91,16 @@ End Function
 Private Function openFile() As Workbook
     Dim lApp As Application
     
-    Set lApp = CreateObject("Excel.Application")
-    lApp.Visible = False
+    If is_same_app Then
+        Set lApp = Application
+    Else
+        Set lApp = CreateObject("Excel.Application")
+        lApp.Visible = False
+    End If
     
     On Error GoTo ERR_CANT_OPEN
-        lApp.Workbooks.Open logFilePath
-        Set openFile = lApp.Workbooks(1)
+    Set openFile = lApp.Workbooks.Open(logFilePath)
+    'Set openFile = lApp.Workbooks(1)
     On Error GoTo 0
     
     logIsOpen = True
@@ -112,8 +117,10 @@ Public Function closeFile()
     If logIsOpen Then
         Set lApp = logWB.Parent
         logWB.Close SaveChanges:=True
-        lApp.Quit
         logIsOpen = False
+        If Not is_same_app Then
+            lApp.Quit
+        End If
     End If
 End Function
 

@@ -3,7 +3,8 @@ Option Explicit
 
 Public Const str_module = "BIN"
 
-Public Const STR_USER_BIN_PREFIX = "U_"
+Public Const STR_USER_BIN_PREFIX_1 = "U_"
+Public Const STR_USER_BIN_PREFIX_2 = "CZ"
 Public STR_BIN_SEPARATOR As String
 
 Public INT_BUILDING_PREFIX_LEN As Integer
@@ -139,6 +140,7 @@ Public INT_MATERIAL_HANDLING_LEN As Integer
 Public STR_MATERIAL_HANDLING_SPE_PREFIX As String
 Public STR_MATERIAL_HANDLING_LPE_PREFIX As String
 Public STR_MATERIAL_HANDLING_ATLET_PREFIX As String
+Public STR_MATERIAL_HANDLING_TRAIGO_PREFIX As String
 
 Public INT_SCALE_STATION_LEN As Integer
 Public STR_SCALE_STATION_PREFIX_A As String
@@ -247,7 +249,7 @@ Public Function init()
     INT_HBW_CONVEYOR_IN_LEN = 2
     STR_HBW_CONVEYOR_IN_PREFIX_1 = "07"
     STR_HBW_CONVEYOR_IN_PREFIX_2 = "27"
-    STR_HBW_CONVEYOR_IN_PREFIX_3 = "38"
+    STR_HBW_CONVEYOR_IN_PREFIX_3 = "08"
         
     INT_HBW_CONVEYOR_OUT_LEN = 2
     STR_HBW_CONVEYOR_OUT_PREFIX_1 = "01"
@@ -288,6 +290,7 @@ Public Function init()
     STR_MATERIAL_HANDLING_ATLET_PREFIX = "ATL"
     STR_MATERIAL_HANDLING_LPE_PREFIX = "LPE"
     STR_MATERIAL_HANDLING_SPE_PREFIX = "SPE"
+    STR_MATERIAL_HANDLING_TRAIGO_PREFIX = "TRA"
     
     INT_SCALE_STATION_LEN = 7
     STR_SCALE_STATION_PREFIX_A = "6-02-08"
@@ -302,11 +305,20 @@ Public Function init()
 End Function
 
 Public Function is_user_bin(str_bin As String) As Boolean
+    Dim str_prefix As String
+
     is_user_bin = False
+    str_prefix = Left(str_bin, 2)
     
-    If Left(str_bin, 2) = STR_USER_BIN_PREFIX Then
-        is_user_bin = True
-    End If
+    Select Case str_prefix
+        Case STR_USER_BIN_PREFIX_1, _
+                STR_USER_BIN_PREFIX_2
+            is_user_bin = True
+    End Select
+    
+'    If Left(str_bin, 2) = STR_USER_BIN_PREFIX Then
+'        is_user_bin = True
+'    End If
 End Function
 
 Public Function is_ra(str_bin As String) As Boolean
@@ -580,7 +592,8 @@ Public Function is_material_handling(str_bin) As Boolean
     Select Case Left(str_bin, INT_MATERIAL_HANDLING_LEN)
         Case STR_MATERIAL_HANDLING_ATLET_PREFIX, _
                 STR_MATERIAL_HANDLING_LPE_PREFIX, _
-                STR_MATERIAL_HANDLING_SPE_PREFIX
+                STR_MATERIAL_HANDLING_SPE_PREFIX, _
+                STR_MATERIAL_HANDLING_TRAIGO_PREFIX
             is_material_handling = True
     End Select
 End Function

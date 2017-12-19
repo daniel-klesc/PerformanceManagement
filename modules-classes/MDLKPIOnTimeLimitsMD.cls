@@ -51,7 +51,7 @@ Dim obj_limit_mat_grp_wh As KPIOnTimeLimitMatGrpWH
 Dim obj_limit_source As KPIOnTimeLimitSource
 Dim obj_limit_checkpoint_place As KPIOnTimeLimitCheckpoint
 
-If rg_record.Offset(0, INT_OFFSET_PROCESS_VERSION_ID).Value = "PP-1" Then
+If rg_record.Offset(0, INT_OFFSET_KPI_ID).Value = "Putaway-GR-PP-PPOT" Then
     DoEvents
 End If
 
