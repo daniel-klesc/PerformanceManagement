@@ -18,5 +18,5 @@ Public Function process_history_record(obj_record As DBHistoryRecord)
 End Function
 
 Public Function after_process_history_record(obj_data_provider_info As FileExcelDataProviderInfo)
-    new_ctrl_pallet.save_open_pallets
+    'new_ctrl_pallet.save_open_pallets
 End Function
