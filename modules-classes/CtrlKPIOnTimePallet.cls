@@ -291,6 +291,7 @@ Public Function update_kpi_on_time_pallet(obj_kpi_on_time_pallet As KPIOnTimePal
     Dim obj_kpi_on_time_pallet_original As KPIOnTimePallet
     
     Dim col_pallet_steps As Collection
+    Dim obj_kpi_on_time_interval As KPIOnTimeInterval
 
     bool_is_place_to_tracked_by_kpi = False
     Set col_pallet_steps = New Collection
@@ -350,15 +351,29 @@ Public Function update_kpi_on_time_pallet(obj_kpi_on_time_pallet As KPIOnTimePal
     End If
     
     If obj_data_process.byte_process_step_status = 2 Then '# debug
+        If obj_kpi_on_time_pallet.str_id = "357020105568436083" Then
+            DoEvents
+        End If
+    
         If Not obj_kpi_on_time_pallet.obj_checkpoint.obj_next_limit Is Nothing Then
             Debug.Print obj_kpi_on_time_pallet.str_id & ":" & obj_kpi_on_time_pallet.obj_checkpoint.str_id & " is NOT a last checkpoint"
             ' remove pallet from tracking
             Set col_pallet_steps = New Collection
             col_kpi_pallets.Remove obj_kpi_on_time_pallet.str_id
+            
+            For Each obj_kpi_on_time_interval In col_kpi_intervals
+                On Error GoTo INFO_NOT_REGISTERED
+                obj_kpi_on_time_interval.col_pallets_step.Remove retrieve_pallet_step_id(obj_kpi_on_time_pallet)
+                obj_kpi_on_time_interval.col_pallets_full_live.Remove obj_kpi_on_time_pallet.str_id
+                On Error GoTo 0
+            Next
         End If
     End If
     
     Set update_kpi_on_time_pallet = col_pallet_steps
+    Exit Function
+INFO_NOT_REGISTERED:
+    Resume Next
 End Function
 
 Public Function update_kpi_on_time_pallet_with_new_checkpoint(obj_kpi_on_time_pallet As KPIOnTimePallet, obj_checkpoint As KPIOnTimeLimitCheckpoint)
