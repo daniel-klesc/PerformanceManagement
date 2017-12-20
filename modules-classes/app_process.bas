@@ -178,7 +178,7 @@ Public Function run()
     ' make post process actions in listeners
       ' save unfinished
     obj_mdl_data_process_unfinished.reset_clear_data
-    'new_ctrl_pallet.save_open_pallets
+    new_ctrl_pallet.save_open_pallets
     obj_mdl_data_process_finished.obj_multi_data_provider.close_providers
     obj_mdl_data_process_unfinished.obj_multi_data_provider.close_providers
     dbl_end = Now
