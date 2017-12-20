@@ -147,8 +147,16 @@ Public Function process_steps(col_steps As Collection, col_kpi_intervals As Coll
 
     For Each obj_kpi_on_time_interval In col_kpi_intervals
         For Each obj_kpi_on_time_pallet_step In col_steps 'obj_kpi_on_time_pallet_steps
+        
+            If obj_kpi_on_time_pallet_step.str_id = "357020105565044595" Then
+                DoEvents
+            End If
+        
             ' find date end for pallet
             If obj_kpi_on_time_pallet_step.str_date_end = "" Then
+                ' check if pallet step is closed
+                
+                
                 str_date_end_for_status_calculation = obj_kpi_on_time_interval.obj_interval.obj_end
             Else
                 str_date_end_for_status_calculation = obj_kpi_on_time_pallet_step.str_date_end
@@ -183,16 +191,16 @@ Public Function process_steps(col_steps As Collection, col_kpi_intervals As Coll
                     Set obj_kpi_on_time_next_interval = obj_kpi_on_time_next_interval.obj_next_interval
                 Loop
             End If
+            
+            ' create
+            If Not obj_kpi_on_time_pallet_full_live_interval Is Nothing Then
+                On Error GoTo INFO_NEW_PALLET_IN_FULL_LIVE_INTERVAL
+                obj_kpi_on_time_interval.col_pallets_full_live.add obj_kpi_on_time_pallet_full_live_interval, obj_kpi_on_time_pallet_full_live_interval.str_id 'retrieve_pallet_id_interval(obj_kpi_on_time_pallet_full_live_interval)
+                On Error GoTo 0
+                ' reset
+                Set obj_kpi_on_time_pallet_full_live_interval = Nothing
+            End If
         Next
-        
-        ' create
-        If Not obj_kpi_on_time_pallet_full_live_interval Is Nothing Then
-            On Error GoTo INFO_NEW_PALLET_IN_FULL_LIVE_INTERVAL
-            obj_kpi_on_time_interval.col_pallets_full_live.add obj_kpi_on_time_pallet_full_live_interval, obj_kpi_on_time_pallet_full_live_interval.str_id 'retrieve_pallet_id_interval(obj_kpi_on_time_pallet_full_live_interval)
-            On Error GoTo 0
-            ' reset
-            Set obj_kpi_on_time_pallet_full_live_interval = Nothing
-        End If
     Next
     
     Exit Function
