@@ -17,6 +17,9 @@ Public STR_STORAGE_TYPE_VNA As String
 Public STR_STORAGE_TYPE_TA As String
 Public STR_STORAGE_TYPE_PROD_HALL As String
 
+Public STR_MODULE_EXT As String
+Public STR_MODULE_PROD As String
+
 Public str_version_id As String
 Public str_source As String
 Public str_source_type As String
@@ -44,7 +47,9 @@ Public Function init(obj_record As DBHistoryRecord)
         str_building_to = str_building_from
     End If
     
-    str_module = wc.get_module(obj_record.str_wc_ship_to)
+    
+'    str_module = wc.get_module(obj_record.str_wc_ship_to)
+    str_module = resolve_module(obj_record)
     
     If bin_stor_grp.is_production_hall(obj_record.str_storage_group_material) Then
         str_storage_type = STR_STORAGE_TYPE_PROD_HALL
@@ -66,6 +71,17 @@ Public Function init(obj_record As DBHistoryRecord)
     str_version_id = str_module & "-" & str_storage_type & "-" & str_sub_version
 End Function
 
+Public Function resolve_module(obj_record As DBHistoryRecord) As String
+    
+    Select Case obj_record.str_transaction_type_started
+        Case db_transaction_type.STR_TRANSACTION_TYPE_PO_GR, _
+                db_transaction_type.STR_TRANSACTION_TYPE_CONS_OWN_STOCK
+            resolve_module = STR_MODULE_EXT
+        Case db_transaction_type.STR_TRANSACTION_TYPE_PROD_ORD_GR
+            resolve_module = wc.get_module(obj_record.str_wc_ship_to)
+    End Select
+End Function
+
 Private Sub Class_Initialize()
     STR_VERSION_SINGLE = "1"
     STR_VERSION_CROSS_B_C = "2"
@@ -74,5 +90,7 @@ Private Sub Class_Initialize()
     STR_STORAGE_TYPE_VNA = "VNA"
     STR_STORAGE_TYPE_PROD_HALL = "PROD_HALL"
     STR_STORAGE_TYPE_TA = "TA"
+    
+    STR_MODULE_EXT = "EXT"
 End Sub
 

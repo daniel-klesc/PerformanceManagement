@@ -434,6 +434,10 @@ Public Function update_pallet_step_places(obj_pallet_step As KPIOnTimePallet, is
     Set obj_checkpoint_from = obj_pallet_step.obj_checkpoint
     Set obj_checkpoint_to = obj_pallet_step.obj_checkpoint.obj_next_limit
     
+    If obj_pallet_step.str_id = "357020105568408943" Then
+        DoEvents
+    End If
+    
     If Not is_hidden_allowed Then
         ' if checkpoint is hidden then:
           ' find first visibile predecessor
@@ -466,7 +470,7 @@ WARN_PREVIOUS_CHECKPOINT_NOT_EXIST:
 WARN_NEXT_CHECKPOINT_NOT_EXIST:
     Set message = New MSG
     log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(STR_CLASS_NAME, "update_pallet_step_places") _
-        .text("During adding pallet: " & obj_pallet_step.str_id & " into col_pallet_steps collection checkpoint predecessor wasn't found.")
+        .text("During adding pallet: " & obj_pallet_step.str_id & " into col_pallet_steps collection checkpoint successor wasn't found.")
     'Err.raise app_error.ERR_NUMBER + app_error.CTRL_KPI_ON_TIME_PALLET_DEFAULT + app_error.CTRL_KPI_ON_TIME_PALLET_NEXT_CHECKPOINT_NOT_EXIST
     'Exit Function
 End Function
