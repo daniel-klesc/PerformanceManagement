@@ -154,6 +154,14 @@ Public STR_PRODUCTION_STORAGE_PREFIX As String
 
 Public INT_VNA_INBOUND_HOUSE_LIMIT As Integer
 
+' External WH
+  ' general
+Public INT_EXT_WH_LEN As Integer
+Public STR_EXT_WH_PREFIX As String
+  ' in transit
+Public INT_EXT_WH_IN_TRANSIT_HBW_LEN As Integer
+Public STR_EXT_WH_IN_TRANSIT_HBW_PREFIX As String
+
 Public col_bin_prod_lines As Collection
 
 Public Function init()
@@ -306,6 +314,13 @@ Public Function init()
     STR_PRODUCTION_STORAGE_PREFIX = "6-13-03-02-8"
     
     INT_VNA_INBOUND_HOUSE_LIMIT = 800
+    
+    ' EXTERNAL WH
+    INT_EXT_WH_LEN = 4
+    STR_EXT_WH_PREFIX = "6-98"
+    
+    INT_EXT_WH_IN_TRANSIT_HBW_LEN = 7
+    STR_EXT_WH_IN_TRANSIT_HBW_PREFIX = "6-20-98"
     
     Set col_bin_prod_lines = New Collection
 End Function
@@ -635,6 +650,24 @@ Public Function is_production_hall_storage(str_bin) As Boolean
     Select Case Left(str_bin, INT_PRODUCTION_STORAGE_LEN)
         Case STR_PRODUCTION_STORAGE_PREFIX
             is_production_hall_storage = True
+    End Select
+End Function
+
+Public Function is_ext_wh(str_bin) As Boolean
+    is_ext_wh = False
+        
+    Select Case Left(str_bin, INT_EXT_WH_LEN)
+        Case STR_EXT_WH_PREFIX
+            is_ext_wh = True
+    End Select
+End Function
+
+Public Function is_ext_wh_in_transit(str_bin) As Boolean
+    is_ext_wh_in_transit = False
+        
+    Select Case Left(str_bin, INT_EXT_WH_IN_TRANSIT_HBW_LEN)
+        Case STR_EXT_WH_IN_TRANSIT_HBW_PREFIX
+            is_ext_wh_in_transit = True
     End Select
 End Function
 
