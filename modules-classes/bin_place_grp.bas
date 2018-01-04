@@ -4,6 +4,8 @@ Option Explicit
 Public Const str_module = "bin_place_grp"
 
 Public Const STR_DUMMY As String = "DUMMY"
+Public Const STR_EXT_WH_GENERAL As String = "EXT_WH_GENERAL"
+Public Const STR_EXT_WH_IN_TRANSIT_HBW As String = "EXT_WH_IN_TRANSIT_HBW"
 Public Const STR_HBW As String = "HBW"
 Public Const STR_HBW_CONVEYOR_IN As String = "HBW_CONVEYOR_IN"
 Public Const STR_HBW_CONVEYOR_OUT As String = "HBW_CONVEYOR_OUT"
@@ -85,6 +87,10 @@ Public Function get_place_grp(str_bin As String) As String
             get_place_grp = bin_place_grp.STR_RA_GATE_OUT
         ElseIf bin.is_ra(str_bin) Then
             get_place_grp = bin_place_grp.STR_RA_OTHERS
+        ElseIf bin.is_ext_wh_in_transit(str_bin) Then
+            get_place_grp = bin_place_grp.STR_EXT_WH_IN_TRANSIT_HBW
+        ElseIf bin.is_ext_wh(str_bin) Then
+            get_place_grp = bin_place_grp.STR_EXT_WH_GENERAL
         Else
             Set message = New MSG
             log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "get_place_grp").text("Not found place group for BIN: " & str_bin)
