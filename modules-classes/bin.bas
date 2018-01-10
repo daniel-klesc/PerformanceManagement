@@ -150,7 +150,8 @@ Public STR_SCALE_STATION_PREFIX_C As String
 Public STR_BIN_DUMMY As String
 
 Public INT_PRODUCTION_STORAGE_LEN As Integer
-Public STR_PRODUCTION_STORAGE_PREFIX As String
+Public STR_PRODUCTION_STORAGE_HALL_B4_PREFIX As String
+Public STR_PRODUCTION_STORAGE_HALL_C2_PREFIX As String
 
 Public INT_VNA_INBOUND_HOUSE_LIMIT As Integer
 
@@ -311,7 +312,8 @@ Public Function init()
     STR_BIN_DUMMY = "999"
     
     INT_PRODUCTION_STORAGE_LEN = 12
-    STR_PRODUCTION_STORAGE_PREFIX = "6-13-03-02-8"
+    STR_PRODUCTION_STORAGE_HALL_C2_PREFIX = "6-13-03-02-8"
+    STR_PRODUCTION_STORAGE_HALL_B4_PREFIX = "6-12-03-04-9"
     
     INT_VNA_INBOUND_HOUSE_LIMIT = 800
     
@@ -648,7 +650,8 @@ Public Function is_production_hall_storage(str_bin) As Boolean
     is_production_hall_storage = False
         
     Select Case Left(str_bin, INT_PRODUCTION_STORAGE_LEN)
-        Case STR_PRODUCTION_STORAGE_PREFIX
+        Case STR_PRODUCTION_STORAGE_HALL_C2_PREFIX, _
+                STR_PRODUCTION_STORAGE_HALL_B4_PREFIX
             is_production_hall_storage = True
     End Select
 End Function

@@ -123,8 +123,16 @@ Public Function process_record(obj_db_data_process As DBDataProcess)
     Dim obj_listener As Object
     
     For Each obj_listener In col_listeners
+        On Error GoTo WARN_PROCESS_RECORD_FAILED
         obj_listener.process_record obj_db_data_process
+        On Error GoTo 0
     Next
+    
+    Exit Function
+WARN_PROCESS_RECORD_FAILED:
+    Dim message As MSG
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "process_record").text("Unexpected error in listener:" & obj_listener.str_id & ", processing record: " & obj_db_data_process.str_pallet)
 End Function
 
   ' # interface method for listening MDLDataProcessExcel
@@ -366,6 +374,8 @@ End Function
 
 Private Sub Class_Initialize()
     Set col_listeners = New Collection
+    
+    str_id = str_module
     
     STR_WS_NAME = "db.md.listener"
     

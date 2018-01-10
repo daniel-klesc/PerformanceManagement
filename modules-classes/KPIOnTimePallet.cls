@@ -11,34 +11,34 @@ Option Explicit
 
 Public str_id As String
 
-Public str_process_id As String
-Public str_process_version_id As String
-Public str_process_version_name As String
+Public str_process_id As String '
+Public str_process_version_id As String '
+Public str_process_version_name As String '
 
-Public str_material_vendor As String
-Public str_material_bin_storage_group As String
+Public str_material_vendor As String '
+Public str_material_bin_storage_group As String '
 
-Public str_building_source As String
-Public str_building_destination As String
+Public str_building_source As String '
+Public str_building_destination As String '
 
-Public str_place_building As String
+Public str_place_building As String '
 
-Public str_place_from As String
-Public str_place_to As String
+Public str_place_from As String '
+Public str_place_to As String '
 
-Public str_date_start As String
-Public str_date_end As String
-Public str_date_last_checkpoint As String
+Public str_date_start As String '
+Public str_date_end As String '
+Public str_date_last_checkpoint As String '
 
-Public obj_checkpoint As KPIOnTimeLimitCheckpoint
-Public obj_kpi_interval As KPIOnTimeInterval
+Public obj_checkpoint As KPIOnTimeLimitCheckpoint '
+Public obj_kpi_interval As KPIOnTimeInterval '
 
 ' # implement as byte
-Public str_process_status As String
-Public byte_process_status As Byte
-Public private_bool_status_ok As Boolean
+Public str_process_status As String '
+Public byte_process_status As Byte '
+Public private_bool_status_ok As Boolean '
 
-Public bool_is_synchronized_with_process As Boolean
+Public bool_is_synchronized_with_process As Boolean '
 
 Public Property Get bool_status_ok() As Boolean
     bool_status_ok = retrieve_actual_duration <= obj_checkpoint.obj_limit
@@ -71,8 +71,13 @@ Public Function create_copy() As KPIOnTimePallet
     create_copy.str_building_destination = str_building_destination
     
     Set create_copy.obj_checkpoint = obj_checkpoint
+    Set create_copy.obj_kpi_interval = obj_kpi_interval
     
+    create_copy.str_process_status = str_process_status
     create_copy.byte_process_status = byte_process_status
+    create_copy.private_bool_status_ok = private_bool_status_ok
+    
+    create_copy.bool_is_synchronized_with_process = bool_is_synchronized_with_process
 End Function
 
 
