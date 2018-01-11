@@ -28,7 +28,7 @@ Public Function process_record(obj_record As DBHistoryRecord)
 '            DoEvents
 '    End Select
 
-    If obj_record.str_combi_vhu_from = "357020105567990401" Or obj_record.str_combi_vhu_to = "357020105567990401" Then
+    If obj_record.str_combi_vhu_from = "357020105563436743" Or obj_record.str_combi_vhu_to = "357020105563436743" Then
         DoEvents
     End If
 

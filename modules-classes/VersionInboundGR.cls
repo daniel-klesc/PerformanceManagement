@@ -47,6 +47,9 @@ Public Function init(obj_record As DBHistoryRecord)
         str_building_to = str_building_from
     End If
     
+    If str_building_from = "" And obj_record.str_transaction_type_started = db_transaction_type.STR_TRANSACTION_TYPE_PO_GR Then
+        str_building_from = str_building_to
+    End If
     
 '    str_module = wc.get_module(obj_record.str_wc_ship_to)
     str_module = resolve_module(obj_record)
