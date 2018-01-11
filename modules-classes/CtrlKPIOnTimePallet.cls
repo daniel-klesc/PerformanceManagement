@@ -43,7 +43,7 @@ End Function
 
 ' # method is called from MDLProcessDashboardListener
 Public Function process_record(obj_db_data_process As DBDataProcess)
-    If obj_db_data_process.str_pallet = "357020105567990401" Then
+    If obj_db_data_process.str_pallet = "357020105563234899" Then
         DoEvents
     End If
     process_db_data_process_record obj_db_data_process
@@ -118,6 +118,10 @@ Public Function process_db_data_process_record(obj_data_process As DBDataProcess
         Set obj_kpi_on_time_pallet = col_kpi_pallets(obj_data_process.str_pallet)
         On Error GoTo 0
         
+        If obj_data_process.str_pallet = "357020105560614656" Then
+            DoEvents
+        End If
+        
         ' set synchronization status with data process records
         obj_kpi_on_time_pallet.bool_is_synchronized_with_process = True
         
@@ -175,6 +179,7 @@ Public Function process_steps(col_steps As Collection, col_kpi_intervals As Coll
                     str_date_end_for_status_calculation
                 obj_kpi_on_time_pallet_step_interval.str_date_last_checkpoint = obj_kpi_on_time_pallet_step.str_date_last_checkpoint
                 Set obj_kpi_on_time_pallet_step_interval.obj_checkpoint = obj_kpi_on_time_pallet_step.obj_checkpoint
+                obj_kpi_on_time_pallet_step_interval.bool_is_synchronized_with_process = obj_kpi_on_time_pallet_step.bool_is_synchronized_with_process
                 
                 ' update full live pallet - to have latest pallet status in interval
                 Set obj_kpi_on_time_pallet_full_live_interval = obj_kpi_on_time_pallet_step_interval.create_copy
@@ -356,7 +361,7 @@ Public Function update_kpi_on_time_pallet(obj_kpi_on_time_pallet As KPIOnTimePal
         End If
     
         If Not obj_kpi_on_time_pallet.obj_checkpoint.obj_next_limit Is Nothing Then
-            Debug.Print obj_kpi_on_time_pallet.str_id & ":" & obj_kpi_on_time_pallet.obj_checkpoint.str_id & " is NOT a last checkpoint"
+            'Debug.Print obj_kpi_on_time_pallet.str_id & ":" & obj_kpi_on_time_pallet.obj_checkpoint.str_id & " is NOT a last checkpoint"
             ' remove pallet from tracking
             Set col_pallet_steps = New Collection
             col_kpi_pallets.Remove obj_kpi_on_time_pallet.str_id
@@ -499,7 +504,7 @@ WARN_NEXT_CHECKPOINT_NOT_EXIST:
 End Function
 
 Public Function update_pallet_step_datetime(obj_pallet_step As KPIOnTimePallet, obj_db_data_process As DBDataProcess)
-    obj_pallet_step.str_date_last_checkpoint = obj_db_data_process.str_date_end
+    obj_pallet_step.str_date_last_checkpoint = obj_db_data_process.str_date_start
     obj_pallet_step.str_date_end = obj_db_data_process.str_date_end
 End Function
 
@@ -612,12 +617,15 @@ Public Function save(obj_provider_info As FileExcelDataProviderInfo)
     For Each obj_kpi_on_time_interval In col_kpi_intervals
         ' process all pallets in interval
         For Each obj_kpi_on_time_pallet In obj_kpi_on_time_interval.col_pallets_step
-            If obj_kpi_on_time_pallet.str_id = "357020105501109173" Then ' # debug - clear out
-                Debug.Print "KPI interval" & obj_kpi_on_time_interval.str_id & ", Pallet data:" & obj_kpi_on_time_pallet.str_place_from & ">" & obj_kpi_on_time_pallet.str_place_to ' # debug - clear out
+            If obj_kpi_on_time_pallet.str_id = "357020105560614656" Then ' # debug - clear out
                 DoEvents ' # debug - clear out
             End If ' # debug - clear out
-        
-            obj_mdl_kpi_on_time_pallet.save_record_dynamic obj_kpi_on_time_pallet
+            
+            If obj_kpi_on_time_pallet.bool_is_synchronized_with_process Then
+                obj_mdl_kpi_on_time_pallet.save_record_dynamic obj_kpi_on_time_pallet
+            Else
+                Debug.Print "Debug>NSP:" & obj_kpi_on_time_pallet.str_id & ", interval:" & obj_kpi_on_time_interval.str_id & ", process:" & obj_kpi_on_time_pallet.str_process_version_name
+            End If
         Next
         
         ' process all full pallets in interval
@@ -625,7 +633,13 @@ Public Function save(obj_provider_info As FileExcelDataProviderInfo)
             obj_kpi_on_time_pallet.str_place_from = "START"
             obj_kpi_on_time_pallet.str_place_to = "END"
             
-            obj_mdl_kpi_on_time_pallet.save_record_dynamic obj_kpi_on_time_pallet
+            If obj_kpi_on_time_pallet.bool_is_synchronized_with_process Then
+                obj_mdl_kpi_on_time_pallet.save_record_dynamic obj_kpi_on_time_pallet
+            Else
+                Debug.Print "Debug>Full pallet NSP:" & obj_kpi_on_time_pallet.str_id & ", interval:" & obj_kpi_on_time_interval.str_id & ", process:" & obj_kpi_on_time_pallet.str_process_version_name
+            End If
+            
+            'obj_mdl_kpi_on_time_pallet.save_record_dynamic obj_kpi_on_time_pallet
         Next
     Next
 End Function
@@ -663,6 +677,9 @@ Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePal
         On Error GoTo WARN_PALLET_ALREADY_EXISTS
         Set obj_kpi_on_time_pallet.obj_checkpoint = retrieve_checkpoint(obj_kpi_on_time_pallet)
         ' set pallet synchronization status
+        If obj_kpi_on_time_pallet.str_id = "357020105563234899" Then ' # debug - clear out
+            DoEvents ' # debug - clear out
+        End If ' # debug - clear out
         obj_kpi_on_time_pallet.bool_is_synchronized_with_process = False
         col_kpi_pallets.add obj_kpi_on_time_pallet, obj_kpi_on_time_pallet.str_id
         On Error GoTo 0

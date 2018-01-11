@@ -46,6 +46,7 @@ Public obj_current_data_provider_info As FileExcelDataProviderInfo
 Public str_static_data_provider_id As String
 Public str_provider_id_default As String
 
+Public STR_APP_MODULE_NAME As String
     ' listeners must implement:
 Public str_id As String
       ' process_record obj_db_data_process: DBDataProcess
@@ -89,6 +90,7 @@ Private Sub Class_Initialize()
 '    Set col_provider_info_listeners = New Collection
 
     str_id = str_module
+    STR_APP_MODULE_NAME = str_module
 End Sub
 
 Public Function set_clear_data()

@@ -80,6 +80,7 @@ Private Sub Class_Initialize()
 '    INT_APP_WORK_COL_DATE_OFFSET = 0
 '    STR_APP_WORK_FIRST_RG = "A2"
     
+    str_id = str_module
     'Set obj_multi_data_provider = New MultiFileExcelDataProvider
     str_static_data_provider_id = "static"
     Set col_listeners = New Collection
