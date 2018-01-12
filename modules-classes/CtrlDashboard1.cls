@@ -172,6 +172,10 @@ Private Function init_mdl_data_pallet(obj_dashboard_listener As MDLKPIPalletDash
 
     ' # implement - all settings for initialization of obj_mdl_data_pallet are taken from a file
     Set obj_mdl_data_kpi_pallet = New MDLKPIOnTimePallet
+    
+    'add mddashboard to MDLKPIOnTimePallet
+    Set obj_mdl_data_kpi_pallet.obj_md_dashboard = obj_md_dashboard
+    
     obj_mdl_data_kpi_pallet.add_listener obj_dashboard_listener
 '        ' next module - processed files
 '    obj_mdl_data_kpi_pallet.STR_PROCESSED_FILE_PATH_NEXT_MODULE = ThisWorkbook.Path & "\log\"

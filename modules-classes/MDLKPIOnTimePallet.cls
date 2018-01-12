@@ -34,6 +34,7 @@ Public INT_OFFSET_INTERVAL_END As Integer
 Public INT_OFFSET_INTERVAL_SHIFT As Integer
 Public INT_OFFSET_INTERVAL_SHIFT_TYPE As Integer
 Public INT_OFFSET_CHECKPOINT_LIMIT As Integer
+Public INT_OFFSET_CLOSED_STATUS As Integer
 
 'Public INT_APP_WORK_COL_DATE_OFFSET As Integer
 'Public STR_APP_WORK_FIRST_RG As String
@@ -50,6 +51,8 @@ Public col_listeners As Collection
     ' listeners must implement:
       ' loading_data_is_about_to_start obj_provider_info: FileExcelDataProviderInfo
 'Public col_provider_info_listeners As Collection
+
+Public obj_md_dashboard As MDDashboard1
 
 Private Sub Class_Initialize()
     STR_DB_TYPE_FILE_EXCEL = "file:excel"
@@ -75,12 +78,12 @@ Private Sub Class_Initialize()
     INT_OFFSET_INTERVAL_SHIFT = 17
     INT_OFFSET_INTERVAL_SHIFT_TYPE = 18
     INT_OFFSET_CHECKPOINT_LIMIT = 19
+    INT_OFFSET_CLOSED_STATUS = 20
     
     ' app help sheet
 '    INT_APP_WORK_COL_DATE_OFFSET = 0
 '    STR_APP_WORK_FIRST_RG = "A2"
     
-    str_id = str_module
     'Set obj_multi_data_provider = New MultiFileExcelDataProvider
     str_static_data_provider_id = "static"
     Set col_listeners = New Collection
@@ -173,11 +176,14 @@ Public Function load_record(rg_record As Range)
     Set obj_kpi_on_time_pallet.obj_kpi_interval = obj_kpi_interval
     
       ' checkpoint
-    Set obj_checkpoint = New KPIOnTimeLimitCheckpoint
+    'Set obj_checkpoint = New KPIOnTimeLimitCheckpoint
     'obj_checkpoint.str_id = rg_record.Offset(0, INT_OFFSET_PLACE_TO).Value
-    obj_checkpoint.str_id = rg_record.Offset(0, INT_OFFSET_PLACE_FROM).Value
-    obj_checkpoint.obj_limit = rg_record.Offset(0, INT_OFFSET_CHECKPOINT_LIMIT).Value
-    Set obj_kpi_on_time_pallet.obj_checkpoint = obj_checkpoint
+    'obj_checkpoint.str_id = rg_record.Offset(0, INT_OFFSET_PLACE_FROM).Value
+    'obj_checkpoint.obj_limit = rg_record.Offset(0, INT_OFFSET_CHECKPOINT_LIMIT).Value
+    Set obj_kpi_on_time_pallet.obj_checkpoint = retrieve_checkpoint(obj_kpi_on_time_pallet)
+    
+    'closed status
+    obj_kpi_on_time_pallet.str_pallet_status = rg_record.Offset(0, INT_OFFSET_CLOSED_STATUS).Value
             
     For Each obj_listener In col_listeners
         obj_listener.kpi_pallet_process_record obj_kpi_on_time_pallet
@@ -312,4 +318,82 @@ Private Function retrieve_data_provider_completeness_status(obj_kpi_interval As 
     Else
         retrieve_data_provider_completeness_status = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_STATUS_OPENED
     End If
+End Function
+
+Public Function retrieve_checkpoint(obj_kpi_on_time_pallet As KPIOnTimePallet) As KPIOnTimeLimitCheckpoint
+    Dim bool_only_default As Boolean ' if during searching one part of limit is not found then every following part is set to default
+    
+    Dim str_place_checkpoint As String
+    Dim obj_vendor As Vendor
+    Dim obj_material_group_wh_resolver As MaterialGroupWHResolver
+    Dim obj_condition_process_material As ConditionProcessMaterial
+    
+    Dim obj_kpi_limit_process As KPIOnTimeLimitProc
+    Dim obj_kpi_limit_process_version As KPIOnTimeLimitProcVersion
+    Dim obj_kpi_limit_mat_grp_wh As KPIOnTimeLimitMatGrpWH
+    Dim obj_kpi_limit_source As KPIOnTimeLimitSource
+    
+    Dim obj_kpi As KPIOnTime
+    
+    Set obj_kpi = is_relevant_for_kpi(obj_kpi_on_time_pallet.str_process_id)
+    ' # implement - all retrievals must be error handled - these will lead to warning error
+    Set obj_kpi_limit_process = obj_kpi.col_limits_process(obj_kpi_on_time_pallet.str_process_id)
+    Set obj_kpi_limit_process_version = obj_kpi_limit_process.col_limits_version(obj_kpi_on_time_pallet.str_process_version_id)
+    
+    On Error GoTo WARN_NOT_FOUND_MATERIAL_GROUP_WH_RESOLVER
+    Set obj_vendor = obj_md_dashboard.col_material_group_wh_resolvers(obj_kpi_on_time_pallet.str_material_vendor)
+    Set obj_material_group_wh_resolver = obj_vendor.retrieve_material_group_wh_resolver(obj_kpi_on_time_pallet.str_material_bin_storage_group)
+    Set obj_kpi_limit_mat_grp_wh = obj_kpi_limit_process_version.col_limits_mat_grp_wh(obj_material_group_wh_resolver.str_material_group_wh_id)
+    On Error GoTo 0
+    
+    If Not bool_only_default Then
+        On Error GoTo WARN_NOT_FOUND_CONDITION_PROCESS_MATERIAL
+        
+        Set obj_vendor = obj_md_dashboard.col_conditions_process_material(obj_kpi_on_time_pallet.str_material_vendor)
+        Set obj_condition_process_material = obj_vendor.retrieve_condition_process_material( _
+             obj_kpi_on_time_pallet.str_process_id, obj_kpi_on_time_pallet.str_process_version_id)
+        Set obj_kpi_limit_source = obj_kpi_limit_mat_grp_wh.col_limits_source(obj_condition_process_material.str_condition_id)
+        On Error GoTo 0
+    Else
+        Set obj_kpi_limit_source = obj_kpi_limit_mat_grp_wh.col_limits_source("default")
+    End If
+    
+    On Error GoTo INFO_NOT_REGISTERED_CHECKPOINT
+    Set retrieve_checkpoint = obj_kpi_limit_source.col_limits_checkpoint_place(obj_kpi_on_time_pallet.str_place_from)
+    On Error GoTo 0
+    
+    Exit Function
+WARN_NOT_FOUND_MATERIAL_GROUP_WH_RESOLVER:
+    hndl_log.log db_log.TYPE_WARN, str_module, "retrieve_checkpoint", _
+        "Material group wh resolver for BIN storage group:" & obj_kpi_on_time_pallet.str_material_bin_storage_group & _
+        " and Vendor:" & obj_kpi_on_time_pallet.str_material_vendor & _
+        " doesn't exist. Checkpoint:" & obj_kpi_on_time_pallet.str_place_to & " for process:" & obj_kpi_on_time_pallet.str_process_id & ">" & obj_kpi_on_time_pallet.str_process_version_id
+    Set obj_kpi_limit_mat_grp_wh = obj_kpi_limit_process_version.col_limits_mat_grp_wh("default") ' # implement - change default string to constant
+    bool_only_default = True
+    Resume Next
+    Exit Function
+WARN_NOT_FOUND_CONDITION_PROCESS_MATERIAL:
+    hndl_log.log db_log.TYPE_WARN, str_module, "retrieve_checkpoint", _
+        "Condition for Process:" & obj_kpi_on_time_pallet.str_process_id & _
+        ", Process version:" & obj_kpi_on_time_pallet.str_process_version_id & _
+        " and Vendor:" & obj_kpi_on_time_pallet.str_material_vendor & _
+        " doesn't exist. Checkpoint:" & obj_kpi_on_time_pallet.str_place_to & " for process:" & obj_kpi_on_time_pallet.str_process_id & ">" & obj_kpi_on_time_pallet.str_process_version_id
+    Set obj_kpi_limit_source = obj_kpi_limit_mat_grp_wh.col_limits_source("default") ' # implement - change default string to constant
+    bool_only_default = True
+    Resume Next
+    Exit Function
+INFO_NOT_REGISTERED_CHECKPOINT:
+    hndl_log.log db_log.TYPE_INFO, str_module, "retrieve_checkpoint", "Checkpoint:" & obj_kpi_on_time_pallet.str_place_to & " for process:" & obj_kpi_on_time_pallet.str_process_id & ">" & obj_kpi_on_time_pallet.str_process_version_id & ", for pallet: " & obj_kpi_on_time_pallet.str_id
+End Function
+
+Public Function is_relevant_for_kpi(str_process_id As String) As KPIOnTime
+    Dim obj_kpi As Object
+    
+    For Each obj_kpi In obj_md_dashboard.col_kpis
+        If obj_kpi.obj_process.str_process_id = str_process_id Then
+            Set is_relevant_for_kpi = obj_kpi
+            Exit For
+        End If
+           
+    Next
 End Function
