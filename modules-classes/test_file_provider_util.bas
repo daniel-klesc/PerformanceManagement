@@ -6,8 +6,8 @@ Option Explicit
 
 Public Function setup()
     hndl_log.init
-    hndl_log.str_path = "C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\log\"
-    hndl_log.str_file_name = "log.xlsx"
+    hndl_log.str_path = ThisWorkbook.Path & "\log\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\log\"
+    hndl_log.str_file_name = "log-performance.xlsx"
     hndl_log.open_data
 End Function
 
@@ -31,7 +31,7 @@ Public Function test_retrieve_period()
     obj_data_provider_util.str_save_mode = new_const_excel_data_provider.STR_SAVE_MODE_HOURLY
           ' file
             ' tmpl
-    obj_data_provider_util.str_tmpl_path = "C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\data\inbound\history-process\tmpl\"
+    obj_data_provider_util.str_tmpl_path = ThisWorkbook.Path & "\data\inbound\history-process\tmpl\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\data\inbound\history-process\tmpl\"
     obj_data_provider_util.str_tmpl_file_name_appendix = "tmpl-v0_1"
             ' new
     obj_data_provider_util.str_file_prefix = "history-process"

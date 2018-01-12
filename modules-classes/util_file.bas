@@ -12,7 +12,7 @@ Function open_wb(file_path, Optional is_readonly = True, Optional is_visible As 
         Set open_wb = Workbooks.Open(file_path, readonly:=is_readonly, WriteResPassword:=str_password)
     End If
     ' set visibility of the file
-    Windows(open_wb.Name).Visible = is_visible
+    Windows(open_wb.name).Visible = is_visible
     
     'If Not is_visible Then
     '    ' ActiveWindow.visible = False

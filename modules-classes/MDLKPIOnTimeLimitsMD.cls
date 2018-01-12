@@ -9,17 +9,7 @@ Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 Option Explicit
 
-Private Const str_module As String = "MDLKPIOnTimeLimitsMD"
-
-Public str_path As String
-Public str_file_name As String
-Public str_file_appendix As String
-
-Public BOOL_EXTERNAL_DATA_FILE_VISIBILITY As Boolean
-
-' local data
-Public STR_WS_NAME As String
-Public STR_DATA_FIRST_CELL As String
+Public str_module As String
 
 Public INT_OFFSET_ID As Integer
 Public INT_OFFSET_KPI_ID As Integer
@@ -30,118 +20,46 @@ Public INT_OFFSET_CHECKPOINT_PLACE_TYPE As Integer
 Public INT_OFFSET_CHECKPOINT_PLACE_NEXT As Integer
 Public INT_OFFSET_MAT_GRP_WH_ID As Integer
 Public INT_OFFSET_SOURCE As Integer
+Public INT_OFFSET_KPI_VISIBILITY As Integer
 Public INT_OFFSET_LIMIT As Integer
 
-' objects
-Public STR_ID_SEPARATOR As String
-Public STR_PROCESS_ID_SEPARATOR As String
 
-' status bar
-Public STR_STATUS_BAR_PREFIX As String
-Public STR_STATUS_BAR_PREFIX_LOADING As String
-Public STR_STATUS_BAR_PREFIX_LOADING_FINISHED As String
+Public single_data_provider As FileExcelDataProvider
 
-Public wb As Workbook
-
-Public STR_TYPE_ON_TIME As String
-Public STR_TYPE_FLOW As String
-
+Public col_listeners As Collection
+'Public col_kpis As Collection
 Public col_kpi_limits As Collection
 
-Public Property Get file_path() As String
-    file_path = str_path & str_file_name
-End Property
+Dim obj_kpi_last_limit As KPIOnTimeLimitCheckpoint
 
-Private Sub Class_Initialize()
-    STR_DATA_FIRST_CELL = "A2"
-    STR_ID_SEPARATOR = "-"
-    STR_PROCESS_ID_SEPARATOR = ";"
-    'STR_FIRST_ROW_TBL = "A1:J1"
-    'STR_FIRST_ROW_DATA = "A2:J2"
-    
-    'STR_MASTER_MISC_ID = "Miscellaneous"
-    
-    INT_OFFSET_ID = 0
-    INT_OFFSET_KPI_ID = 1
-    INT_OFFSET_PROCESS_ID = 2
-    INT_OFFSET_PROCESS_VERSION_ID = 3
-    INT_OFFSET_CHECKPOINT_PLACE = 4
-    INT_OFFSET_CHECKPOINT_PLACE_TYPE = 5
-    INT_OFFSET_CHECKPOINT_PLACE_NEXT = 6
-    INT_OFFSET_MAT_GRP_WH_ID = 7
-    INT_OFFSET_SOURCE = 8
-    INT_OFFSET_LIMIT = 9
-    
-    STR_TYPE_ON_TIME = "ON_TIME"
-    STR_TYPE_FLOW = "FLOW"
-    
-    Set col_kpi_limits = New Collection
-                            
-    ' status bar
-    STR_STATUS_BAR_PREFIX = "Process Factory->"
-    STR_STATUS_BAR_PREFIX_LOADING = "Loading ..."
-    STR_STATUS_BAR_PREFIX_LOADING_FINISHED = "Loading has finished"
-    
-End Sub
 
-Public Function open_data()
-    If file_path = "" Then
-        Set wb = ThisWorkbook
-    Else
-        Set wb = util_file.open_wb(file_path, is_visible:=BOOL_EXTERNAL_DATA_FILE_VISIBILITY)
-    End If
+Public Function add_listener(obj_listener As Object)
+    col_listeners.add obj_listener
 End Function
 
-Public Function close_data()
-    If Not wb Is ThisWorkbook Then
-        Windows(wb.Name).Visible = True
-        wb.Close SaveChanges:=False
-    End If
-    
-    Set wb = Nothing
+Public Function load_data()
+    single_data_provider.add_listener Me
+    single_data_provider.load_data
 End Function
 
-Public Function load_data(Optional col_kpis As Collection)
-    Dim obj_kpi_limit As Object
-    Dim obj_kpi_last_limit As KPIOnTimeLimitCheckpoint
+Public Function load_record(rg_record As Range)
+Dim obj_kpi As KPIOnTime
+Dim obj_listener As Object
+Dim obj_limit_process As KPIOnTimeLimitProc
+Dim obj_limit_process_version As KPIOnTimeLimitProcVersion
+Dim obj_limit_mat_grp_wh As KPIOnTimeLimitMatGrpWH
+Dim obj_limit_source As KPIOnTimeLimitSource
+Dim obj_limit_checkpoint_place As KPIOnTimeLimitCheckpoint
 
-    Application.StatusBar = STR_STATUS_BAR_PREFIX & STR_STATUS_BAR_PREFIX_LOADING
+If rg_record.Offset(0, INT_OFFSET_KPI_ID).Value = "Putaway-GR-PP-PPOT" Then
+    DoEvents
+End If
 
-    open_data
-    ' init
-    Set rg_record = wb.Worksheets(STR_WS_NAME).Range(STR_DATA_FIRST_CELL)
-    
-    Do While rg_record.Value <> ""
-        DoEvents
-                                        
-        'On Error GoTo ERR_CREATION_PROCESS
-        create rg_record, col_kpis, obj_kpi_last_limit
-        On Error GoTo 0
-        ' move to next record
-        Set rg_record = rg_record.Offset(1)
-    Loop
+For Each obj_listener In col_listeners
+    Set obj_kpi = obj_listener.get_collection(str_module)(rg_record.Offset(0, INT_OFFSET_KPI_ID).Value)
 
-    ' clean up
-    Set obj_kpi_limit = Nothing
-    close_data
-    
-    Application.StatusBar = STR_STATUS_BAR_PREFIX & STR_STATUS_BAR_PREFIX_LOADING_FINISHED
-    Exit Function
-ERR_CREATION_PROCESS:
-    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", "Unexpected error occurred during kpi master data creation."
-    Resume Next
-End Function
-
-' config
-Public Function create(rg_record As Range, col_kpis As Collection, obj_kpi_last_limit As KPIOnTimeLimitCheckpoint) 'As KPIOnTimeLimitProcVersion
-    Dim obj_limit_process As KPIOnTimeLimitProc
-    Dim obj_limit_process_version As KPIOnTimeLimitProcVersion
-    Dim obj_limit_mat_grp_wh As KPIOnTimeLimitMatGrpWH
-    Dim obj_limit_source As KPIOnTimeLimitSource
-    Dim obj_limit_checkpoint_place As KPIOnTimeLimitCheckpoint
-    
     On Error GoTo INFO_NEW_PROCESS
-    Set obj_limit_process = col_kpi_limits(rg_record.Offset(0, INT_OFFSET_PROCESS_ID).Value)
+    Set obj_limit_process = obj_kpi.col_limits_process(rg_record.Offset(0, INT_OFFSET_PROCESS_ID).Value) 'col_kpi_limits(rg_record.Offset(0, INT_OFFSET_PROCESS_ID).Value)
     On Error GoTo 0
     
     On Error GoTo INFO_NEW_PROCESS_VERSION
@@ -160,6 +78,7 @@ Public Function create(rg_record As Range, col_kpis As Collection, obj_kpi_last_
     obj_limit_checkpoint_place.str_id = rg_record.Offset(0, INT_OFFSET_CHECKPOINT_PLACE).Value
     obj_limit_checkpoint_place.str_type = rg_record.Offset(0, INT_OFFSET_CHECKPOINT_PLACE_TYPE).Value
     obj_limit_checkpoint_place.str_next_checkpoint_id = rg_record.Offset(0, INT_OFFSET_CHECKPOINT_PLACE_NEXT).Value
+    obj_limit_checkpoint_place.str_kpi_visibility = rg_record.Offset(0, INT_OFFSET_KPI_VISIBILITY).Value
     obj_limit_checkpoint_place.obj_limit = rg_record.Offset(0, INT_OFFSET_LIMIT).Value
     If Not obj_kpi_last_limit Is Nothing Then
         Set obj_limit_checkpoint_place.obj_previous_limit = obj_kpi_last_limit
@@ -168,10 +87,10 @@ Public Function create(rg_record As Range, col_kpis As Collection, obj_kpi_last_
     
     Set obj_kpi_last_limit = obj_limit_checkpoint_place
     obj_limit_source.add_limit obj_limit_checkpoint_place
-    
-    Exit Function
+Next obj_listener
+Exit Function
 INFO_NEW_PROCESS:
-    Set obj_limit_process = create_process(rg_record, col_kpis)
+    Set obj_limit_process = create_process(rg_record, obj_kpi) 'obj_listener.get_collection(str_module))
     Set obj_kpi_last_limit = Nothing
     Resume Next
 INFO_NEW_PROCESS_VERSION:
@@ -186,17 +105,30 @@ INFO_NEW_SOURCE:
     Set obj_limit_source = create_source(rg_record, obj_limit_mat_grp_wh)
     Set obj_kpi_last_limit = Nothing
     Resume Next
+
+
 End Function
 
-Public Function create_process(rg_record As Range, col_kpis As Collection) As KPIOnTimeLimitProc
+'Public Function create_process(rg_record As Range, col_kpis As Collection) As KPIOnTimeLimitProc
+'    Set create_process = New KPIOnTimeLimitProc
+'    create_process.str_id = rg_record.Offset(0, INT_OFFSET_PROCESS_ID).Value
+'
+'    If Not col_kpis Is Nothing Then
+'        create_process.obj_kpi = col_kpis(rg_record.Offset(0, INT_OFFSET_KPI_ID).Value)
+'    End If
+'
+'    col_kpi_limits.add create_process, create_process.str_id
+'End Function
+
+Public Function create_process(rg_record As Range, obj_kpi As KPIOnTime) As KPIOnTimeLimitProc
     Set create_process = New KPIOnTimeLimitProc
     create_process.str_id = rg_record.Offset(0, INT_OFFSET_PROCESS_ID).Value
     
-    If Not col_kpis Is Nothing Then
-        create_process.obj_kpi = col_kpis(rg_record.Offset(0, INT_OFFSET_KPI_ID).Value)
+    If Not obj_kpi Is Nothing Then
+        create_process.obj_kpi = obj_kpi 'col_kpis(rg_record.Offset(0, INT_OFFSET_KPI_ID).Value)
     End If
     
-    col_kpi_limits.add create_process, create_process.str_id
+    'col_kpi_limits.add create_process, create_process.str_id
 End Function
 
 Public Function create_process_version(rg_record As Range, obj_limit_process As KPIOnTimeLimitProc) As KPIOnTimeLimitProcVersion
@@ -220,18 +152,26 @@ Public Function create_source(rg_record As Range, obj_limit_mat_grp_wh As KPIOnT
     obj_limit_mat_grp_wh.add_limit create_source
 End Function
 
-'Public Function retrieve_id_by_foreign_keys( _
-'        str_process_version_id As String, str_place_from_id As String, _
-'        str_place_to_id As String, str_kpi_id As String) As String
-'    retrieve_id_by_foreign_keys = _
-'        str_process_version_id & STR_ID_SEPARATOR & _
-'        str_place_from_id & STR_ID_SEPARATOR & _
-'        str_place_to_id & STR_ID_SEPARATOR & _
-'        str_kpi_id
-'End Function
 
+Private Sub Class_Initialize()
 
+str_module = new_const_mdl_id.STR_MDL_KPI_ONTIME_LIMITS
 
+Set col_listeners = New Collection
+Set col_kpi_limits = New Collection
 
+Set single_data_provider = New FileExcelDataProvider
 
-
+    INT_OFFSET_ID = 0
+    INT_OFFSET_KPI_ID = 1
+    INT_OFFSET_PROCESS_ID = 2
+    INT_OFFSET_PROCESS_VERSION_ID = 3
+    INT_OFFSET_CHECKPOINT_PLACE = 4
+    INT_OFFSET_CHECKPOINT_PLACE_TYPE = 5
+    INT_OFFSET_CHECKPOINT_PLACE_NEXT = 6
+    INT_OFFSET_MAT_GRP_WH_ID = 7
+    INT_OFFSET_SOURCE = 8
+    INT_OFFSET_KPI_VISIBILITY = 9
+    INT_OFFSET_LIMIT = 10
+    
+End Sub

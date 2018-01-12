@@ -66,6 +66,7 @@ End Sub
 ' action
 Public Function load_data_static()
     Dim obj_data_provider As FileExcelDataProvider
+    Dim message As MSG
 
     For Each obj_data_provider In col_providers
         On Error GoTo ERR_PROCESS_FILE
@@ -77,14 +78,16 @@ Public Function load_data_static()
 
     Exit Function
 ERR_PROCESS_FILE:
-    hndl_log.log db_log.TYPE_WARN, str_module, "load_data_static", _
-        "An error occured during processing file " & obj_data_provider.str_id & ". Original error message>" & Err.description
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "load_data_static") _
+        .text("An error occured during processing file " & obj_data_provider.str_id & ". Original error message>" & Err.Description)
     Resume Next
 End Function
 
 
 Public Function load_data()
     Dim obj_data_provider As FileExcelDataProvider
+    Dim message As MSG
     
     On Error GoTo ERR_PROCESSED_FILE_NOT_FOUND
     Set obj_mdl_processed_file = New MDLProcessedFile
@@ -113,80 +116,107 @@ Public Function load_data()
             
     Exit Function
 ERR_PROCESSED_FILE_NOT_FOUND:
-    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", Err.Number & "->" & Err.description
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "load_data").text(Err.Number & "->" & Err.Description)
     Exit Function
 ERR_CREATE_PROVIDERS:
-    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", Err.Number & "->" & Err.description
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "load_data").text(Err.Number & "->" & Err.Description)
     Exit Function
 ERR_PROCESS_FILE:
-    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", _
-        "An error occured during processing file " & obj_data_provider.str_id & ". Original error message>" & Err.description
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "load_data") _
+        .text("An error occured during processing file " & obj_data_provider.str_id & ". Original error message>" & Err.Description)
     Resume Next
 End Function
 
 Public Function before_load_data(obj_provider As FileExcelDataProvider)
     Dim obj_listener As Object
+    Dim message As MSG
 
     ' register processed file
       ' # implement - processed_file will be registered as usual listener  - obj_provider_info must implement property bool_record_as_processed
-    'If obj_provider.obj_info.str_completeness_status = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_STATUS_CLOSED Then
-        Set obj_mdl_processed_file.obj_file_record = New DBProcessedFileRecord
-        obj_mdl_processed_file.obj_file_record.str_name = obj_provider.str_file_name
-        obj_mdl_processed_file.obj_file_record.str_date_started = Now
-    'End If
-    ' send basic data about current processed provider
-'    Set obj_current_data_provider_info = New FileExcelDataProviderInfo
-'        obj_current_data_provider_info.str_type = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC
-'        obj_current_data_provider_info.str_provider_id = obj_provider.str_id
-'        Set obj_current_data_provider_info.obj_period = _
-'            obj_data_provider_util.retrieve_period( _
-'                obj_data_provider_util.retrieve_provider_id_reverse(obj_provider.str_file_name))
-'        obj_current_data_provider_info.str_completeness_status = obj_provider.str_completeness_status
+    Set obj_mdl_processed_file.obj_file_record = New DBProcessedFileRecord
+    obj_mdl_processed_file.obj_file_record.str_name = obj_provider.str_file_name
+    obj_mdl_processed_file.obj_file_record.str_date_started = Now
+    
     Set obj_current_data_provider_info = obj_provider.obj_info
                 
     For Each obj_listener In col_listeners
+        On Error GoTo WARN_LISTENER_ERROR
         obj_listener.loading_data_is_about_to_start obj_current_data_provider_info
+        On Error GoTo 0
     Next
     
+    Exit Function
+WARN_LISTENER_ERROR:
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "before_load_data").text("An error occured in listener: " & obj_listener.str_id)
+    Resume Next
 End Function
 
 Public Function after_load_data()
     Dim obj_listener As Object
+    Dim message As MSG
     'Dim obj_provider_info As FileExcelDataProviderInfo
 
     ' # implement - processed_file will be registered as usual listener - obj_provider_info must implement property bool_record_as_processed
-    'If obj_current_data_provider_info.str_completeness_status = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_STATUS_CLOSED Then
-        obj_mdl_processed_file.obj_file_record.str_date_finished = Now
-        obj_mdl_processed_file.save_record
-    'End If
+    obj_mdl_processed_file.obj_file_record.str_date_finished = Now
+    obj_mdl_processed_file.save_record
     
     For Each obj_listener In col_listeners
+        On Error GoTo WARN_LISTENER_ERROR
         obj_listener.loading_data_has_finished obj_current_data_provider_info
+        On Error GoTo 0
     Next
     
     Set obj_current_data_provider_info = Nothing
+    
+    Exit Function
+WARN_LISTENER_ERROR:
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "after_load_data").text("An error occured in listener: " & obj_listener.str_id)
+    Resume Next
 End Function
 
 Public Function before_load_data_static(obj_provider As FileExcelDataProvider)
     Dim obj_listener As Object
+    Dim message As MSG
     
     Set obj_current_data_provider_info = New FileExcelDataProviderInfo
     obj_current_data_provider_info.str_type = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_STATIC
     obj_current_data_provider_info.str_provider_id = obj_provider.str_id
     
     For Each obj_listener In col_listeners
+        On Error GoTo WARN_LISTENER_ERROR
         obj_listener.loading_data_is_about_to_start obj_current_data_provider_info
+        On Error GoTo 0
     Next
+    
+    Exit Function
+WARN_LISTENER_ERROR:
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "after_load_data").text("An error occured in listener: " & obj_listener.str_id)
+    Resume Next
 End Function
 
 Public Function after_load_data_static()
     Dim obj_listener As Object
+    Dim message As MSG
     
     For Each obj_listener In col_listeners
+        On Error GoTo WARN_LISTENER_ERROR
         obj_listener.loading_data_has_finished obj_current_data_provider_info
+        On Error GoTo 0
     Next
     
     Set obj_current_data_provider_info = Nothing
+    
+    Exit Function
+WARN_LISTENER_ERROR:
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "after_load_data").text("An error occured in listener: " & obj_listener.str_id)
+    Resume Next
 End Function
 
 ' providers management
@@ -194,6 +224,7 @@ Public Function create_data_providers_read_mode()
     Dim obj_list_files As Collection
     Dim var_file As Variant
     Dim obj_data_provider As FileExcelDataProvider
+    Dim message As MSG
     
     On Error GoTo ERR_RETRIEVE_FILES
     Set obj_list_files = retrieve_files
@@ -207,11 +238,13 @@ Public Function create_data_providers_read_mode()
     Next
     Exit Function
 ERR_RETRIEVE_FILES:
-    hndl_log.log db_log.TYPE_WARN, str_module, "create_data_providers_read_mode", Err.Number & "->" & Err.description
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "create_data_providers_read_mode").text(Err.Number & "->" & Err.Description)
     Exit Function
 ERR_PROCESS_FILE:
-    hndl_log.log db_log.TYPE_WARN, str_module, "create_data_providers_read_mode", _
-        "An error occured during processing file " & var_file & ". Original error message>" & Err.description
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "create_data_providers_read_mode") _
+        .text("An error occured during creation of provider for file: " & var_file & ". Original error message>" & Err.Description)
     Exit Function
 End Function
 
@@ -300,19 +333,23 @@ Public Function remove_provider(obj_data_provider As FileExcelDataProvider)
     col_providers.Remove obj_data_provider.str_id
 End Function
 
-Public Function close_providers()
+Public Function close_providers(Optional is_close_only As Boolean = False)
     Dim obj_provider As FileExcelDataProvider
+    Dim message As MSG
     
     On Error GoTo WARN_CLOSING_PROVIDER_FAILED
     For Each obj_provider In col_providers
         obj_provider.close_data
-        remove_provider obj_provider
+        If Not is_close_only Then
+            remove_provider obj_provider
+        End If
     Next
     On Error GoTo 0
     Exit Function
 WARN_CLOSING_PROVIDER_FAILED:
-    hndl_log.log db_log.TYPE_WARN, str_module, "close_providers", _
-        "Closing provider: " & obj_provider.str_id & " has failed."
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "close_providers") _
+        .text("Closing provider: " & obj_provider.str_id & " has failed.")
 End Function
 
 ' automation
@@ -333,5 +370,9 @@ Public Function set_clear_data_before_close_status(bool_yes_no As Boolean)
 End Function
 
 Public Function add_listener(obj_listener As Object)
-    col_listeners.add obj_listener
+    col_listeners.add obj_listener, obj_listener.str_id
+End Function
+
+Public Function remove_listener(str_id As String)
+    col_listeners.Remove str_id
 End Function

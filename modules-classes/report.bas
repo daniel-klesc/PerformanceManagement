@@ -12,7 +12,7 @@ Public Function update_all()
         
     For Each ws In ThisWorkbook.Worksheets
         For Each pt In ws.PivotTables
-            Debug.Print pt.Name
+            Debug.Print pt.name
             Set pt_cache = ThisWorkbook.PivotCaches.create( _
                 xlDatabase, _
                 ws_data.Range("A1").CurrentRegion)

@@ -58,7 +58,7 @@ Public Function get_building(str_wc As String) As String
 End Function
 
 Public Function get_production_hall(str_wc As String) As String
-    Dim str_prod_hall As String
+    Dim STR_PROD_HALL As String
 
     Select Case Left(str_wc, INT_BUILDING_PREFIX_LEN)
         Case STR_BUILDING_A_PREFIX
@@ -70,17 +70,17 @@ Public Function get_production_hall(str_wc As String) As String
     End Select
             
     If get_production_hall <> "" Then
-        str_prod_hall = Mid(str_wc, INT_HALL_PREFIX_START, INT_HALL_PREFIX_LEN)
+        STR_PROD_HALL = Mid(str_wc, INT_HALL_PREFIX_START, INT_HALL_PREFIX_LEN)
         
         If get_production_hall = STR_BUILDING_B Then
-            If str_prod_hall = STR_HALL_B2_ORIGINAL Then
-                str_prod_hall = STR_HALL_B2_NEW
-            ElseIf str_prod_hall = STR_HALL_B4_ORIGINAL Then
-                str_prod_hall = STR_HALL_B4_NEW
+            If STR_PROD_HALL = STR_HALL_B2_ORIGINAL Then
+                STR_PROD_HALL = STR_HALL_B2_NEW
+            ElseIf STR_PROD_HALL = STR_HALL_B4_ORIGINAL Then
+                STR_PROD_HALL = STR_HALL_B4_NEW
             End If
         End If
         
-        get_production_hall = get_production_hall & str_prod_hall
+        get_production_hall = get_production_hall & STR_PROD_HALL
     End If
 End Function
 

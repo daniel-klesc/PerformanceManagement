@@ -46,6 +46,7 @@ Public obj_current_data_provider_info As FileExcelDataProviderInfo
 Public str_static_data_provider_id As String
 Public str_provider_id_default As String
 
+Public STR_APP_MODULE_NAME As String
     ' listeners must implement:
 Public str_id As String
       ' process_record obj_db_data_process: DBDataProcess
@@ -87,6 +88,9 @@ Private Sub Class_Initialize()
     str_static_data_provider_id = "static"
     Set col_listeners = New Collection
 '    Set col_provider_info_listeners = New Collection
+
+    str_id = str_module
+    STR_APP_MODULE_NAME = str_module
 End Sub
 
 Public Function set_clear_data()
@@ -111,6 +115,7 @@ End Function
 Public Function load_record(rg_record As Range)
     Dim obj_db_data_process As DBDataProcess
     Dim obj_listener As Object
+    Dim message As MSG
  
     If rg_record.Offset(0, INT_OFFSET_PALLET).Value = "357020105503029721" Then
         DoEvents
@@ -153,15 +158,18 @@ Public Function load_record(rg_record As Range)
     Next
     Exit Function
 WARN_STOCK_UNIT:
-    hndl_log.log db_log.TYPE_WARN, STR_APP_MODULE_NAME, "load_record", "Invalid value for Stock unit on row: " & rg_record.Row
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(STR_APP_MODULE_NAME, "load_record").text("Invalid value for Stock unit on row: " & rg_record.Row)
     Resume Next
 WARN_PROCESS_RECORD_FAILED:
-    hndl_log.log db_log.TYPE_WARN, STR_APP_MODULE_NAME, "load_record", "Processing record: " & rg_record.Value & ", Listener: " & obj_listener.str_id
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(STR_APP_MODULE_NAME, "load_record").text("Processing record: " & rg_record.Value & ", Listener: " & obj_listener.str_id)
 End Function
 
 ' # interface method for listening MultiFileExcelDataProvider
 Public Function loading_data_is_about_to_start(obj_provider_info As FileExcelDataProviderInfo)
     Dim obj_listener As Object
+    Dim message As MSG
 
     Set obj_current_data_provider_info = obj_provider_info
     
@@ -173,13 +181,15 @@ Public Function loading_data_is_about_to_start(obj_provider_info As FileExcelDat
     
     Exit Function
 WARN_LISTENER_ERR:
-    hndl_log.log db_log.TYPE_WARN, STR_APP_MODULE_NAME, "loading_data_is_about_to_start", "Something went wrong for listener: " & obj_listener.STR_CLASS_NAME
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(STR_APP_MODULE_NAME, "loading_data_is_about_to_start").text("Something went wrong for listener: " & obj_listener.STR_CLASS_NAME)
     Resume Next
 End Function
 
 ' # interface method for listening MultiFileExcelDataProvider
 Public Function loading_data_has_finished(obj_provider_info As FileExcelDataProviderInfo)
     Dim obj_listener As Object
+    Dim message As MSG
     
     For Each obj_listener In col_listeners
         On Error GoTo WARN_LISTENER_ERR
@@ -191,7 +201,8 @@ Public Function loading_data_has_finished(obj_provider_info As FileExcelDataProv
     
     Exit Function
 WARN_LISTENER_ERR:
-    hndl_log.log db_log.TYPE_WARN, STR_APP_MODULE_NAME, "loading_data_has_finished", "Something went wrong for listener: " & obj_listener.STR_CLASS_NAME
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(STR_APP_MODULE_NAME, "loading_data_has_finished").text("Something went wrong for listener: " & obj_listener.STR_CLASS_NAME)
     Resume Next
 End Function
 

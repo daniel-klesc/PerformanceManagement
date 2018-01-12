@@ -4,6 +4,8 @@ Option Explicit
 Public Const str_module = "bin_place_grp"
 
 Public Const STR_DUMMY As String = "DUMMY"
+Public Const STR_EXT_WH_GENERAL As String = "EXT_WH_GENERAL"
+Public Const STR_EXT_WH_IN_TRANSIT_HBW As String = "EXT_WH_IN_TRANSIT_HBW"
 Public Const STR_HBW As String = "HBW"
 Public Const STR_HBW_CONVEYOR_IN As String = "HBW_CONVEYOR_IN"
 Public Const STR_HBW_CONVEYOR_OUT As String = "HBW_CONVEYOR_OUT"
@@ -15,7 +17,8 @@ Public Const STR_HBW_WH As String = "HBW_WH"
 Public Const STR_HBW_OTHERS As String = "HBW_OTHERS"
 Public Const STR_MATERIAL_HANDLING As String = "MATERIAL_HANDLING"
 Public Const STR_PA As String = "PA"
-Public Const str_prod_hall As String = "PROD_HALL"
+Public Const STR_PROD_HALL As String = "PROD_HALL"
+Public Const STR_PRODUCTION_HALL_STORAGE As String = "PRODUCTION_HALL_STORAGE"
 Public Const STR_PROD_LINE_IN As String = "PROD_LINE_IN"
 Public Const STR_PROD_LINE_OUT As String = "PROD_LINE_OUT"
 Public Const STR_RA_OTHERS As String = "RA_OTHERS"
@@ -31,6 +34,8 @@ Public Const STR_VNA_RACK As String = "VNA_RACK"
 Public Const STR_USER_BIN As String = "USERBIN"
 
 Public Function get_place_grp(str_bin As String) As String
+    Dim message As MSG
+
     If bin.is_user_bin(str_bin) Then
         get_place_grp = bin_place_grp.STR_USER_BIN
     Else
@@ -38,8 +43,10 @@ Public Function get_place_grp(str_bin As String) As String
             get_place_grp = bin_place_grp.STR_VNA_RACK
         ElseIf bin.is_vna_bulk(str_bin) Then
             get_place_grp = bin_place_grp.STR_VNA_BULK
+        ElseIf bin.is_production_hall_storage(str_bin) Then
+            get_place_grp = bin_place_grp.STR_PRODUCTION_HALL_STORAGE
         ElseIf bin.is_production_hall_side(str_bin) Then
-            get_place_grp = bin_place_grp.str_prod_hall
+            get_place_grp = bin_place_grp.STR_PROD_HALL
         ElseIf bin.is_production_hall(str_bin) Then
             get_place_grp = bin_place_grp.STR_PROD_LINE_OUT
         ElseIf bin.is_production_line_in(str_bin) And Not bin.is_material_handling(str_bin) Then
@@ -80,8 +87,13 @@ Public Function get_place_grp(str_bin As String) As String
             get_place_grp = bin_place_grp.STR_RA_GATE_OUT
         ElseIf bin.is_ra(str_bin) Then
             get_place_grp = bin_place_grp.STR_RA_OTHERS
+        ElseIf bin.is_ext_wh_in_transit(str_bin) Then
+            get_place_grp = bin_place_grp.STR_EXT_WH_IN_TRANSIT_HBW
+        ElseIf bin.is_ext_wh(str_bin) Then
+            get_place_grp = bin_place_grp.STR_EXT_WH_GENERAL
         Else
-            hndl_log.log db_log.TYPE_WARN, str_module, "get_place_grp", "Not found place group for BIN: " & str_bin
+            Set message = New MSG
+            log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "get_place_grp").text("Not found place group for BIN: " & str_bin)
         End If
     End If
 End Function

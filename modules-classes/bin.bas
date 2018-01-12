@@ -3,7 +3,8 @@ Option Explicit
 
 Public Const str_module = "BIN"
 
-Public Const STR_USER_BIN_PREFIX = "U_"
+Public Const STR_USER_BIN_PREFIX_1 = "U_"
+Public Const STR_USER_BIN_PREFIX_2 = "CZ"
 Public STR_BIN_SEPARATOR As String
 
 Public INT_BUILDING_PREFIX_LEN As Integer
@@ -139,6 +140,7 @@ Public INT_MATERIAL_HANDLING_LEN As Integer
 Public STR_MATERIAL_HANDLING_SPE_PREFIX As String
 Public STR_MATERIAL_HANDLING_LPE_PREFIX As String
 Public STR_MATERIAL_HANDLING_ATLET_PREFIX As String
+Public STR_MATERIAL_HANDLING_TRAIGO_PREFIX As String
 
 Public INT_SCALE_STATION_LEN As Integer
 Public STR_SCALE_STATION_PREFIX_A As String
@@ -147,7 +149,19 @@ Public STR_SCALE_STATION_PREFIX_C As String
 
 Public STR_BIN_DUMMY As String
 
+Public INT_PRODUCTION_STORAGE_LEN As Integer
+Public STR_PRODUCTION_STORAGE_HALL_B4_PREFIX As String
+Public STR_PRODUCTION_STORAGE_HALL_C2_PREFIX As String
+
 Public INT_VNA_INBOUND_HOUSE_LIMIT As Integer
+
+' External WH
+  ' general
+Public INT_EXT_WH_LEN As Integer
+Public STR_EXT_WH_PREFIX As String
+  ' in transit
+Public INT_EXT_WH_IN_TRANSIT_HBW_LEN As Integer
+Public STR_EXT_WH_IN_TRANSIT_HBW_PREFIX As String
 
 Public col_bin_prod_lines As Collection
 
@@ -247,7 +261,7 @@ Public Function init()
     INT_HBW_CONVEYOR_IN_LEN = 2
     STR_HBW_CONVEYOR_IN_PREFIX_1 = "07"
     STR_HBW_CONVEYOR_IN_PREFIX_2 = "27"
-    STR_HBW_CONVEYOR_IN_PREFIX_3 = "38"
+    STR_HBW_CONVEYOR_IN_PREFIX_3 = "08"
         
     INT_HBW_CONVEYOR_OUT_LEN = 2
     STR_HBW_CONVEYOR_OUT_PREFIX_1 = "01"
@@ -288,6 +302,7 @@ Public Function init()
     STR_MATERIAL_HANDLING_ATLET_PREFIX = "ATL"
     STR_MATERIAL_HANDLING_LPE_PREFIX = "LPE"
     STR_MATERIAL_HANDLING_SPE_PREFIX = "SPE"
+    STR_MATERIAL_HANDLING_TRAIGO_PREFIX = "TRA"
     
     INT_SCALE_STATION_LEN = 7
     STR_SCALE_STATION_PREFIX_A = "6-02-08"
@@ -296,17 +311,37 @@ Public Function init()
     
     STR_BIN_DUMMY = "999"
     
+    INT_PRODUCTION_STORAGE_LEN = 12
+    STR_PRODUCTION_STORAGE_HALL_C2_PREFIX = "6-13-03-02-8"
+    STR_PRODUCTION_STORAGE_HALL_B4_PREFIX = "6-12-03-04-9"
+    
     INT_VNA_INBOUND_HOUSE_LIMIT = 800
+    
+    ' EXTERNAL WH
+    INT_EXT_WH_LEN = 4
+    STR_EXT_WH_PREFIX = "6-98"
+    
+    INT_EXT_WH_IN_TRANSIT_HBW_LEN = 7
+    STR_EXT_WH_IN_TRANSIT_HBW_PREFIX = "6-20-98"
     
     Set col_bin_prod_lines = New Collection
 End Function
 
 Public Function is_user_bin(str_bin As String) As Boolean
+    Dim str_prefix As String
+
     is_user_bin = False
+    str_prefix = Left(str_bin, 2)
     
-    If Left(str_bin, 2) = STR_USER_BIN_PREFIX Then
-        is_user_bin = True
-    End If
+    Select Case str_prefix
+        Case STR_USER_BIN_PREFIX_1, _
+                STR_USER_BIN_PREFIX_2
+            is_user_bin = True
+    End Select
+    
+'    If Left(str_bin, 2) = STR_USER_BIN_PREFIX Then
+'        is_user_bin = True
+'    End If
 End Function
 
 Public Function is_ra(str_bin As String) As Boolean
@@ -580,7 +615,8 @@ Public Function is_material_handling(str_bin) As Boolean
     Select Case Left(str_bin, INT_MATERIAL_HANDLING_LEN)
         Case STR_MATERIAL_HANDLING_ATLET_PREFIX, _
                 STR_MATERIAL_HANDLING_LPE_PREFIX, _
-                STR_MATERIAL_HANDLING_SPE_PREFIX
+                STR_MATERIAL_HANDLING_SPE_PREFIX, _
+                STR_MATERIAL_HANDLING_TRAIGO_PREFIX
             is_material_handling = True
     End Select
 End Function
@@ -608,6 +644,34 @@ End Function
 
 Public Function is_dummy(str_bin) As Boolean
     is_dummy = str_bin = STR_BIN_DUMMY
+End Function
+
+Public Function is_production_hall_storage(str_bin) As Boolean
+    is_production_hall_storage = False
+        
+    Select Case Left(str_bin, INT_PRODUCTION_STORAGE_LEN)
+        Case STR_PRODUCTION_STORAGE_HALL_C2_PREFIX, _
+                STR_PRODUCTION_STORAGE_HALL_B4_PREFIX
+            is_production_hall_storage = True
+    End Select
+End Function
+
+Public Function is_ext_wh(str_bin) As Boolean
+    is_ext_wh = False
+        
+    Select Case Left(str_bin, INT_EXT_WH_LEN)
+        Case STR_EXT_WH_PREFIX
+            is_ext_wh = True
+    End Select
+End Function
+
+Public Function is_ext_wh_in_transit(str_bin) As Boolean
+    is_ext_wh_in_transit = False
+        
+    Select Case Left(str_bin, INT_EXT_WH_IN_TRANSIT_HBW_LEN)
+        Case STR_EXT_WH_IN_TRANSIT_HBW_PREFIX
+            is_ext_wh_in_transit = True
+    End Select
 End Function
 
 Public Function get_building(str_bin As String) As String

@@ -34,6 +34,8 @@ Public Function retrieve_building(str_data As String, str_data_type As String) A
             retrieve_building = bin.get_building(str_data)
         Case const_place_type.str_wc
             retrieve_building = wc.get_building(str_data)
+        Case const_place_type.str_bin_stor_grp
+            retrieve_building = bin_stor_grp.get_building(str_data)
         Case const_place_type.STR_IMPLICIT
             retrieve_building = str_data
     End Select

@@ -3,8 +3,8 @@ Option Explicit
 
 Public Function setup()
     hndl_log.init
-    hndl_log.str_path = "C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\log\"
-    hndl_log.str_file_name = "log.xlsx"
+    hndl_log.str_path = ThisWorkbook.Path & "\log\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\log\"
+    hndl_log.str_file_name = "log-performance.xlsx"
     hndl_log.open_data
 
     bin.init
@@ -21,12 +21,15 @@ Public Function test_process()
     setup
     
     dbl_start = Now
+    Debug.Print "CZDANKLE > " & (bin_place_grp.get_place_grp("CZDANKLE") = "USERBIN")
+    Debug.Print "U_CZ3CNTR1 > " & (bin_place_grp.get_place_grp("U_CZ3CNTR1") = "USERBIN")
+    
     Debug.Print "6-12-01-13-015-10 > " & (bin_place_grp.get_place_grp("6-12-01-13-015-10") = "VNA_RACK")
     Debug.Print "6-12-01-13-020-22 > " & (bin_place_grp.get_place_grp("6-12-01-13-020-22") = "VNA_RACK")
     
-    Debug.Print "6-12-01-13-889-01 > " & (bin_place_grp.get_place_grp("6-12-01-13-889-01") = "VNA_INBOUND")
+    Debug.Print "6-12-01-13-889-01 > " & (bin_place_grp.get_place_grp("6-12-01-13-889-01") = "VNA_BULK")
     
-    Debug.Print "6-12-33-23-999-01 > " & (bin_place_grp.get_place_grp("6-12-33-23-999-01") = "TA_INBOUND")
+    Debug.Print "6-12-33-23-999-01 > " & (bin_place_grp.get_place_grp("6-12-33-23-999-01") = "TA_BULK")
     Debug.Print "6-12-33-30-002-02 > " & (bin_place_grp.get_place_grp("6-12-33-30-002-02") = "TA_RACK")
     
     Debug.Print "6-20-02-01-007-01 > " & (bin_place_grp.get_place_grp("6-20-02-01-007-01") = "HBW_GATE")
@@ -41,7 +44,7 @@ Public Function test_process()
     Debug.Print "6-12-20-02-020-01 > " & (bin_place_grp.get_place_grp("6-12-20-02-020-01") = "HBW_CONVEYOR_OUT")
     Debug.Print "6-12-20-03-234-01 > " & (bin_place_grp.get_place_grp("6-12-20-03-234-01") = "HBW_CONVEYOR_OUT")
     
-    Debug.Print "6-12-80-80-033-01 > " & (bin_place_grp.get_place_grp("6-12-80-80-033-01") = "RA_INBOUND")
+    Debug.Print "6-12-80-80-033-01 > " & (bin_place_grp.get_place_grp("6-12-80-80-033-01") = "RA_BULK")
     Debug.Print "6-12-80-90-043-01 > " & (bin_place_grp.get_place_grp("6-12-80-90-043-01") = "RA_OUTBOUND")
     
     

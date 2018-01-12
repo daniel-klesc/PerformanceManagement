@@ -13,9 +13,11 @@ Public Function setup()
     Dim obj_data_provider_util As FileExcelDataProviderUtil
 
     ' app
+    app.init
+    
     hndl_log.init
     hndl_log.str_path = ThisWorkbook.Path & "\log\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\log\"
-    hndl_log.str_file_name = "log.xlsx"
+    hndl_log.str_file_name = "log-performance.xlsx"
     hndl_log.open_data
 
     bin.init
@@ -202,6 +204,7 @@ End Function
 Public Function tear_down()
     new_file_processed_level1.close_data
     hndl_log.close_data
+    log4VBA.remove_all_loggers
     
     Application.DisplayAlerts = True
 End Function
@@ -218,7 +221,7 @@ Public Function test_process()
     obj_mdl_data_process_unfinished.load_static
     'obj_mdl_data_process_unfinished.obj_multi_data_provider.close_providers
 '    new_mdl_data_process.obj_model.obj_unfinished.load_multi
-    new_mdl_history.process
+    new_mdl_history.Process
     ' make post process actions in listeners
       ' save unfinished
     obj_mdl_data_process_unfinished.reset_clear_data

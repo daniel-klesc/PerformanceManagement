@@ -28,6 +28,10 @@ Public STR_DATA_PROVIDER_ID_UNFISNIHED As String
 Public obj_data_provider As FileExcelDataProvider
 Public obj_md_dashboard As MDDashboard1
 
+' models for controllers
+Public obj_mdl_kpi_on_time_pallet As MDLKPIOnTimePallet ' save data about pallets
+Public obj_mdl_kpi_on_time_pallet_unfinished As MDLKPIOnTimePallet ' load last state of active pallets
+
 Public str_id As String
 Public col_listeners As Collection
 
@@ -38,7 +42,8 @@ Public Function load()
     obj_data_provider.load_data
 End Function
 
-' # interface method for listening FileExcelDataProvider
+' Loading KPI controllers
+  ' # interface method for listening FileExcelDataProvider
 Public Function load_record(rg_record As Range)
     Dim obj_listener As Object
     
@@ -61,13 +66,20 @@ Private Function create_type(rg_record As Range, obj_md_dashboard As MDDashboard
 End Function
 
 Private Function create_kpi(rg_record As Range, obj_md_dashboard As MDDashboard1) As Object
+    Dim message As MSG
+
     Select Case rg_record.Offset(0, INT_OFFSET_SUB_TYPE).Value
         Case STR_SUB_TYPE_ON_TIME
-            Set create_kpi = New CtrlKPIOnTimePallet 'KPIOnTimeListener
+            If obj_mdl_kpi_on_time_pallet Is Nothing Then
+                Set obj_mdl_kpi_on_time_pallet = create_mdl_kpi_on_time_pallet()
+                Set obj_mdl_kpi_on_time_pallet_unfinished = create_mdl_kpi_on_time_pallet_unfinished()
+            End If
+        
+            Set create_kpi = New CtrlKPIOnTimePallet
             On Error GoTo WARN_KPI_NOT_FOUND
             Set create_kpi.obj_kpi = obj_md_dashboard.col_kpis(rg_record.Offset(0, INT_OFFSET_LINK).Value)
-            Set create_kpi.obj_mdl_kpi_on_time_pallet = create_mdl_kpi_on_time_pallet()
-            Set create_kpi.obj_mdl_kpi_on_time_pallet_unfinished = create_mdl_kpi_on_time_pallet_unfinished()
+            Set create_kpi.obj_mdl_kpi_on_time_pallet = obj_mdl_kpi_on_time_pallet ' #refactoring - after change in MDLListener interface then model is handed over in process_record method
+            Set create_kpi.obj_mdl_kpi_on_time_pallet_unfinished = obj_mdl_kpi_on_time_pallet_unfinished
 '            ' listeners
 '            Dim obj_listener As Object
 '              ' data process
@@ -85,10 +97,13 @@ Private Function create_kpi(rg_record As Range, obj_md_dashboard As MDDashboard1
     
     Exit Function
 WARN_KPI_NOT_FOUND:
-    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", "Unexpected error occurred during loading data. Listener: " & rg_record.Offset(0, INT_OFFSET_ID).Value
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "load_data") _
+        .text("Unexpected error occurred during loading data. Listener: " & rg_record.Offset(0, INT_OFFSET_ID).Value)
 End Function
 
-' # interface method for listening MDLDataProcessExcel
+' Processing of new "Process data"
+  ' # interface method for listening MDLDataProcessExcel
 Public Function loading_data_is_about_to_start(obj_provider_info As FileExcelDataProviderInfo)
     Dim obj_listener As Object
     Dim obj_date_start As Date
@@ -98,70 +113,141 @@ Public Function loading_data_is_about_to_start(obj_provider_info As FileExcelDat
         obj_listener.loading_data_is_about_to_start obj_provider_info
     Next
     
-'    If obj_provider_info.str_type = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_DYNAMIC Then
-'        obj_date_start = DateValue(obj_provider_info.obj_period.str_start) + TimeValue(obj_provider_info.obj_period.str_start)
-'        obj_date_end = DateValue(obj_provider_info.obj_period.str_end) + TimeValue(obj_provider_info.obj_period.str_end)
-'
-'        For Each obj_listener In col_listeners
-'            obj_listener.create_intervals obj_date_start, obj_date_end
-'        Next
-'    Else
-'
-'    End If
+    ' load last state of active pallets
+    obj_mdl_kpi_on_time_pallet_unfinished.add_listener Me
+    obj_mdl_kpi_on_time_pallet_unfinished.load_static
 End Function
 
-' # interface method for listening MDLDataProcessExcel
+  ' # interface method for listening MDLDataProcessExcel
 Public Function process_record(obj_db_data_process As DBDataProcess)
     Dim obj_listener As Object
     
     For Each obj_listener In col_listeners
+        On Error GoTo WARN_PROCESS_RECORD_FAILED
         obj_listener.process_record obj_db_data_process
+        On Error GoTo 0
     Next
+    
+    Exit Function
+WARN_PROCESS_RECORD_FAILED:
+    Dim message As MSG
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "process_record").text("Unexpected error in listener:" & obj_listener.str_id & ", processing record: " & obj_db_data_process.str_pallet)
 End Function
 
-' # interface method for listening MDLDataProcessExcel
+  ' # interface method for listening MDLDataProcessExcel
 Public Function loading_data_has_finished(obj_provider_info As FileExcelDataProviderInfo)
     Dim obj_listener As Object
         
     For Each obj_listener In col_listeners
         obj_listener.loading_data_has_finished obj_provider_info
     Next
+    
+    ' release resources
+    obj_mdl_kpi_on_time_pallet.close_data
+    obj_mdl_kpi_on_time_pallet_unfinished.close_data
 End Function
 
-' MDLKPIOnTimePallet
-' # interface method for listening MDLKPIOnTimePallet
-Public Function kpi_pallet_loading_data_is_about_to_start(obj_data_provider_info As FileExcelDataProviderInfo)
+
+' Listening to model with unfinished kpi pallets
+  ' # interface method for listening MDLKPIOnTImePallet
+Public Function kpi_pallet_loading_data_is_about_to_start(obj_provider_info As FileExcelDataProviderInfo)
     Dim obj_listener As Object
-    Dim obj_date_start As Date
-    Dim obj_date_end As Date
-    
-    'Debug.Print "kpi_pallet_loading_data_is_about_to_start(obj_period As Period) started"
-    
-    'obj_date_start = DateValue(obj_period.str_start) + TimeValue(obj_period.str_start)
-    'obj_date_end = DateValue(obj_period.str_end) + TimeValue(obj_period.str_end)
-    
+
+    obj_mdl_kpi_on_time_pallet_unfinished.obj_multi_data_provider.retrieve_provider(obj_provider_info.str_provider_id). _
+        set_clear_data_before_close_status True
+        
+    On Error GoTo WARN_ERROR_IN_LISTENER
     For Each obj_listener In col_listeners
-        obj_listener.kpi_pallet_loading_data_is_about_to_start obj_data_provider_info 'obj_date_start, obj_date_end
+        obj_listener.kpi_pallet_loading_data_is_about_to_start obj_provider_info
     Next
+    On Error GoTo 0
+
+    Exit Function
+WARN_ERROR_IN_LISTENER:
+    hndl_log.log db_log.TYPE_WARN, str_module, "kpi_pallet_loading_data_is_about_to_start", _
+        "An error occured while processing listener: " & obj_listener.str_id & _
+        ". The original error content: " & Err.Description
 End Function
 
-' # interface method for listening MDLKPIOnTimePallet
-Public Function kpi_pallet_process_record(obj_kpi_on_pallet As KPIOnTimePallet)
+  ' # interface method for listening MDLKPIOnTImePallet
+Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePallet)
     Dim obj_listener As Object
-    Debug.Print "kpi_pallet_process_record started"
+
+    On Error GoTo WARN_ERROR_IN_LISTENER
     For Each obj_listener In col_listeners
-        obj_listener.kpi_pallet_process_record obj_kpi_on_pallet
+        obj_listener.kpi_pallet_process_record obj_kpi_on_time_pallet
     Next
+    On Error GoTo 0
+
+    Exit Function
+WARN_ERROR_IN_LISTENER:
+    Dim log_msg As MSG
+    
+    Set log_msg = New MSG
+'    log4VBA.warn log4VBA.DEFAULT_DESTINATION, log_msg.source(str_module, "kpi_pallet_process_record"). _
+'        text("An error occured while processing listener: " & obj_listener.str_id & _
+'            ". The original error content: " & Err.Description)
+    
+    hndl_log.log db_log.TYPE_WARN, str_module, "kpi_pallet_process_record", _
+        "An error occured while processing listener: " & obj_listener.str_id & _
+        ". The original error content: " & Err.Description
 End Function
 
-' # interface method for listening MDLKPIOnTimePallet
-Public Function kpi_pallet_loading_data_has_finished(obj_data_provider_info As FileExcelDataProviderInfo)
+  ' # interface method for listening MDLKPIOnTImePallet
+Public Function kpi_pallet_loading_data_has_finished(obj_provider_info As FileExcelDataProviderInfo)
     Dim obj_listener As Object
-    Debug.Print "kpi_pallet_loading_data_has_finished started"
+
+    On Error GoTo WARN_ERROR_IN_LISTENER
     For Each obj_listener In col_listeners
-        obj_listener.save obj_data_provider_info
+        obj_listener.kpi_pallet_loading_data_has_finished obj_provider_info
     Next
+    On Error GoTo 0
+
+    obj_mdl_kpi_on_time_pallet_unfinished.obj_multi_data_provider.retrieve_provider(obj_provider_info.str_provider_id). _
+        set_clear_data_before_close_status False
+
+    Exit Function
+WARN_ERROR_IN_LISTENER:
+    hndl_log.log db_log.TYPE_WARN, str_module, "kpi_pallet_loading_data_is_about_to_start", _
+        "An error occured while processing listener: " & obj_listener.str_id & _
+        ". The original error content: " & Err.Description
 End Function
+
+'' MDLKPIOnTimePallet
+'' # interface method for listening MDLKPIOnTimePallet
+'Public Function kpi_pallet_loading_data_is_about_to_start(obj_data_provider_info As FileExcelDataProviderInfo)
+'    Dim obj_listener As Object
+'    Dim obj_date_start As Date
+'    Dim obj_date_end As Date
+'
+'    'Debug.Print "kpi_pallet_loading_data_is_about_to_start(obj_period As Period) started"
+'
+'    'obj_date_start = DateValue(obj_period.str_start) + TimeValue(obj_period.str_start)
+'    'obj_date_end = DateValue(obj_period.str_end) + TimeValue(obj_period.str_end)
+'
+'    For Each obj_listener In col_listeners
+'        obj_listener.kpi_pallet_loading_data_is_about_to_start obj_data_provider_info 'obj_date_start, obj_date_end
+'    Next
+'End Function
+'
+'' # interface method for listening MDLKPIOnTimePallet
+'Public Function kpi_pallet_process_record(obj_kpi_on_pallet As KPIOnTimePallet)
+'    Dim obj_listener As Object
+'    Debug.Print "kpi_pallet_process_record started"
+'    For Each obj_listener In col_listeners
+'        obj_listener.kpi_pallet_process_record obj_kpi_on_pallet
+'    Next
+'End Function
+'
+'' # interface method for listening MDLKPIOnTimePallet
+'Public Function kpi_pallet_loading_data_has_finished(obj_data_provider_info As FileExcelDataProviderInfo)
+'    Dim obj_listener As Object
+'    Debug.Print "kpi_pallet_loading_data_has_finished started"
+'    For Each obj_listener In col_listeners
+'        obj_listener.save obj_data_provider_info
+'    Next
+'End Function
 
 Public Function after_run()
 '    Dim obj_listener As Object
@@ -199,7 +285,7 @@ Private Function create_mdl_kpi_on_time_pallet() As MDLKPIOnTimePallet
     obj_data_provider_util.str_save_mode = new_const_excel_data_provider.STR_SAVE_MODE_HOURLY_MINUTE
           ' file
             ' tmpl
-    obj_data_provider_util.str_tmpl_path = "C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\data\inbound\history-kpi_pallet\tmpl\"
+    obj_data_provider_util.str_tmpl_path = ThisWorkbook.Path & "\data\inbound\history-kpi_pallet\tmpl\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\data\inbound\history-kpi_pallet\tmpl\"
     obj_data_provider_util.str_tmpl_file_name_prefix = "history-kpi_pallet"
     obj_data_provider_util.str_tmpl_file_name_appendix = "tmpl-v0_1"
             ' new
@@ -288,6 +374,8 @@ End Function
 
 Private Sub Class_Initialize()
     Set col_listeners = New Collection
+    
+    str_id = str_module
     
     STR_WS_NAME = "db.md.listener"
     

@@ -7,6 +7,8 @@ Option Explicit
 Public Function setup()
     Dim obj_mdl_bin_prod_line As MDLBINProdLine
 
+    app.init
+
     bin.init
     Set obj_mdl_bin_prod_line = New MDLBINProdLine
     Set obj_mdl_bin_prod_line.obj_data_provider = New FileExcelDataProvider
@@ -21,13 +23,14 @@ Public Function setup()
     wc.init
 
     hndl_log.init
-    hndl_log.str_path = "C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\log\"
+    hndl_log.str_path = ThisWorkbook.Path & "\log\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\log\"
     hndl_log.str_file_name = "log-performance.xlsx"
     hndl_log.open_data
 End Function
 
 Public Function tear_down()
     hndl_log.close_data
+    log4VBA.remove_all_loggers
     
     Application.DisplayAlerts = True
 End Function

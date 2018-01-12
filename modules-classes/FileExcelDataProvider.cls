@@ -44,6 +44,8 @@ Public bool_clear_before_close_status As Boolean
 'Public bool_record_as_processed_on As Boolean
 Public str_completeness_status As String
 
+Public int_used_range_offset As Integer
+
 ' listeners must implement:
   ' load_record rg_record:Range
 Public col_listeners As Collection
@@ -69,6 +71,7 @@ Public Function set_clear_data_before_close_status(bool_yes_no As Boolean)
 End Function
 
 Public Function open_data()
+    Dim message As MSG
     'If file_path = "" Then
     If str_source_type = new_const_excel_data_provider.STR_SOURCE_TYPE_INTERNAL Then
         Set wb = ThisWorkbook
@@ -79,7 +82,8 @@ Public Function open_data()
     End If
     
     If bool_clear_after_open_status Then
-        wb.Worksheets(STR_WS_NAME).UsedRange.Offset(1).clear
+        'wb.Worksheets(STR_WS_NAME).UsedRange.Offset(1).clear
+        wb.Worksheets(STR_WS_NAME).UsedRange.Offset(int_used_range_offset).clear
     End If
     
     Set rg_last_row = wb.Worksheets(STR_WS_NAME).Cells(wb.Worksheets(STR_WS_NAME).Range("A:A").CountLarge, 1)
@@ -90,17 +94,19 @@ ERR_FILE_NOT_FOUND:
         wb.SaveAs file_path ', WriteResPassword:=STR_PASSWD
         Resume Next
     Else
-        Err.raise Err.Number, Err.Source, Err.description
+        log4VBA.error log4VBA.DEFAULT_DESTINATION, message.source(str_module, "open_data") _
+            .text("File not found. Original message: " & Err.Number & " -> " & Err.Description)
+        Err.raise Err.Number, Err.source, Err.Description
     End If
 End Function
 
 Public Function close_data()
     If bool_clear_before_close_status Then
-        wb.Worksheets(STR_WS_NAME).UsedRange.Offset(1).clear
+        wb.Worksheets(STR_WS_NAME).UsedRange.Offset(int_used_range_offset).clear
     End If
 
     If Not wb Is ThisWorkbook Then
-        Windows(wb.Name).Visible = True
+        Windows(wb.name).Visible = True
         wb.Close SaveChanges:=bool_save_mode_on
     End If
     
@@ -109,6 +115,8 @@ End Function
 
 Public Function load_data()
     Dim obj_listener As Object
+    Dim rg_record As Range
+    Dim message As MSG
 
     Application.StatusBar = STR_STATUS_BAR_PREFIX & STR_STATUS_BAR_PREFIX_LOADING
 
@@ -122,13 +130,14 @@ Public Function load_data()
 '        If rg_record.Value = "357020105500244851" Then
 '            DoEvents
 '        End If
-                                        
-        On Error GoTo ERR_PROCESS
+                                                
         For Each obj_listener In col_listeners
+            On Error GoTo ERR_PROCESS
             obj_listener.load_record rg_record
             'Debug.Print rg_record.Value
+            On Error GoTo 0
         Next
-        On Error GoTo 0
+        
         ' move to next record
         Set rg_record = rg_record.Offset(1)
     Loop
@@ -140,7 +149,9 @@ Public Function load_data()
     Application.StatusBar = STR_STATUS_BAR_PREFIX & STR_STATUS_BAR_PREFIX_LOADING_FINISHED
     Exit Function
 ERR_PROCESS:
-    hndl_log.log db_log.TYPE_WARN, str_module, "load_data", "Unexpected error occurred during loading data. Listener: " & obj_listener.str_id & ", Record first column: " & rg_record.Value
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "load_data") _
+        .text("Unexpected error occurred during loading data. Listener: " & obj_listener.str_id & ", Record first column: " & rg_record.Value)
     Resume Next
 End Function
 
@@ -162,6 +173,7 @@ Private Sub Class_Initialize()
     bool_clear_after_open_status = False
     bool_clear_before_close_status = False
     
+    int_used_range_offset = 1
     'bool_record_as_processed_on = True
     
     Set col_listeners = New Collection

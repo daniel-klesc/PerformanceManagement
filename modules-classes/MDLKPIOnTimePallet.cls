@@ -20,6 +20,8 @@ Public INT_OFFSET_PROCESS_VERSION_NAME As Integer
 Public INT_OFFSET_PROCESS_STATUS As Integer
 Public INT_OFFSET_MATERIAL_VENDOR As Integer
 Public INT_OFFSET_MATERIAL_BIN_STORAGE_GROUP As Integer
+Public INT_OFFSET_BUILDING_SOURCE As Integer
+Public INT_OFFSET_BUILDING_DESTINATION As Integer
 Public INT_OFFSET_PLACE_BUILDING As Integer
 Public INT_OFFSET_PLACE_FROM As Integer
 Public INT_OFFSET_PLACE_TO As Integer
@@ -59,23 +61,26 @@ Private Sub Class_Initialize()
     'INT_OFFSET_PROCESS_STATUS = 4
     INT_OFFSET_MATERIAL_VENDOR = 4
     INT_OFFSET_MATERIAL_BIN_STORAGE_GROUP = 5
-    INT_OFFSET_PLACE_BUILDING = 6
-    INT_OFFSET_PLACE_FROM = 7
-    INT_OFFSET_PLACE_TO = 8
-    INT_OFFSET_DATE_START = 9
-    INT_OFFSET_DATE_END = 10
-    INT_OFFSET_DATE_LAST_CHECKPOINT = 11
-    INT_OFFSET_INTERVAL_ID = 12
-    INT_OFFSET_INTERVAL_START = 13
-    INT_OFFSET_INTERVAL_END = 14
-    INT_OFFSET_INTERVAL_SHIFT = 15
-    INT_OFFSET_INTERVAL_SHIFT_TYPE = 16
-    INT_OFFSET_CHECKPOINT_LIMIT = 17
+    INT_OFFSET_BUILDING_SOURCE = 6
+    INT_OFFSET_BUILDING_DESTINATION = 7
+    INT_OFFSET_PLACE_BUILDING = 8
+    INT_OFFSET_PLACE_FROM = 9
+    INT_OFFSET_PLACE_TO = 10
+    INT_OFFSET_DATE_START = 11
+    INT_OFFSET_DATE_END = 12
+    INT_OFFSET_DATE_LAST_CHECKPOINT = 13
+    INT_OFFSET_INTERVAL_ID = 14
+    INT_OFFSET_INTERVAL_START = 15
+    INT_OFFSET_INTERVAL_END = 16
+    INT_OFFSET_INTERVAL_SHIFT = 17
+    INT_OFFSET_INTERVAL_SHIFT_TYPE = 18
+    INT_OFFSET_CHECKPOINT_LIMIT = 19
     
     ' app help sheet
 '    INT_APP_WORK_COL_DATE_OFFSET = 0
 '    STR_APP_WORK_FIRST_RG = "A2"
     
+    str_id = str_module
     'Set obj_multi_data_provider = New MultiFileExcelDataProvider
     str_static_data_provider_id = "static"
     Set col_listeners = New Collection
@@ -143,6 +148,9 @@ Public Function load_record(rg_record As Range)
       ' material
     obj_kpi_on_time_pallet.str_material_vendor = rg_record.Offset(0, INT_OFFSET_MATERIAL_VENDOR).Value
     obj_kpi_on_time_pallet.str_material_bin_storage_group = rg_record.Offset(0, INT_OFFSET_MATERIAL_BIN_STORAGE_GROUP).Value
+      ' building
+    obj_kpi_on_time_pallet.str_building_source = rg_record.Offset(0, INT_OFFSET_BUILDING_SOURCE).Value
+    obj_kpi_on_time_pallet.str_building_destination = rg_record.Offset(0, INT_OFFSET_BUILDING_DESTINATION).Value
       ' place
     obj_kpi_on_time_pallet.str_place_building = rg_record.Offset(0, INT_OFFSET_PLACE_BUILDING).Value
     obj_kpi_on_time_pallet.str_place_from = rg_record.Offset(0, INT_OFFSET_PLACE_FROM).Value
@@ -166,7 +174,8 @@ Public Function load_record(rg_record As Range)
     
       ' checkpoint
     Set obj_checkpoint = New KPIOnTimeLimitCheckpoint
-    obj_checkpoint.str_id = rg_record.Offset(0, INT_OFFSET_PLACE_TO).Value
+    'obj_checkpoint.str_id = rg_record.Offset(0, INT_OFFSET_PLACE_TO).Value
+    obj_checkpoint.str_id = rg_record.Offset(0, INT_OFFSET_PLACE_FROM).Value
     obj_checkpoint.obj_limit = rg_record.Offset(0, INT_OFFSET_CHECKPOINT_LIMIT).Value
     Set obj_kpi_on_time_pallet.obj_checkpoint = obj_checkpoint
             
@@ -261,6 +270,9 @@ Public Function save_record(obj_kpi_on_time_pallet As KPIOnTimePallet, rg_record
       ' material
     rg_record.Offset(0, INT_OFFSET_MATERIAL_VENDOR).Value = obj_kpi_on_time_pallet.str_material_vendor
     rg_record.Offset(0, INT_OFFSET_MATERIAL_BIN_STORAGE_GROUP).Value = obj_kpi_on_time_pallet.str_material_bin_storage_group
+      ' building
+    rg_record.Offset(0, INT_OFFSET_BUILDING_SOURCE).Value = obj_kpi_on_time_pallet.str_building_source
+    rg_record.Offset(0, INT_OFFSET_BUILDING_DESTINATION).Value = obj_kpi_on_time_pallet.str_building_destination
       ' place
     rg_record.Offset(0, INT_OFFSET_PLACE_BUILDING).Value = obj_kpi_on_time_pallet.str_place_building
     rg_record.Offset(0, INT_OFFSET_PLACE_FROM).Value = obj_kpi_on_time_pallet.str_place_from
@@ -269,6 +281,9 @@ Public Function save_record(obj_kpi_on_time_pallet As KPIOnTimePallet, rg_record
     rg_record.Offset(0, INT_OFFSET_DATE_START).Value = obj_kpi_on_time_pallet.str_date_start
     rg_record.Offset(0, INT_OFFSET_DATE_END).Value = obj_kpi_on_time_pallet.str_date_end
     rg_record.Offset(0, INT_OFFSET_DATE_LAST_CHECKPOINT).Value = obj_kpi_on_time_pallet.str_date_last_checkpoint
+      ' checkpoint
+    rg_record.Offset(0, INT_OFFSET_CHECKPOINT_LIMIT).NumberFormat = "[$-F400]h:mm:ss AM/PM"
+    rg_record.Offset(0, INT_OFFSET_CHECKPOINT_LIMIT).Value = obj_kpi_on_time_pallet.obj_checkpoint.obj_limit
     
     ' only for complete pallets
     If Not obj_kpi_on_time_pallet.obj_kpi_interval Is Nothing Then
@@ -280,9 +295,6 @@ Public Function save_record(obj_kpi_on_time_pallet As KPIOnTimePallet, rg_record
             ' shift
         rg_record.Offset(0, INT_OFFSET_INTERVAL_SHIFT).Value = obj_kpi_on_time_pallet.obj_kpi_interval.str_shift
         rg_record.Offset(0, INT_OFFSET_INTERVAL_SHIFT_TYPE).Value = obj_kpi_on_time_pallet.obj_kpi_interval.str_shift_type
-          ' checkpoint
-        rg_record.Offset(0, INT_OFFSET_CHECKPOINT_LIMIT).NumberFormat = "[$-F400]h:mm:ss AM/PM"
-        rg_record.Offset(0, INT_OFFSET_CHECKPOINT_LIMIT).Value = obj_kpi_on_time_pallet.obj_checkpoint.obj_limit
     End If
 End Function
 

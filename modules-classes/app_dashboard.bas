@@ -7,6 +7,8 @@ Option Explicit
 Public Function setup()
     Dim obj_mdl_bin_prod_line As MDLBINProdLine
 
+    Application.DisplayAlerts = False
+
     bin.init
     Set obj_mdl_bin_prod_line = New MDLBINProdLine
     Set obj_mdl_bin_prod_line.obj_data_provider = New FileExcelDataProvider
@@ -21,7 +23,7 @@ Public Function setup()
     wc.init
 
     hndl_log.init
-    hndl_log.str_path = "C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\log\"
+    hndl_log.str_path = ThisWorkbook.Path & "\log\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\log\"
     hndl_log.str_file_name = "log-performance.xlsx"
     hndl_log.open_data
 End Function
@@ -45,7 +47,7 @@ Public Function run()
     ' run setting
     obj_dashboard.bool_run_process = new_const_ctrl_dashboard1.BOOL_RUN_PROCESS_YES
     obj_dashboard.bool_run_kpi_pallet = new_const_ctrl_dashboard1.BOOL_RUN_KPI_PALLET_YES
-    obj_dashboard.bool_run_kpi_result = new_const_ctrl_dashboard1.BOOL_RUN_KPI_RESULT_NO
+    obj_dashboard.bool_run_kpi_result = new_const_ctrl_dashboard1.BOOL_RUN_KPI_RESULT_YES
     
     obj_dashboard.before_run
     obj_dashboard.run

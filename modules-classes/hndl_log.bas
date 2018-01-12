@@ -46,7 +46,7 @@ Public Function open_data()
 End Function
 
 Public Function close_data()
-    Windows(wb.Name).Visible = True
+    Windows(wb.name).Visible = True
     wb.Close SaveChanges:=True
 End Function
 

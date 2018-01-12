@@ -128,7 +128,7 @@ Public Function setup()
     
     ' mdl history
     new_mdl_history.init
-    new_mdl_history.STR_PATH_INBOUND = "C:\Users\czDanKle\Desktop\KLD\under-construction\app\history\v2\history_pallet\data\outbound\" 'ThisWorkbook.Path & "\data\inbound\history-pallet\"
+    new_mdl_history.STR_PATH_INBOUND = ThisWorkbook.Path & "\data\inbound\history-pallet\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\history\v2\history_pallet\data\outbound\" 'ThisWorkbook.Path & "\data\inbound\history-pallet\"
     new_mdl_history.STR_WS_NAME = "data" '"Sheet1"
     new_mdl_history.str_file_appendix = ".xls"
     new_mdl_history.STR_HBW_USER = "DK2WEBHBW"
@@ -174,11 +174,11 @@ Public Function run()
     
     obj_mdl_data_process_unfinished.set_clear_data
     obj_mdl_data_process_unfinished.load_static
-    new_mdl_history.process
+    new_mdl_history.Process
     ' make post process actions in listeners
       ' save unfinished
     obj_mdl_data_process_unfinished.reset_clear_data
-    'new_ctrl_pallet.save_open_pallets
+    new_ctrl_pallet.save_open_pallets
     obj_mdl_data_process_finished.obj_multi_data_provider.close_providers
     obj_mdl_data_process_unfinished.obj_multi_data_provider.close_providers
     dbl_end = Now
