@@ -217,15 +217,15 @@ Public Function test_process()
     
     dbl_start = Now
     
-    obj_mdl_data_process_unfinished.set_clear_data
-    obj_mdl_data_process_unfinished.load_static
-    'obj_mdl_data_process_unfinished.obj_multi_data_provider.close_providers
-'    new_mdl_data_process.obj_model.obj_unfinished.load_multi
+'    obj_mdl_data_process_unfinished.set_clear_data
+'    obj_mdl_data_process_unfinished.load_static
+    
     new_mdl_history.Process
     ' make post process actions in listeners
       ' save unfinished
-    obj_mdl_data_process_unfinished.reset_clear_data
-    new_ctrl_pallet.save_open_pallets
+'    obj_mdl_data_process_unfinished.reset_clear_data
+'    new_ctrl_pallet.save_open_pallets
+    
     obj_mdl_data_process_finished.obj_multi_data_provider.close_providers
     obj_mdl_data_process_unfinished.obj_multi_data_provider.close_providers
     dbl_end = Now
