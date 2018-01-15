@@ -29,6 +29,7 @@ Public str_place_to As String '
 Public str_date_start As String '
 Public str_date_end As String '
 Public str_date_last_checkpoint As String '
+Public str_kpi_status As String
 
 Public obj_checkpoint As KPIOnTimeLimitCheckpoint '
 Public obj_kpi_interval As KPIOnTimeInterval '
@@ -76,6 +77,8 @@ Public Function create_copy() As KPIOnTimePallet
     create_copy.str_process_status = str_process_status
     create_copy.byte_process_status = byte_process_status
     create_copy.private_bool_status_ok = private_bool_status_ok
+    
+    create_copy.str_kpi_status = str_kpi_status
     
     create_copy.bool_is_synchronized_with_process = bool_is_synchronized_with_process
 End Function
