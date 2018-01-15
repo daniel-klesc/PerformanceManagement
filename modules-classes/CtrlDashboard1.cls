@@ -19,6 +19,7 @@ Public obj_mdl_data_process As MDLDataProcessExcel
 Public obj_mdl_data_process_unfinished As MDLDataProcessExcel
 Public obj_mdl_data_kpi_pallet As MDLKPIOnTimePallet
 Public obj_mdl_data_kpi_result As MDLKPIOnTimeResult
+Public obj_mdl_data_add_data As MDLAdditionalData
 Public obj_current_data_process_provider_info As FileExcelDataProviderInfo
 
 ' run parameters
@@ -113,6 +114,7 @@ End Function
 
 Public Function data_kpi_result_run()
     obj_mdl_data_kpi_result.load
+    obj_mdl_data_add_data.load
 End Function
 
 Public Function data_kpi_result_after_run()
@@ -217,6 +219,7 @@ End Function
 
 Private Function init_mdl_data_result(obj_dashboard_listener As MDLKPIResultDashboardListener)
     Dim obj_multi_data_provider As MultiFileExcelDataProvider
+    Dim obj_multi_data_provider_ad As MultiFileExcelDataProvider
     Dim obj_data_provider_util As FileExcelDataProviderUtil
     
     Dim obj_listener As Object
@@ -225,12 +228,14 @@ Private Function init_mdl_data_result(obj_dashboard_listener As MDLKPIResultDash
     
     ' data process model for closed records
     Set obj_mdl_data_kpi_result = New MDLKPIOnTimeResult
+    Set obj_mdl_data_add_data = New MDLAdditionalData
     'obj_mdl_data_kpi_result.BYTE_STEP_STATUS = new_ctrl_process.BYTE_STATUS_CLOSED
         ' add listeners from dashboard
           ' process_provider_info obj_provider_info: FileExcelDataProviderInfo
 '    obj_mdl_data_kpi_result.add_provider_info_listener obj_dashboard_listener
           ' process_record obj_db_data_process: DBDataProcess
     obj_mdl_data_kpi_result.add_listener obj_dashboard_listener
+    obj_mdl_data_add_data.add_listener obj_dashboard_listener
 '    For Each obj_listener In obj_dashboard_listener.col_listeners
 '        obj_mdl_data_kpi_result.add_listener obj_listener
 '    Next
@@ -265,5 +270,38 @@ Private Function init_mdl_data_result(obj_dashboard_listener As MDLKPIResultDash
     obj_data_provider_util.str_file_appendix = ".xlsx"
           ' add to multi data provider
     Set obj_multi_data_provider.obj_data_provider_util = obj_data_provider_util
+    
+    'todo
+    Set obj_multi_data_provider_ad = New MultiFileExcelDataProvider
+          ' general
+    obj_multi_data_provider_ad.str_source_type = new_const_excel_data_provider.STR_SOURCE_TYPE_EXTERNAL
+    obj_multi_data_provider_ad.BOOL_IS_DYNAMIC_LOADING_PROVIDERS_FROM_FILES_ON = True
+          ' sheet
+    obj_multi_data_provider_ad.STR_WS_NAME = "data"
+          ' file
+    obj_multi_data_provider_ad.str_path = ThisWorkbook.Path & "\data\inbound\history-additional_data\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\data\inbound\history-process\"
+          ' processed file
+    obj_multi_data_provider_ad.STR_PROCESSED_FILE_PATH = ThisWorkbook.Path & "\log\"
+    obj_multi_data_provider_ad.STR_PROCESSED_FILE_NAME = "history_add_data-file_processed.xlsx" '"file_processed.xlsx"
+          ' add to model
+    Set obj_mdl_data_add_data.obj_multi_data_provider = obj_multi_data_provider_ad
+    
+        ' data provider util
+    Set obj_data_provider_util = New FileExcelDataProviderUtil
+          ' save mode
+    obj_data_provider_util.str_save_mode = new_const_excel_data_provider.STR_SAVE_MODE_HOURLY_MINUTE
+          ' file
+            ' tmpl
+    obj_data_provider_util.str_tmpl_path = ThisWorkbook.Path & "\data\inbound\history-additional_data\tmpl\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\data\inbound\history-result\tmpl\"
+    obj_data_provider_util.str_tmpl_file_name_prefix = "history-additional_data"
+    obj_data_provider_util.str_tmpl_file_name_appendix = "tmpl-v0_1"
+            ' new
+    obj_data_provider_util.str_file_prefix = "history-additional_data"
+    obj_data_provider_util.str_file_name_separator = "-"
+    obj_data_provider_util.str_file_appendix = ".xlsx"
+          ' add to multi data provider
+    Set obj_multi_data_provider_ad.obj_data_provider_util = obj_data_provider_util
+    
+    
 End Function
 

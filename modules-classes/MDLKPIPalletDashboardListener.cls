@@ -113,6 +113,9 @@ Public Function kpi_pallet_loading_data_is_about_to_start(obj_data_provider_info
     ' load data from previous updates if exists for current interval (interval with ID=obj_data_provider_info.obj_period.str_start)
     obj_mdl_kpi_on_time_result.add_listener Me
     obj_mdl_kpi_on_time_result.load_data_for_interval CDate(obj_data_provider_info.obj_period.str_start)
+    
+    obj_mdl_additional_data.add_listener Me
+    obj_mdl_additional_data.load_data_for_interval CDate(obj_data_provider_info.obj_period.str_start)
 End Function
 
   ' # interface method for listening MDLKPIOnTImePallet
@@ -146,6 +149,15 @@ Public Function kpi_result_process_record(obj_kpi_on_time_result_pallet As KPIOn
         obj_listener.kpi_result_process_record obj_kpi_on_time_result_pallet
     Next
 End Function
+
+Public Function add_data_process_record(obj_kpi_add_data_result_pallet As KPIAdditionalData)
+    Dim obj_listener As Object
+    
+    For Each obj_listener In col_listeners
+        obj_listener.add_data_process_record obj_kpi_add_data_result_pallet
+    Next
+End Function
+
 
 Public Function after_run()
 '    Dim obj_listener As Object

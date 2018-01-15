@@ -25,6 +25,7 @@ Public STR_ID_SEPARATOR As String
 Public Function kpi_result_loading_data_is_about_to_start(obj_provider_info As FileExcelDataProviderInfo)
 End Function
 
+
 Public Function kpi_result_process_record(obj_kpi_on_time_result_pallet As KPIOnTimeResultPallet)
     Dim obj_result_client As KPIOnTimeResultClient
     Dim bool_reset As Boolean
@@ -74,6 +75,17 @@ End Function
 
 Public Function kpi_result_client_loading_data_has_finished(obj_provider_info As FileExcelDataProviderInfo)
 End Function
+
+'MDLAdditionalDataClient interface - not implemented
+Public Function add_data_client_loading_data_is_about_to_start(obj_provider_info As FileExcelDataProviderInfo)
+End Function
+
+Public Function add_data_client_process_record(obj_kpi_on_time_result_client As KPIAdditionalDataClient)
+End Function
+
+Public Function add_data_client_loading_data_has_finished(obj_provider_info As FileExcelDataProviderInfo)
+End Function
+
 
 Public Function add_mdl_kpi_on_time_result_client(obj_mdl As MDLKPIOnTimeResultClient)
     Set obj_mdl_kpi_on_time_result_client = obj_mdl
@@ -149,3 +161,7 @@ Private Sub Class_Initialize()
     STR_ID_SEPARATOR = "-"
     'str_datetime_shift_separator = "-"
 End Sub
+
+Public Function add_data_process_record(obj_add_data As KPIAdditionalData)
+End Function
+

@@ -156,4 +156,9 @@ Private Sub Class_Initialize()
     'Set obj_checkpoint_type_resolver = New CheckpointTypeResolver ' # implement - cross check if this is the correct place where to initialize it
 End Sub
 
+'interface for listening MDLAdditional data - not implemented but mandatory
+Public Function add_data_process_record(obj_kpi_add_data As KPIAdditionalData)
+
+End Function
+
 
