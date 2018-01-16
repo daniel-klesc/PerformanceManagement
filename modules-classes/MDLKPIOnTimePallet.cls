@@ -342,7 +342,7 @@ Public Function retrieve_checkpoint(obj_kpi_on_time_pallet As KPIOnTimePallet) A
     
     Dim obj_kpi As KPIOnTime
     
-    Set obj_kpi = is_relevant_for_kpi(obj_kpi_on_time_pallet.str_process_id)
+    Set obj_kpi = is_relevant_for_kpi(obj_kpi_on_time_pallet.str_proc_version_name, obj_kpi_on_time_pallet.str_process_version_id)
     ' # implement - all retrievals must be error handled - these will lead to warning error
     Set obj_kpi_limit_process = obj_kpi.col_limits_process(obj_kpi_on_time_pallet.str_process_id)
     Set obj_kpi_limit_process_version = obj_kpi_limit_process.col_limits_version(obj_kpi_on_time_pallet.str_process_version_id)
@@ -393,14 +393,19 @@ INFO_NOT_REGISTERED_CHECKPOINT:
     hndl_log.log db_log.TYPE_INFO, str_module, "retrieve_checkpoint", "Checkpoint:" & obj_kpi_on_time_pallet.str_place_to & " for process:" & obj_kpi_on_time_pallet.str_process_id & ">" & obj_kpi_on_time_pallet.str_process_version_id & ", for pallet: " & obj_kpi_on_time_pallet.str_id
 End Function
 
-Public Function is_relevant_for_kpi(str_process_id As String) As KPIOnTime
-    Dim obj_kpi As Object
+Public Function is_relevant_for_kpi(str_proc_version_name As String, str_proc_version_id As String) As KPIOnTime
+    Dim obj_kpi As KPIOnTime
+    Dim obj_proc_ver As ProcessMasterVersion
     
     For Each obj_kpi In obj_md_dashboard.col_kpis
-        If obj_kpi.obj_process.str_process_id = str_process_id Then
-            Set is_relevant_for_kpi = obj_kpi
-            Exit For
-        End If
+        For Each obj_proc_ver In obj_kpi.col_process_versions
+        
+            If obj_proc_ver.str_name = str_proc_version_name And obj_proc_ver.str_id = str_proc_version_id Then
+                Set is_relevant_for_kpi = obj_kpi
+                Exit Function
+            End If
+        Next
+        
            
     Next
 End Function
