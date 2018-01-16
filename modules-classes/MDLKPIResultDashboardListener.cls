@@ -32,6 +32,8 @@ Public obj_mdl_add_data_client As MDLAdditionalDataClient
 Public str_id As String
 Public col_listeners As Collection
 
+Public str_copy_file_destination As String
+
 Public Function load()
     Set obj_data_provider = New FileExcelDataProvider
     obj_data_provider.STR_WS_NAME = STR_WS_NAME
@@ -138,6 +140,7 @@ Public Function add_data_process_record(obj_add_data_result As KPIAdditionalData
 End Function
 Public Function loading_data_has_finished(obj_provider_info As FileExcelDataProviderInfo)
     Dim obj_listener As Object
+    Dim obj_provider As FileExcelDataProvider
     
     For Each obj_listener In col_listeners
         obj_listener.kpi_result_loading_data_has_finished obj_provider_info
@@ -146,6 +149,20 @@ Public Function loading_data_has_finished(obj_provider_info As FileExcelDataProv
     ' clean up
     obj_mdl_kpi_on_time_result_client.obj_multi_data_provider.close_providers True
     obj_mdl_add_data_client.obj_multi_data_provider.close_providers True
+    
+    For Each obj_provider In obj_mdl_kpi_on_time_result_client.obj_multi_data_provider.col_providers
+        On Error GoTo WARN_COPYING_FAILED
+        FileCopy obj_provider.file_path, str_copy_file_destination & obj_provider.str_file_name
+        obj_mdl_kpi_on_time_result_client.obj_multi_data_provider.remove_provider obj_provider
+        On Error GoTo 0
+    Next
+    
+    Exit Function
+WARN_COPYING_FAILED:
+    Dim message As MSG
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "loading_data_has_finished") _
+        .text("Unexpected error occurred during copying file: " & obj_provider.file_path)
 End Function
 
 ' MDLKPIOnTImeResultClient interface
