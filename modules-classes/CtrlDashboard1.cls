@@ -215,6 +215,9 @@ Private Function init_mdl_data_pallet(obj_dashboard_listener As MDLKPIPalletDash
     obj_data_provider_util.int_regex_status = 1
           ' add to multi data provider
     Set obj_multi_data_provider.obj_data_provider_util = obj_data_provider_util
+    
+    ' file path for copying of history-result files
+    obj_dashboard_listener.str_copy_file_destination = "F:\CrossOrg\KLD_Internal_Logistics\Logistická_podpora\WH_ANALYST\czDanKle\temp\"
 End Function
 
 Private Function init_mdl_data_result(obj_dashboard_listener As MDLKPIResultDashboardListener)
