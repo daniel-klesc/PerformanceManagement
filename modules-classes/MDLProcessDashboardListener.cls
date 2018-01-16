@@ -48,6 +48,9 @@ Public Function load_record(rg_record As Range)
     Dim obj_listener As Object
     
     Set obj_listener = create(rg_record, obj_md_dashboard)
+    If Not obj_listener Is Nothing Then
+        col_listeners.add obj_listener, obj_listener.str_id
+    End If
     col_listeners.add obj_listener, obj_listener.str_id
 End Function
 
@@ -55,6 +58,11 @@ Public Function create(rg_record As Range, obj_md_dashboard As MDDashboard1) As 
     Set create = create_type(rg_record, obj_md_dashboard)
     create.str_id = rg_record.Offset(0, INT_OFFSET_ID).Value
     
+    If Not create Is Nothing Then
+        create.str_id = rg_record.Offset(0, INT_OFFSET_ID).Value
+    
+        Set create.obj_md_dashboard = obj_md_dashboard
+    End If
     Set create.obj_md_dashboard = obj_md_dashboard
 End Function
 

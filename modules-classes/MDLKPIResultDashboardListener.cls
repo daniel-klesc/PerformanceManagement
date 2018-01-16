@@ -84,6 +84,7 @@ WARN_KPI_NOT_FOUND:
     Set message = New MSG
     log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "load_data") _
         .text("Unexpected error occurred during loading data. Listener: " & rg_record.Offset(0, INT_OFFSET_ID).Value)
+    End Function
 Private Function create_add_data(rg_record As Range, obj_md_dashboard As MDDashboard1) As Object
             
             If obj_mdl_add_data_client Is Nothing Then

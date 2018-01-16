@@ -19,6 +19,8 @@ Public wsName As String
 Public logFilePath As String
 Public firstCell As String
 
+Public is_same_app As Boolean
+
 Private logWB As Workbook
 Private logIsOpen As Boolean
 

@@ -38,6 +38,7 @@ Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePal
     Dim obj_kpi_additional_data_done As KPIAdditionalData
     Dim bool_action_create As Boolean
     Dim obj_previous_checkpoint As KPIOnTimeLimitCheckpoint
+    Dim obj_next_checkpoint As KPIOnTimeLimitCheckpoint
     
     Dim obj_process_version As ProcessMasterVersion
     Dim bool_is_interested_in_pallet As Boolean
@@ -88,7 +89,7 @@ Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePal
             
             If Not obj_previous_checkpoint Is Nothing Then
                 Set obj_kpi_additional_data = create_pallet(obj_kpi_on_time_pallet)
-                obj_kpi_additional_data.str_process_step = obj_previous_checkpoint.str_id & str_process_step_separator & obj_previous_checkpoint.str_next_checkpoint_id
+                obj_kpi_additional_data.str_process_step = obj_previous_checkpoint.str_id & str_process_step_separator & obj_kpi_on_time_pallet.obj_checkpoint.str_id
                 obj_kpi_additional_data.str_task_status = STR_STATUS_DONE
                 col_result_pallets_done.add obj_kpi_additional_data, obj_kpi_additional_data.str_id & obj_previous_checkpoint.str_id & obj_previous_checkpoint.str_next_checkpoint_id
             End If
@@ -105,7 +106,7 @@ Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePal
                 Set obj_kpi_additional_data = col_result_pallets_done(obj_kpi_additional_data.str_id & obj_previous_checkpoint.str_id & obj_previous_checkpoint.str_next_checkpoint_id)
                 If bool_not_done_previous Then
                     Set obj_kpi_additional_data = create_pallet(obj_kpi_on_time_pallet)
-                    obj_kpi_additional_data.str_process_step = obj_previous_checkpoint.str_id & str_process_step_separator & obj_previous_checkpoint.str_next_checkpoint_id
+                    obj_kpi_additional_data.str_process_step = obj_previous_checkpoint.str_id & str_process_step_separator & obj_kpi_on_time_pallet.obj_checkpoint.str_id
                     obj_kpi_additional_data.str_task_status = STR_STATUS_DONE
                     col_result_pallets_done.add obj_kpi_additional_data, obj_kpi_additional_data.str_id & obj_previous_checkpoint.str_id & obj_previous_checkpoint.str_next_checkpoint_id
                 End If
@@ -205,7 +206,19 @@ Private Function check_previous_checkpoint(obj_checkpoint As KPIOnTimeLimitCheck
     Exit Function
 NULL_CHECKPOINT:
     Set check_previous_checkpoint = Nothing
-    Resume Next
+End Function
+
+Private Function check_next_checkpoint(obj_checkpoint As KPIOnTimeLimitCheckpoint) As KPIOnTimeLimitCheckpoint
+    On Error GoTo NULL_CHECKPOINT
+    If obj_checkpoint.obj_next_limit.str_kpi_visibility = "Hidden" Then
+        Set check_next_checkpoint = check_next_checkpoint(obj_checkpoint.obj_next_limit)
+    Else
+        Set check_next_checkpoint = obj_checkpoint.obj_next_limit
+    End If
+    On Error GoTo 0
+    Exit Function
+NULL_CHECKPOINT:
+    Set check_previous_checkpoint = Nothing
 End Function
 
 Private Sub Class_Initialize()
