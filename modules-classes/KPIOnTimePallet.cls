@@ -39,6 +39,7 @@ Public str_process_status As String '
 Public byte_process_status As Byte '
 Public private_bool_status_ok As Boolean '
 
+Public str_pallet_status As String
 Public bool_is_synchronized_with_process As Boolean '
 
 Public Property Get bool_status_ok() As Boolean
@@ -77,7 +78,7 @@ Public Function create_copy() As KPIOnTimePallet
     create_copy.str_process_status = str_process_status
     create_copy.byte_process_status = byte_process_status
     create_copy.private_bool_status_ok = private_bool_status_ok
-    
+
     create_copy.str_kpi_status = str_kpi_status
     
     create_copy.bool_is_synchronized_with_process = bool_is_synchronized_with_process
