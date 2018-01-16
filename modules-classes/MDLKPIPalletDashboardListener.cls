@@ -32,6 +32,8 @@ Public obj_mdl_additional_data As MDLAdditionalData
 Public str_id As String
 Public col_listeners As Collection
 
+Public str_copy_file_destination As String
+
 Public Function load()
     Set obj_data_provider = New FileExcelDataProvider
     obj_data_provider.STR_WS_NAME = STR_WS_NAME
@@ -130,14 +132,29 @@ End Function
   ' # interface method for listening MDLKPIOnTImePallet
 Public Function kpi_pallet_loading_data_has_finished(obj_data_provider_info As FileExcelDataProviderInfo)
     Dim obj_listener As Object
+    Dim obj_provider As FileExcelDataProvider
     
     For Each obj_listener In col_listeners
         obj_listener.kpi_pallet_loading_data_has_finished obj_data_provider_info
     Next
     
     ' clean up
-    obj_mdl_kpi_on_time_result.obj_multi_data_provider.close_providers
-    obj_mdl_additional_data.obj_multi_data_provider.close_providers
+    obj_mdl_kpi_on_time_result.obj_multi_data_provider.close_providers True
+    'obj_mdl_additional_data.obj_multi_data_provider.close_providers
+    
+    For Each obj_provider In obj_mdl_kpi_on_time_result.obj_multi_data_provider.col_providers
+        On Error GoTo WARN_COPYING_FAILED
+        FileCopy obj_provider.file_path, str_copy_file_destination & obj_provider.str_file_name
+        obj_mdl_kpi_on_time_result.obj_multi_data_provider.remove_provider obj_provider
+        On Error GoTo 0
+    Next
+    
+    Exit Function
+WARN_COPYING_FAILED:
+    Dim message As MSG
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "kpi_pallet_loading_data_has_finished") _
+        .text("Unexpected error occurred during copying file: " & obj_provider.file_path)
 End Function
 
 ' Loading already existing KPI result data
