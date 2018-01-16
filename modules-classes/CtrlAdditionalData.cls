@@ -69,7 +69,7 @@ Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePal
         Set obj_kpi_additional_data = col_result_pallets_total(str_pallet_id)
         On Error GoTo 0
         
-        If obj_kpi_on_time_pallet.str_pallet_status = "Closed" And Not bool_action_create Then
+        If obj_kpi_on_time_pallet.str_kpi_status = "Closed" And Not bool_action_create Then
             Set obj_kpi_additional_data = create_pallet(obj_kpi_on_time_pallet)
             obj_kpi_additional_data.str_task_status = STR_STATUS_DONE
             col_result_pallets_done.add obj_kpi_additional_data, str_pallet_id
@@ -80,7 +80,7 @@ Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePal
     
     If bool_action_create Then
                
-        If Not obj_kpi_on_time_pallet.str_pallet_status = "Closed" Then
+        If Not obj_kpi_on_time_pallet.str_kpi_status = "Closed" Then
             
             obj_kpi_additional_data.str_task_status = STR_STATUS_TOTAL
             col_result_pallets_total.add obj_kpi_additional_data, str_pallet_id
@@ -218,7 +218,7 @@ Private Function check_next_checkpoint(obj_checkpoint As KPIOnTimeLimitCheckpoin
     On Error GoTo 0
     Exit Function
 NULL_CHECKPOINT:
-    Set check_previous_checkpoint = Nothing
+    Set check_next_checkpoint = Nothing
 End Function
 
 Private Sub Class_Initialize()

@@ -185,9 +185,6 @@ Public Function load_record(rg_record As Range)
     'obj_checkpoint.str_id = rg_record.Offset(0, INT_OFFSET_PLACE_FROM).Value
     'obj_checkpoint.obj_limit = rg_record.Offset(0, INT_OFFSET_CHECKPOINT_LIMIT).Value
     Set obj_kpi_on_time_pallet.obj_checkpoint = retrieve_checkpoint(obj_kpi_on_time_pallet)
-    
-    'closed status
-    obj_kpi_on_time_pallet.str_pallet_status = rg_record.Offset(0, INT_OFFSET_CLOSED_STATUS).Value
             
       ' kpi status
     obj_kpi_on_time_pallet.str_kpi_status = rg_record.Offset(0, INT_OFFSET_KPI_STATUS).Value
