@@ -13,6 +13,8 @@ Private Const str_module As String = "MDLKPIOnTimePallet"
 
 Public STR_DB_TYPE_FILE_EXCEL As String
 
+Public STR_START_CHECKPOINT As String
+
 Public INT_OFFSET_PALLET As Integer
 Public INT_OFFSET_PROCESS As Integer
 Public INT_OFFSET_PROCESS_VERSION As Integer
@@ -58,6 +60,8 @@ Public obj_md_dashboard As MDDashboard1
 
 Private Sub Class_Initialize()
     STR_DB_TYPE_FILE_EXCEL = "file:excel"
+    
+    STR_START_CHECKPOINT = "START"
 
     INT_OFFSET_PALLET = 0
     INT_OFFSET_PROCESS = 1
@@ -180,12 +184,17 @@ Public Function load_record(rg_record As Range)
     Set obj_kpi_on_time_pallet.obj_kpi_interval = obj_kpi_interval
     
       ' checkpoint
-    'Set obj_checkpoint = New KPIOnTimeLimitCheckpoint
-    'obj_checkpoint.str_id = rg_record.Offset(0, INT_OFFSET_PLACE_TO).Value
-    'obj_checkpoint.str_id = rg_record.Offset(0, INT_OFFSET_PLACE_FROM).Value
-    'obj_checkpoint.obj_limit = rg_record.Offset(0, INT_OFFSET_CHECKPOINT_LIMIT).Value
-    Set obj_kpi_on_time_pallet.obj_checkpoint = retrieve_checkpoint(obj_kpi_on_time_pallet)
-            
+    Set obj_checkpoint = New KPIOnTimeLimitCheckpoint
+    obj_checkpoint.str_next_checkpoint_id = rg_record.Offset(0, INT_OFFSET_PLACE_TO).Value
+    obj_checkpoint.str_id = rg_record.Offset(0, INT_OFFSET_PLACE_FROM).Value
+    obj_checkpoint.obj_limit = rg_record.Offset(0, INT_OFFSET_CHECKPOINT_LIMIT).Value
+    
+    If obj_checkpoint.str_id = STR_START_CHECKPOINT Then
+        Set obj_kpi_on_time_pallet.obj_checkpoint = obj_checkpoint
+    Else
+        Set obj_kpi_on_time_pallet.obj_checkpoint = retrieve_checkpoint(obj_kpi_on_time_pallet)
+    End If
+    
       ' kpi status
     obj_kpi_on_time_pallet.str_kpi_status = rg_record.Offset(0, INT_OFFSET_KPI_STATUS).Value
             
