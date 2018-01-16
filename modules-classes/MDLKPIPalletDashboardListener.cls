@@ -140,7 +140,7 @@ Public Function kpi_pallet_loading_data_has_finished(obj_data_provider_info As F
     
     ' clean up
     obj_mdl_kpi_on_time_result.obj_multi_data_provider.close_providers True
-    'obj_mdl_additional_data.obj_multi_data_provider.close_providers
+    obj_mdl_additional_data.obj_multi_data_provider.close_providers
     
     For Each obj_provider In obj_mdl_kpi_on_time_result.obj_multi_data_provider.col_providers
         On Error GoTo WARN_COPYING_FAILED

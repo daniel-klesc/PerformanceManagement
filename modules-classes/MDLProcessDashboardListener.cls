@@ -51,7 +51,7 @@ Public Function load_record(rg_record As Range)
     If Not obj_listener Is Nothing Then
         col_listeners.add obj_listener, obj_listener.str_id
     End If
-    col_listeners.add obj_listener, obj_listener.str_id
+    'col_listeners.add obj_listener, obj_listener.str_id
 End Function
 
 Public Function create(rg_record As Range, obj_md_dashboard As MDDashboard1) As Object
@@ -63,7 +63,7 @@ Public Function create(rg_record As Range, obj_md_dashboard As MDDashboard1) As 
     
         Set create.obj_md_dashboard = obj_md_dashboard
     End If
-    Set create.obj_md_dashboard = obj_md_dashboard
+    'Set create.obj_md_dashboard = obj_md_dashboard
 End Function
 
 Private Function create_type(rg_record As Range, obj_md_dashboard As MDDashboard1) As Object

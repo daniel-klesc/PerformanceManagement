@@ -342,7 +342,7 @@ Public Function retrieve_checkpoint(obj_kpi_on_time_pallet As KPIOnTimePallet) A
     
     Dim obj_kpi As KPIOnTime
     
-    Set obj_kpi = is_relevant_for_kpi(obj_kpi_on_time_pallet.str_proc_version_name, obj_kpi_on_time_pallet.str_process_version_id)
+    Set obj_kpi = is_relevant_for_kpi(obj_kpi_on_time_pallet.str_process_version_name, obj_kpi_on_time_pallet.str_process_version_id)
     ' # implement - all retrievals must be error handled - these will lead to warning error
     Set obj_kpi_limit_process = obj_kpi.col_limits_process(obj_kpi_on_time_pallet.str_process_id)
     Set obj_kpi_limit_process_version = obj_kpi_limit_process.col_limits_version(obj_kpi_on_time_pallet.str_process_version_id)
