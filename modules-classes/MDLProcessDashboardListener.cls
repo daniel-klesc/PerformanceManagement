@@ -56,7 +56,7 @@ End Function
 
 Public Function create(rg_record As Range, obj_md_dashboard As MDDashboard1) As Object
     Set create = create_type(rg_record, obj_md_dashboard)
-    create.str_id = rg_record.Offset(0, INT_OFFSET_ID).Value
+    'create.str_id = rg_record.Offset(0, INT_OFFSET_ID).Value
     
     If Not create Is Nothing Then
         create.str_id = rg_record.Offset(0, INT_OFFSET_ID).Value
