@@ -34,7 +34,9 @@ Public INT_OFFSET_INTERVAL_END As Integer
 Public INT_OFFSET_INTERVAL_SHIFT As Integer
 Public INT_OFFSET_INTERVAL_SHIFT_TYPE As Integer
 Public INT_OFFSET_CHECKPOINT_LIMIT As Integer
-Public INT_OFFSET_CLOSED_STATUS As Integer
+
+Public INT_OFFSET_KPI_STATUS As Integer
+
 
 'Public INT_APP_WORK_COL_DATE_OFFSET As Integer
 'Public STR_APP_WORK_FIRST_RG As String
@@ -78,7 +80,9 @@ Private Sub Class_Initialize()
     INT_OFFSET_INTERVAL_SHIFT = 17
     INT_OFFSET_INTERVAL_SHIFT_TYPE = 18
     INT_OFFSET_CHECKPOINT_LIMIT = 19
-    INT_OFFSET_CLOSED_STATUS = 20
+
+    INT_OFFSET_KPI_STATUS = 20
+
     
     ' app help sheet
 '    INT_APP_WORK_COL_DATE_OFFSET = 0
@@ -185,6 +189,9 @@ Public Function load_record(rg_record As Range)
     'closed status
     obj_kpi_on_time_pallet.str_pallet_status = rg_record.Offset(0, INT_OFFSET_CLOSED_STATUS).Value
             
+      ' kpi status
+    obj_kpi_on_time_pallet.str_kpi_status = rg_record.Offset(0, INT_OFFSET_KPI_STATUS).Value
+            
     For Each obj_listener In col_listeners
         obj_listener.kpi_pallet_process_record obj_kpi_on_time_pallet
     Next
@@ -290,6 +297,8 @@ Public Function save_record(obj_kpi_on_time_pallet As KPIOnTimePallet, rg_record
       ' checkpoint
     rg_record.Offset(0, INT_OFFSET_CHECKPOINT_LIMIT).NumberFormat = "[$-F400]h:mm:ss AM/PM"
     rg_record.Offset(0, INT_OFFSET_CHECKPOINT_LIMIT).Value = obj_kpi_on_time_pallet.obj_checkpoint.obj_limit
+      ' kpi status
+    rg_record.Offset(0, INT_OFFSET_KPI_STATUS).Value = obj_kpi_on_time_pallet.str_kpi_status
     
     ' only for complete pallets
     If Not obj_kpi_on_time_pallet.obj_kpi_interval Is Nothing Then
@@ -302,6 +311,7 @@ Public Function save_record(obj_kpi_on_time_pallet As KPIOnTimePallet, rg_record
         rg_record.Offset(0, INT_OFFSET_INTERVAL_SHIFT).Value = obj_kpi_on_time_pallet.obj_kpi_interval.str_shift
         rg_record.Offset(0, INT_OFFSET_INTERVAL_SHIFT_TYPE).Value = obj_kpi_on_time_pallet.obj_kpi_interval.str_shift_type
     End If
+        
 End Function
 
 Public Function close_data()

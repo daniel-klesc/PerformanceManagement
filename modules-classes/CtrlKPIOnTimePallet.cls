@@ -180,6 +180,7 @@ Public Function process_steps(col_steps As Collection, col_kpi_intervals As Coll
                 obj_kpi_on_time_pallet_step_interval.str_date_last_checkpoint = obj_kpi_on_time_pallet_step.str_date_last_checkpoint
                 Set obj_kpi_on_time_pallet_step_interval.obj_checkpoint = obj_kpi_on_time_pallet_step.obj_checkpoint
                 obj_kpi_on_time_pallet_step_interval.bool_is_synchronized_with_process = obj_kpi_on_time_pallet_step.bool_is_synchronized_with_process
+                obj_kpi_on_time_pallet_step_interval.str_kpi_status = obj_kpi_on_time_pallet_step.str_kpi_status
                 
                 ' update full live pallet - to have latest pallet status in interval
                 Set obj_kpi_on_time_pallet_full_live_interval = obj_kpi_on_time_pallet_step_interval.create_copy
@@ -225,6 +226,9 @@ End Function
 Public Function create_kpi_on_time_pallet(obj_data_process As DBDataProcess) As KPIOnTimePallet
     Dim obj_checkpoint As KPIOnTimeLimitCheckpoint
     Dim message As MSG
+    
+    Dim bool_building_source_not_set As Boolean
+    Dim bool_building_destination_not_set As Boolean
 
     Set create_kpi_on_time_pallet = New KPIOnTimePallet
     create_kpi_on_time_pallet.str_id = obj_data_process.str_pallet
@@ -237,8 +241,24 @@ Public Function create_kpi_on_time_pallet(obj_data_process As DBDataProcess) As 
         obj_checkpoint_type_resolver.retrieve_building(obj_data_process.str_source, obj_data_process.str_source_type)
     create_kpi_on_time_pallet.str_building_destination = _
         obj_checkpoint_type_resolver.retrieve_building(obj_data_process.str_destination, obj_data_process.str_destination_type)
+        
+    ' check if buildings were found
     If create_kpi_on_time_pallet.str_building_destination = bin_stor_grp.STR_BUILDING_GENERAL Then
+        bool_building_destination_not_set = True
         create_kpi_on_time_pallet.str_building_destination = create_kpi_on_time_pallet.str_building_source
+    End If
+        
+    If create_kpi_on_time_pallet.str_building_source = "" Or create_kpi_on_time_pallet.str_building_source = bin_stor_grp.STR_BUILDING_GENERAL Then
+        create_kpi_on_time_pallet.str_building_source = create_kpi_on_time_pallet.str_building_destination
+        bool_building_source_not_set = True
+    End If
+        
+    If bool_building_source_not_set And bool_building_destination_not_set Then
+        Set create_kpi_on_time_pallet = Nothing
+        Set message = New MSG
+        log4VBA.debg log4VBA.DEFAULT_DESTINATION, message.source(STR_CLASS_NAME, "create_kpi_on_time_pallet") _
+            .text("Not found building: " & obj_data_process.str_pallet)
+        Exit Function
     End If
         
     ' set datetime values
@@ -296,6 +316,9 @@ Public Function update_kpi_on_time_pallet(obj_kpi_on_time_pallet As KPIOnTimePal
     Dim obj_kpi_on_time_pallet_original As KPIOnTimePallet
     
     Dim col_pallet_steps As Collection
+    Dim obj_pallet_step As KPIOnTimePallet
+    Dim int_pallet_step_counter As Integer
+    Dim int_pallet_step_total As Integer
     Dim obj_kpi_on_time_interval As KPIOnTimeInterval
 
     bool_is_place_to_tracked_by_kpi = False
@@ -330,11 +353,6 @@ Public Function update_kpi_on_time_pallet(obj_kpi_on_time_pallet As KPIOnTimePal
         Loop While Not obj_kpi_on_time_pallet.obj_checkpoint.obj_next_limit Is Nothing
 
         If bool_is_place_to_tracked_by_kpi Then
-            ' check pallets which finished the process before they reached final checkpoint
-            If obj_data_process.byte_process_step_status = 2 Then
-                
-            End If
-        
             ' move pallet to next checkpoint to find out if pallet has reached its final checkpoint
             update_kpi_on_time_pallet_to_next_checkpoint obj_kpi_on_time_pallet
             
@@ -355,10 +373,19 @@ Public Function update_kpi_on_time_pallet(obj_kpi_on_time_pallet As KPIOnTimePal
 '        col_pallet_steps.add obj_kpi_on_time_pallet.create_copy
     End If
     
-    If obj_data_process.byte_process_step_status = 2 Then '# debug
-        If obj_kpi_on_time_pallet.str_id = "357020105568436083" Then
-            DoEvents
-        End If
+    If obj_data_process.byte_process_step_status = 2 Then
+        obj_kpi_on_time_pallet.str_kpi_status = db_kpi_on_time_pallet.STR_KPI_STATUS_CLOSED
+
+        int_pallet_step_total = col_pallet_steps.Count - 1
+        For Each obj_pallet_step In col_pallet_steps
+            If int_pallet_step_counter = int_pallet_step_total Then
+                obj_pallet_step.str_kpi_status = db_kpi_on_time_pallet.STR_KPI_STATUS_CLOSED
+            Else
+                obj_pallet_step.str_kpi_status = db_kpi_on_time_pallet.STR_KPI_STATUS_OPEN
+            End If
+            
+            int_pallet_step_counter = int_pallet_step_counter + 1
+        Next
     
         If Not obj_kpi_on_time_pallet.obj_checkpoint.obj_next_limit Is Nothing Then
             'Debug.Print obj_kpi_on_time_pallet.str_id & ":" & obj_kpi_on_time_pallet.obj_checkpoint.str_id & " is NOT a last checkpoint"
@@ -373,6 +400,11 @@ Public Function update_kpi_on_time_pallet(obj_kpi_on_time_pallet As KPIOnTimePal
                 On Error GoTo 0
             Next
         End If
+    Else
+        obj_kpi_on_time_pallet.str_kpi_status = db_kpi_on_time_pallet.STR_KPI_STATUS_OPEN
+        For Each obj_pallet_step In col_pallet_steps
+            obj_pallet_step.str_kpi_status = db_kpi_on_time_pallet.STR_KPI_STATUS_OPEN
+        Next
     End If
     
     Set update_kpi_on_time_pallet = col_pallet_steps
