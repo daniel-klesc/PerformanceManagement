@@ -26,6 +26,9 @@ Public Function setup()
     hndl_log.str_path = ThisWorkbook.Path & "\log\" '"C:\Users\czDanKle\Desktop\KLD\under-construction\app\performance\log\"
     hndl_log.str_file_name = "log-performance.xlsx"
     hndl_log.open_data
+    
+    Application.DisplayAlerts = False
+    
 End Function
 
 Public Function tear_down()

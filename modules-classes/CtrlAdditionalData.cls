@@ -32,6 +32,11 @@ Public Function kpi_pallet_loading_data_is_about_to_start(obj_data_provider_info
     
 End Function
 
+' # interface method for listening MDLKPIOnTimeResult
+Public Function kpi_result_process_record(obj_kpi_on_time_result_pallet As KPIOnTimeResultPallet)
+
+End Function
+
 ' # interface method for listening MDLKPIOnTImePallet
 Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePallet)
     Dim str_pallet_id As String
@@ -72,7 +77,9 @@ Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePal
         If obj_kpi_on_time_pallet.str_kpi_status = "Closed" And Not bool_action_create Then
             Set obj_kpi_additional_data = create_pallet(obj_kpi_on_time_pallet)
             obj_kpi_additional_data.str_task_status = STR_STATUS_DONE
+            On Error GoTo PALLET_ALREADY_CLOSED
             col_result_pallets_done.add obj_kpi_additional_data, str_pallet_id
+            On Error GoTo 0
             
         End If
         
@@ -133,6 +140,8 @@ INFO_NEW_PALLET:
     Resume Next
 NOT_DONE_PREVIOUS:
     bool_not_done_previous = True
+    Resume Next
+PALLET_ALREADY_CLOSED:
     Resume Next
 End Function
 
