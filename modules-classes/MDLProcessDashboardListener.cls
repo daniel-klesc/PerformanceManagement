@@ -273,6 +273,8 @@ Private Function create_mdl_kpi_on_time_pallet() As MDLKPIOnTimePallet
     Dim obj_listener As Object
 
     Set create_mdl_kpi_on_time_pallet = New MDLKPIOnTimePallet
+      ' add MD Dashboard
+    Set create_mdl_kpi_on_time_pallet.obj_md_dashboard = obj_md_dashboard
         ' multi data provider
     Set obj_multi_data_provider = New MultiFileExcelDataProvider
           ' general
@@ -315,6 +317,8 @@ Private Function create_mdl_kpi_on_time_pallet_unfinished() As MDLKPIOnTimePalle
 
     ' unfinished
     Set obj_mdl_unfinished = New MDLKPIOnTimePallet
+      ' add MD Dashboard
+    Set obj_mdl_unfinished.obj_md_dashboard = obj_md_dashboard
     'obj_mdl_unfinished.BYTE_STEP_STATUS = new_ctrl_process.BYTE_STATUS_OPEN ' # implement byte_step_status should be evaluated in ctrl_pallet logic
     'obj_mdl_unfinished.str_provider_id_default = "unfinished"
     'obj_mdl_unfinished.add_listener obj_dashboard_listener
