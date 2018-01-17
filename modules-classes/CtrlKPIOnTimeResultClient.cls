@@ -21,6 +21,7 @@ Public col_kpi_result_client As Collection
 Public STR_ID_SEPARATOR As String
 'Public str_datetime_shift_separator As String
 
+
 ' MDLKPIOnTImeResult interface
 Public Function kpi_result_loading_data_is_about_to_start(obj_provider_info As FileExcelDataProviderInfo)
 End Function
@@ -139,7 +140,25 @@ End Function
 
 ' # interface from MDLKPIResultDashboardListener
 Public Function after_run()
-    
+'    Dim obj_provider As FileExcelDataProvider
+'
+'    ' clean up
+'    'obj_mdl_kpi_on_time_result_client.obj_multi_data_provider.close_providers True
+'    'obj_mdl_add_data_client.obj_multi_data_provider.close_providers True
+'
+'    For Each obj_provider In obj_mdl_kpi_on_time_result_client.obj_multi_data_provider.col_providers
+'        On Error GoTo WARN_COPYING_FAILED
+'        FileCopy obj_provider.file_path, str_copy_file_destination & obj_provider.str_file_name
+'        obj_mdl_kpi_on_time_result_client.obj_multi_data_provider.remove_provider obj_provider
+'        On Error GoTo 0
+'    Next
+'
+'    Exit Function
+'WARN_COPYING_FAILED:
+'    Dim message As MSG
+'    Set message = New MSG
+'    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(STR_CLASS_NAME, "after_run") _
+'        .text("Unexpected error occurred during copying file: " & obj_provider.file_path)
 End Function
 
 Private Function is_interested_in_process(str_process_name) As Boolean

@@ -136,11 +136,10 @@ End Function
 
 
 Public Function add_data_client_loading_data_has_finished(obj_provider_info As FileExcelDataProviderInfo)
-    Dim obj_listener As Object
-    For Each obj_listener In col_listeners
-        obj_listener.loading_data_has_finished
-    Next
-    
+'    Dim obj_listener As Object
+'    For Each obj_listener In col_listeners
+'        obj_listener.loading_data_has_finished
+'    Next
 End Function
 
 Public Function kpi_result_loading_data_is_about_to_start(obj_provider_info As FileExcelDataProviderInfo)

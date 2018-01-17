@@ -96,6 +96,7 @@ Private Sub Class_Initialize()
     str_static_data_provider_id = "static"
     Set col_listeners = New Collection
 '    Set col_provider_info_listeners = New Collection
+    str_id = str_module
 End Sub
 
 Public Function set_clear_data()

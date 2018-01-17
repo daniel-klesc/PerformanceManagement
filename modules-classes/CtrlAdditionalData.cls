@@ -235,8 +235,6 @@ Private Function check_next_checkpoint(obj_checkpoint As KPIOnTimeLimitCheckpoin
 NULL_CHECKPOINT:
     Set check_next_checkpoint = Nothing
 End Function
-    
-End Function
 
 Private Sub Class_Initialize()
 
@@ -246,3 +244,4 @@ Private Sub Class_Initialize()
     str_process_step_separator = ">"
     
 End Sub
+

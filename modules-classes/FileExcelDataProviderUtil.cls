@@ -47,6 +47,7 @@ Public Function create_provider_info(str_file_name As String, str_type As String
     create_provider_info.str_provider_id = retrieve_provider_id_reverse(str_file_name)
     create_provider_info.str_loading_type = str_loading_type
     create_provider_info.str_type = str_type
+    create_provider_info.str_source_name = str_file_name
     Set create_provider_info.obj_period = retrieve_period(create_provider_info.str_provider_id)
     create_provider_info.str_completeness_status = new_const_excel_data_provider.STR_DATA_PROVIDER_INFO_STATUS_CLOSED
 End Function
