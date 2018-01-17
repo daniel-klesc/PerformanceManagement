@@ -133,7 +133,18 @@ Public Function data_kpi_result_after_run()
     Next
     
     ' clean up
+      ' result data
     Set obj_multi_provider = obj_mdl_kpi_result_dashboard_listener.obj_mdl_kpi_on_time_result_client.obj_multi_data_provider
+    
+    For Each obj_provider In obj_multi_provider.col_providers
+        On Error GoTo WARN_COPYING_FAILED
+        FileCopy obj_provider.file_path, str_copy_file_destination & obj_provider.str_file_name
+        obj_multi_provider.remove_provider obj_provider
+        On Error GoTo 0
+    Next
+    
+      ' additional data
+    Set obj_multi_provider = obj_mdl_kpi_result_dashboard_listener.obj_mdl_add_data_client.obj_multi_data_provider
     
     For Each obj_provider In obj_multi_provider.col_providers
         On Error GoTo WARN_COPYING_FAILED

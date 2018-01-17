@@ -28,7 +28,6 @@ Public Function setup()
     hndl_log.open_data
     
     Application.DisplayAlerts = False
-    
 End Function
 
 Public Function tear_down()
@@ -49,9 +48,9 @@ Public Function test_run()
     dbl_start = Now
     Set obj_dashboard = New CtrlDashboard1
     ' run setting
-    obj_dashboard.bool_run_process = new_const_ctrl_dashboard1.BOOL_RUN_PROCESS_YES 'new_const_ctrl_dashboard1.BOOL_RUN_PROCESS_YES
+    obj_dashboard.bool_run_process = new_const_ctrl_dashboard1.BOOL_RUN_PROCESS_NO 'new_const_ctrl_dashboard1.BOOL_RUN_PROCESS_YES
     'obj_dashboard.bool_run_process_load_unfinished = new_const_ctrl_dashboard1.BOOL_RUN_PROCESS_LOAD_UNFINISHED_NO
-    obj_dashboard.bool_run_kpi_pallet = new_const_ctrl_dashboard1.BOOL_RUN_KPI_PALLET_YES
+    obj_dashboard.bool_run_kpi_pallet = new_const_ctrl_dashboard1.BOOL_RUN_KPI_PALLET_NO
     obj_dashboard.bool_run_kpi_result = new_const_ctrl_dashboard1.BOOL_RUN_KPI_RESULT_YES
     
     obj_dashboard.before_run
