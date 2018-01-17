@@ -127,8 +127,8 @@ Private Function create_pallet(obj_kpi_on_time_pallet As KPIOnTimePallet) As KPI
     Set obj_kpi_on_time_interval = obj_kpi_on_time_pallet.obj_kpi_interval
     create_pallet.str_date = DateValue(obj_kpi_on_time_interval.str_id)
     create_pallet.str_time = TimeValue(obj_kpi_on_time_interval.str_id)
-    create_pallet.str_shift = obj_kpi_on_time_interval.str_shift
-    create_pallet.str_shift_type = obj_kpi_on_time_interval.str_shift_type
+    create_pallet.str_shift = hndl_master_shift.find_shift(Format(obj_kpi_on_time_interval.str_id, "DD.MM.YYYY-h")) 'obj_kpi_on_time_interval.str_shift
+    create_pallet.str_shift_type = hndl_master_shift.find_type(Hour(obj_kpi_on_time_interval.str_id)) 'obj_kpi_on_time_interval.str_shift_type
 
     create_pallet.str_building = obj_kpi_on_time_pallet.str_place_building
     create_pallet.str_process_name = obj_kpi_on_time_pallet.str_process_version_name ' # implement conversion to kpi process name
