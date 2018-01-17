@@ -196,7 +196,7 @@ Public Function before_load_data_static(obj_provider As FileExcelDataProvider)
     Exit Function
 WARN_LISTENER_ERROR:
     Set message = New MSG
-    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "after_load_data").text("An error occured in listener: " & obj_listener.str_id)
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "before_load_data_static").text("An error occured in listener: " & obj_listener.str_id)
     Resume Next
 End Function
 
@@ -215,7 +215,7 @@ Public Function after_load_data_static()
     Exit Function
 WARN_LISTENER_ERROR:
     Set message = New MSG
-    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "after_load_data").text("An error occured in listener: " & obj_listener.str_id)
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "after_load_data_static").text("An error occured in listener: " & obj_listener.str_id)
     Resume Next
 End Function
 
@@ -349,7 +349,7 @@ Public Function close_providers(Optional is_close_only As Boolean = False)
 WARN_CLOSING_PROVIDER_FAILED:
     Set message = New MSG
     log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "close_providers") _
-        .text("Closing provider: " & obj_provider.str_id & " has failed.")
+        .text("Closing provider: " & obj_provider.str_id & ">" & obj_provider.str_file_name & " has failed.")
 End Function
 
 ' automation

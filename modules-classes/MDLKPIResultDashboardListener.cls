@@ -32,7 +32,10 @@ Public obj_mdl_add_data_client As MDLAdditionalDataClient
 Public str_id As String
 Public col_listeners As Collection
 
-Public str_copy_file_destination As String
+Public str_source_name_result_data As String
+Public str_source_name_additional_data As String
+
+'Public str_copy_file_destination As String
 
 Public Function load()
     Set obj_data_provider = New FileExcelDataProvider
@@ -78,6 +81,8 @@ Private Function create_kpi(rg_record As Range, obj_md_dashboard As MDDashboard1
             On Error GoTo WARN_KPI_NOT_FOUND
             Set create_kpi.obj_kpi = obj_md_dashboard.col_kpis(rg_record.Offset(0, INT_OFFSET_LINK).Value)
             Set create_kpi.obj_mdl_kpi_on_time_result_client = obj_mdl_kpi_on_time_result_client
+            ' file path for copying of history-result files
+            'create_kpi.str_copy_file_destination = "F:\CrossOrg\KLD_Internal_Logistics\Logistická_podpora\WH_ANALYST\czDanKle\temp\"
             On Error GoTo 0
     End Select
     
@@ -114,13 +119,19 @@ Public Function loading_data_is_about_to_start(obj_provider_info As FileExcelDat
     Next
     
     ' load data from result client file
-    obj_mdl_kpi_on_time_result_client.add_listener Me
-    obj_mdl_kpi_on_time_result_client.load_static
-    obj_mdl_kpi_on_time_result_client.remove_listener str_id
+    If Left(obj_provider_info.str_source_name, Len(str_source_name_result_data)) = str_source_name_result_data Then
+        obj_mdl_kpi_on_time_result_client.add_listener Me
+        obj_mdl_kpi_on_time_result_client.load_static
+        obj_mdl_kpi_on_time_result_client.remove_listener str_id
+        Debug.Print "KPI on time result client data loaded ..."
+    End If
     
-    obj_mdl_add_data_client.add_listener Me
-    obj_mdl_add_data_client.load_static
-    obj_mdl_add_data_client.remove_listener str_id
+    If Left(obj_provider_info.str_source_name, Len(str_source_name_additional_data)) = str_source_name_additional_data Then
+        obj_mdl_add_data_client.add_listener Me
+        obj_mdl_add_data_client.load_static
+        obj_mdl_add_data_client.remove_listener str_id
+        Debug.Print "Additional client data loaded ..."
+    End If
 End Function
 
 Public Function kpi_result_process_record(obj_kpi_on_time_result_pallet As KPIOnTimeResultPallet)
@@ -140,29 +151,33 @@ Public Function add_data_process_record(obj_add_data_result As KPIAdditionalData
 End Function
 Public Function loading_data_has_finished(obj_provider_info As FileExcelDataProviderInfo)
     Dim obj_listener As Object
-    Dim obj_provider As FileExcelDataProvider
     
     For Each obj_listener In col_listeners
         obj_listener.kpi_result_loading_data_has_finished obj_provider_info
     Next
     
-    ' clean up
-    obj_mdl_kpi_on_time_result_client.obj_multi_data_provider.close_providers True
-    obj_mdl_add_data_client.obj_multi_data_provider.close_providers True
+'    ' clean up
+    If Left(obj_provider_info.str_source_name, Len(str_source_name_result_data)) = str_source_name_result_data Then
+        obj_mdl_kpi_on_time_result_client.obj_multi_data_provider.close_providers True
+    End If
     
-    For Each obj_provider In obj_mdl_kpi_on_time_result_client.obj_multi_data_provider.col_providers
-        On Error GoTo WARN_COPYING_FAILED
-        FileCopy obj_provider.file_path, str_copy_file_destination & obj_provider.str_file_name
-        obj_mdl_kpi_on_time_result_client.obj_multi_data_provider.remove_provider obj_provider
-        On Error GoTo 0
-    Next
-    
-    Exit Function
-WARN_COPYING_FAILED:
-    Dim message As MSG
-    Set message = New MSG
-    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "loading_data_has_finished") _
-        .text("Unexpected error occurred during copying file: " & obj_provider.file_path)
+    If Left(obj_provider_info.str_source_name, Len(str_source_name_additional_data)) = str_source_name_additional_data Then
+        obj_mdl_add_data_client.obj_multi_data_provider.close_providers True
+    End If
+'
+'    For Each obj_provider In obj_mdl_kpi_on_time_result_client.obj_multi_data_provider.col_providers
+'        On Error GoTo WARN_COPYING_FAILED
+'        FileCopy obj_provider.file_path, str_copy_file_destination & obj_provider.str_file_name
+'        obj_mdl_kpi_on_time_result_client.obj_multi_data_provider.remove_provider obj_provider
+'        On Error GoTo 0
+'    Next
+'
+'    Exit Function
+'WARN_COPYING_FAILED:
+'    Dim message As MSG
+'    Set message = New MSG
+'    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source(str_module, "loading_data_has_finished") _
+'        .text("Unexpected error occurred during copying file: " & obj_provider.file_path)
 End Function
 
 ' MDLKPIOnTImeResultClient interface

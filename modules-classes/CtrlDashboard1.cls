@@ -28,6 +28,7 @@ Public bool_run_process_load_unfinished As Boolean
 Public bool_run_kpi_pallet As Boolean
 Public bool_run_kpi_result As Boolean
 
+Public str_copy_file_destination As String
 
 Public Function before_run()
     Set obj_md_dashboard = New MDDashboard1
@@ -107,9 +108,13 @@ End Function
 Public Function data_kpi_result_before_run()
     Set obj_mdl_kpi_result_dashboard_listener = New MDLKPIResultDashboardListener
     Set obj_mdl_kpi_result_dashboard_listener.obj_md_dashboard = obj_md_dashboard
+    obj_mdl_kpi_result_dashboard_listener.str_source_name_additional_data = "history-additional_data"
+    obj_mdl_kpi_result_dashboard_listener.str_source_name_result_data = "history-result"
     obj_mdl_kpi_result_dashboard_listener.load
 
     init_mdl_data_result obj_mdl_kpi_result_dashboard_listener
+    
+    str_copy_file_destination = "F:\CrossOrg\KLD_Internal_Logistics\Logistická_podpora\WH_ANALYST\czDanKle\temp\"
 End Function
 
 Public Function data_kpi_result_run()
@@ -120,10 +125,29 @@ End Function
 Public Function data_kpi_result_after_run()
     ' # implement - not yet decided
     Dim obj_listener As Object
+    Dim obj_provider As FileExcelDataProvider
+    Dim obj_multi_provider As MultiFileExcelDataProvider
     
     For Each obj_listener In obj_mdl_kpi_result_dashboard_listener.col_listeners
         obj_listener.after_run
     Next
+    
+    ' clean up
+    Set obj_multi_provider = obj_mdl_kpi_result_dashboard_listener.obj_mdl_kpi_on_time_result_client.obj_multi_data_provider
+    
+    For Each obj_provider In obj_multi_provider.col_providers
+        On Error GoTo WARN_COPYING_FAILED
+        FileCopy obj_provider.file_path, str_copy_file_destination & obj_provider.str_file_name
+        obj_multi_provider.remove_provider obj_provider
+        On Error GoTo 0
+    Next
+    
+    Exit Function
+WARN_COPYING_FAILED:
+    Dim message As MSG
+    Set message = New MSG
+    log4VBA.warn log4VBA.DEFAULT_DESTINATION, message.source("ctrldashboard1", "after_run") _
+        .text("Unexpected error occurred during copying file: " & obj_provider.file_path)
 End Function
 
 Private Function init_mdl_data_process(obj_dashboard_listener As MDLProcessDashboardListener)
@@ -305,7 +329,7 @@ Private Function init_mdl_data_result(obj_dashboard_listener As MDLKPIResultDash
           ' add to multi data provider
     Set obj_multi_data_provider_ad.obj_data_provider_util = obj_data_provider_util
     
-    ' file path for copying of history-result files
-    obj_dashboard_listener.str_copy_file_destination = "F:\CrossOrg\KLD_Internal_Logistics\Logistická_podpora\WH_ANALYST\czDanKle\temp\"
+'    ' file path for copying of history-result files
+'    obj_dashboard_listener.str_copy_file_destination = "F:\CrossOrg\KLD_Internal_Logistics\Logistická_podpora\WH_ANALYST\czDanKle\temp\"
 End Function
 
