@@ -15,6 +15,9 @@ Private Const STR_STATUS_DONE As String = "Done"
 Private Const STR_STATUS_TOTAL As String = "Total"
 Private Const STR_START_CHECKPOINT As String = "START"
 
+Private Const STR_KPI_STATUS_OPEN As String = "Open"
+Private Const STR_KPI_STATUS_CLOSED As String = "Closed"
+
 Private str_process_step_separator As String
 
 Public str_id As String
@@ -41,16 +44,11 @@ End Function
 Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePallet)
     Dim str_pallet_id As String
     Dim obj_kpi_additional_data As KPIAdditionalData
-    Dim obj_kpi_additional_data_done As KPIAdditionalData
-    Dim bool_action_create As Boolean
-    Dim obj_previous_checkpoint As KPIOnTimeLimitCheckpoint
     
     Dim obj_process_version As ProcessMasterVersion
     Dim bool_is_interested_in_pallet As Boolean
-    Dim bool_not_done_previous As Boolean
 
     bool_is_interested_in_pallet = False
-    bool_not_done_previous = False
     ' check if KPI is interested in this process and version and checkpoint is visible
     If Not (obj_kpi_on_time_pallet.obj_checkpoint.str_kpi_visibility = "Hidden" Or obj_kpi_on_time_pallet.obj_checkpoint.str_id = STR_START_CHECKPOINT) Then
         For Each obj_process_version In obj_kpi.col_process_versions
@@ -61,7 +59,6 @@ Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePal
         Next
     End If
     
-    bool_action_create = False
     
     If bool_is_interested_in_pallet Then
     
@@ -70,78 +67,38 @@ Public Function kpi_pallet_process_record(obj_kpi_on_time_pallet As KPIOnTimePal
             obj_kpi_on_time_pallet.str_place_from, _
             obj_kpi_on_time_pallet.str_place_to)
             
-        On Error GoTo INFO_NEW_PALLET
-        Set obj_kpi_additional_data = col_result_pallets_total(str_pallet_id)
-        On Error GoTo 0
-        
-        If obj_kpi_on_time_pallet.str_kpi_status = "Closed" And Not bool_action_create Then
-            Set obj_kpi_additional_data = create_pallet(obj_kpi_on_time_pallet)
-            obj_kpi_additional_data.str_task_status = STR_STATUS_DONE
-            On Error GoTo PALLET_ALREADY_CLOSED
-            col_result_pallets_done.add obj_kpi_additional_data, str_pallet_id
+        If obj_kpi_on_time_pallet.str_kpi_status = STR_KPI_STATUS_OPEN Then
+            On Error GoTo CREATE_TOTAL
+                Set obj_kpi_additional_data = col_result_pallets_total(str_pallet_id)
+            On Error GoTo 0
+        Else
+            On Error GoTo CREATE_TOTAL
+                Set obj_kpi_additional_data = col_result_pallets_total(str_pallet_id)
             On Error GoTo 0
             
+            Err.clear
+            
+            On Error GoTo CREATE_DONE
+                Set obj_kpi_additional_data = col_result_pallets_done(str_pallet_id)
+            On Error GoTo 0
         End If
-        
-    End If
-    
-    If bool_action_create Then
-               
-        If Not obj_kpi_on_time_pallet.str_kpi_status = "Closed" Then
             
-            obj_kpi_additional_data.str_task_status = STR_STATUS_TOTAL
-            col_result_pallets_total.add obj_kpi_additional_data, str_pallet_id
-            
-            Set obj_previous_checkpoint = check_previous_checkpoint(obj_kpi_on_time_pallet.obj_checkpoint)
-            
-            If Not obj_previous_checkpoint Is Nothing Then
-                Set obj_kpi_additional_data = create_pallet(obj_kpi_on_time_pallet)
-                obj_kpi_additional_data.str_building = obj_kpi_on_time_pallet.str_building_source
-                obj_kpi_additional_data.str_process_step = obj_previous_checkpoint.str_id & str_process_step_separator & obj_kpi_on_time_pallet.obj_checkpoint.str_id
-                obj_kpi_additional_data.str_task_status = STR_STATUS_DONE
-                col_result_pallets_done.add obj_kpi_additional_data, obj_kpi_additional_data.str_id & obj_previous_checkpoint.str_id & obj_previous_checkpoint.str_next_checkpoint_id
-            End If
-            
-        Else
-            
-            obj_kpi_additional_data.str_task_status = STR_STATUS_TOTAL
-            col_result_pallets_total.add obj_kpi_additional_data, str_pallet_id
-            
-            Set obj_previous_checkpoint = check_previous_checkpoint(obj_kpi_on_time_pallet.obj_checkpoint)
-            
-           
-            If Not obj_previous_checkpoint Is Nothing Then
-            
-                On Error GoTo NOT_DONE_PREVIOUS
-                    Set obj_kpi_additional_data = col_result_pallets_done(obj_kpi_additional_data.str_id & obj_previous_checkpoint.str_id & obj_previous_checkpoint.str_next_checkpoint_id)
-                On Error GoTo 0
-                
-                If bool_not_done_previous Then
-                    Set obj_kpi_additional_data = create_pallet(obj_kpi_on_time_pallet)
-                    obj_kpi_additional_data.str_building = obj_kpi_on_time_pallet.str_building_source
-                    obj_kpi_additional_data.str_process_step = obj_previous_checkpoint.str_id & str_process_step_separator & obj_kpi_on_time_pallet.obj_checkpoint.str_id
-                    obj_kpi_additional_data.str_task_status = STR_STATUS_DONE
-                    col_result_pallets_done.add obj_kpi_additional_data, obj_kpi_additional_data.str_id & obj_previous_checkpoint.str_id & obj_previous_checkpoint.str_next_checkpoint_id
-                End If
-            End If
-            
-                
-            Set obj_kpi_additional_data = create_pallet(obj_kpi_on_time_pallet)
-            obj_kpi_additional_data.str_task_status = STR_STATUS_DONE
-            col_result_pallets_done.add obj_kpi_additional_data, str_pallet_id
-        End If
-        
     End If
     
     Exit Function
-INFO_NEW_PALLET:
+CREATE_TOTAL:
     Set obj_kpi_additional_data = create_pallet(obj_kpi_on_time_pallet)
-    bool_action_create = True
+        obj_kpi_additional_data.str_task_status = STR_STATUS_TOTAL
+        col_result_pallets_total.add obj_kpi_additional_data, retrieve_col_result_pallet_id(obj_kpi_on_time_pallet.str_id, _
+            obj_kpi_on_time_pallet.str_place_from, _
+            obj_kpi_on_time_pallet.str_place_to)
     Resume Next
-NOT_DONE_PREVIOUS:
-    bool_not_done_previous = True
-    Resume Next
-PALLET_ALREADY_CLOSED:
+CREATE_DONE:
+    Set obj_kpi_additional_data = create_pallet(obj_kpi_on_time_pallet)
+        obj_kpi_additional_data.str_task_status = STR_STATUS_DONE
+        col_result_pallets_done.add obj_kpi_additional_data, retrieve_col_result_pallet_id(obj_kpi_on_time_pallet.str_id, _
+            obj_kpi_on_time_pallet.str_place_from, _
+            obj_kpi_on_time_pallet.str_place_to)
     Resume Next
 End Function
 
@@ -157,6 +114,9 @@ Public Function kpi_pallet_loading_data_has_finished(obj_data_provider_info As F
     For Each obj_kpi_additional_data In col_result_pallets_total
         obj_mdl_additional_data.save_record_dynamic obj_kpi_additional_data
     Next
+    
+    Set col_result_pallets_total = New Collection
+    Set col_result_pallets_done = New Collection
     
     
 End Function
