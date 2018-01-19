@@ -263,7 +263,7 @@ Public Function create_kpi_on_time_pallet(obj_data_process As DBDataProcess) As 
         
     ' set datetime values
     create_kpi_on_time_pallet.str_date_start = obj_data_process.str_date_start
-    create_kpi_on_time_pallet.str_date_last_checkpoint = obj_data_process.str_date_end 'obj_data_process.str_date_start
+    create_kpi_on_time_pallet.str_date_last_checkpoint = obj_data_process.str_date_start 'obj_data_process.str_date_end
     ' set place
     create_kpi_on_time_pallet.str_place_from = bin_place_grp.get_place_grp(obj_data_process.str_bin_from)
     
