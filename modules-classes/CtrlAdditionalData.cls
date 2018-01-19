@@ -115,6 +115,9 @@ Public Function kpi_pallet_loading_data_has_finished(obj_data_provider_info As F
         obj_mdl_additional_data.save_record_dynamic obj_kpi_additional_data
     Next
     
+    Set col_result_pallets_total = New Collection
+    Set col_result_pallets_done = New Collection
+    
     
 End Function
 ' # interface method for listening MDLAdditionalData
