@@ -263,7 +263,7 @@ Public Function create_kpi_on_time_pallet(obj_data_process As DBDataProcess) As 
         
     ' set datetime values
     create_kpi_on_time_pallet.str_date_start = obj_data_process.str_date_start
-    create_kpi_on_time_pallet.str_date_last_checkpoint = obj_data_process.str_date_start
+    create_kpi_on_time_pallet.str_date_last_checkpoint = obj_data_process.str_date_end 'obj_data_process.str_date_start
     ' set place
     create_kpi_on_time_pallet.str_place_from = bin_place_grp.get_place_grp(obj_data_process.str_bin_from)
     
@@ -342,6 +342,7 @@ Public Function update_kpi_on_time_pallet(obj_kpi_on_time_pallet As KPIOnTimePal
                 If obj_kpi_on_time_pallet.obj_checkpoint.obj_next_limit.str_id = str_place_to_new Then
                     bool_is_place_to_tracked_by_kpi = True
                     update_pallet_steps_datetime col_pallet_steps, obj_data_process
+                    'update_pallet_steps_kpi_status col_pallet_steps, db_kpi_on_time_pallet.STR_KPI_STATUS_CLOSED
                     ' update pallet
                     obj_kpi_on_time_pallet.str_date_end = obj_data_process.str_date_end
                     obj_kpi_on_time_pallet.str_date_last_checkpoint = obj_data_process.str_date_end
@@ -357,7 +358,9 @@ Public Function update_kpi_on_time_pallet(obj_kpi_on_time_pallet As KPIOnTimePal
             update_kpi_on_time_pallet_to_next_checkpoint obj_kpi_on_time_pallet
             
             If Not obj_kpi_on_time_pallet.obj_checkpoint.obj_next_limit Is Nothing Then
-                add_pallet_step col_pallet_steps, obj_kpi_on_time_pallet.create_copy
+                Set obj_pallet_step = obj_kpi_on_time_pallet.create_copy
+                'obj_pallet_step.str_kpi_status = db_kpi_on_time_pallet.STR_KPI_STATUS_OPEN
+                add_pallet_step col_pallet_steps, obj_pallet_step
             End If
         Else
             ' str_place_to_new is not in tracked places (no checkpoint exists for it) => no steps are created
@@ -369,23 +372,26 @@ Public Function update_kpi_on_time_pallet(obj_kpi_on_time_pallet As KPIOnTimePal
         End If
     Else
         ' pallets with unfinished data process step (open records), it means pallet stays at same place
-        add_pallet_step col_pallet_steps, obj_kpi_on_time_pallet.create_copy
+        Set obj_pallet_step = obj_kpi_on_time_pallet.create_copy
+        'obj_pallet_step.str_kpi_status = db_kpi_on_time_pallet.STR_KPI_STATUS_OPEN
+        add_pallet_step col_pallet_steps, obj_pallet_step
+        'add_pallet_step col_pallet_steps, obj_kpi_on_time_pallet.create_copy
 '        col_pallet_steps.add obj_kpi_on_time_pallet.create_copy
     End If
     
     If obj_data_process.byte_process_step_status = 2 Then
-        obj_kpi_on_time_pallet.str_kpi_status = db_kpi_on_time_pallet.STR_KPI_STATUS_CLOSED
+        'obj_kpi_on_time_pallet.str_kpi_status = db_kpi_on_time_pallet.STR_KPI_STATUS_CLOSED
 
-        int_pallet_step_total = col_pallet_steps.Count - 1
-        For Each obj_pallet_step In col_pallet_steps
-            If int_pallet_step_counter = int_pallet_step_total Then
-                obj_pallet_step.str_kpi_status = db_kpi_on_time_pallet.STR_KPI_STATUS_CLOSED
-            Else
-                obj_pallet_step.str_kpi_status = db_kpi_on_time_pallet.STR_KPI_STATUS_OPEN
-            End If
-            
-            int_pallet_step_counter = int_pallet_step_counter + 1
-        Next
+'        int_pallet_step_total = col_pallet_steps.Count - 1
+'        For Each obj_pallet_step In col_pallet_steps
+'            If int_pallet_step_counter = int_pallet_step_total Then
+'                'obj_pallet_step.str_kpi_status = db_kpi_on_time_pallet.STR_KPI_STATUS_CLOSED
+'            Else
+'                'obj_pallet_step.str_kpi_status = db_kpi_on_time_pallet.STR_KPI_STATUS_OPEN
+'            End If
+'
+'            int_pallet_step_counter = int_pallet_step_counter + 1
+'        Next
     
         If Not obj_kpi_on_time_pallet.obj_checkpoint.obj_next_limit Is Nothing Then
             'Debug.Print obj_kpi_on_time_pallet.str_id & ":" & obj_kpi_on_time_pallet.obj_checkpoint.str_id & " is NOT a last checkpoint"
@@ -401,12 +407,20 @@ Public Function update_kpi_on_time_pallet(obj_kpi_on_time_pallet As KPIOnTimePal
             Next
         End If
     Else
-        obj_kpi_on_time_pallet.str_kpi_status = db_kpi_on_time_pallet.STR_KPI_STATUS_OPEN
-        For Each obj_pallet_step In col_pallet_steps
-            obj_pallet_step.str_kpi_status = db_kpi_on_time_pallet.STR_KPI_STATUS_OPEN
-        Next
+'        'obj_kpi_on_time_pallet.str_kpi_status = db_kpi_on_time_pallet.STR_KPI_STATUS_OPEN
+'        For Each obj_pallet_step In col_pallet_steps
+'            'obj_pallet_step.str_kpi_status = db_kpi_on_time_pallet.STR_KPI_STATUS_OPEN
+'        Next
     End If
     
+    For Each obj_pallet_step In col_pallet_steps
+        If obj_pallet_step.str_date_end = "" Then
+            obj_pallet_step.str_kpi_status = db_kpi_on_time_pallet.STR_KPI_STATUS_OPEN
+        Else
+            obj_pallet_step.str_kpi_status = db_kpi_on_time_pallet.STR_KPI_STATUS_CLOSED
+        End If
+    Next
+        
     Set update_kpi_on_time_pallet = col_pallet_steps
     Exit Function
 INFO_NOT_REGISTERED:
@@ -536,7 +550,7 @@ WARN_NEXT_CHECKPOINT_NOT_EXIST:
 End Function
 
 Public Function update_pallet_step_datetime(obj_pallet_step As KPIOnTimePallet, obj_db_data_process As DBDataProcess)
-    obj_pallet_step.str_date_last_checkpoint = obj_db_data_process.str_date_start
+    obj_pallet_step.str_date_last_checkpoint = obj_db_data_process.str_date_end 'obj_db_data_process.str_date_start
     obj_pallet_step.str_date_end = obj_db_data_process.str_date_end
 End Function
 
@@ -547,6 +561,14 @@ Public Function update_pallet_steps_datetime(col_pallet_steps As Collection, obj
         update_pallet_step_datetime obj_pallet_step, obj_db_data_process
 '        obj_pallet_step.str_date_last_checkpoint = obj_db_data_process.str_date_end
 '        obj_pallet_step.str_date_end = obj_db_data_process.str_date_end
+    Next
+End Function
+
+Public Function update_pallet_steps_kpi_status(col_pallet_steps As Collection, str_kpi_status As String)
+    Dim obj_pallet_step As KPIOnTimePallet
+    
+    For Each obj_pallet_step In col_pallet_steps
+        obj_pallet_step.str_kpi_status = str_kpi_status
     Next
 End Function
 
