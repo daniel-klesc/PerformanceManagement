@@ -52,7 +52,7 @@ Public Function create_result_client(obj_result_pallet As KPIAdditionalData) As 
     obj_add_data_client.str_date = obj_result_pallet.str_date
     obj_add_data_client.str_time = obj_result_pallet.str_time
     
-    obj_add_data_client.str_shift = hndl_master_shift.find_shift(Format(obj_add_data_client.str_date & "-" & Hour(obj_add_data_client.str_time), "DD.MM.YYYY-h"))
+    obj_add_data_client.str_shift = hndl_master_shift.find_shift(Format(obj_add_data_client.str_date, "DD.MM.YYYY") & "-" & Hour(obj_add_data_client.str_time))
     obj_add_data_client.str_process = obj_result_pallet.str_process_name
     obj_add_data_client.str_process_step = obj_result_pallet.str_process_step
     
