@@ -143,6 +143,7 @@ End Function
 Public Function process_steps(col_steps As Collection, col_kpi_intervals As Collection)
     Dim obj_kpi_on_time_interval As KPIOnTimeInterval
     Dim obj_kpi_on_time_next_interval As KPIOnTimeInterval
+    Dim obj_kpi_on_time_previous_interval As KPIOnTimeInterval
     Dim obj_kpi_on_time_pallet_step As KPIOnTimePallet
     Dim obj_kpi_on_time_pallet_steps As Collection
     Dim obj_kpi_on_time_pallet_step_interval As KPIOnTimePallet
@@ -196,6 +197,19 @@ Public Function process_steps(col_steps As Collection, col_kpi_intervals As Coll
                     On Error GoTo 0
                     Set obj_kpi_on_time_next_interval = obj_kpi_on_time_next_interval.obj_next_interval
                 Loop
+                
+                ' synchronize pallet with process in previous intervals if exists
+                
+                ' # implement - when pallet step interval is closed then remove this specific pallet step from following intervals
+                Set obj_kpi_on_time_previous_interval = obj_kpi_on_time_interval.obj_previous_interval
+                
+                Do While Not obj_kpi_on_time_previous_interval Is Nothing
+                    On Error GoTo INFO_TRY_TO_SYNCHRONIZE
+                    obj_kpi_on_time_previous_interval.col_pallets_step(retrieve_pallet_id_interval(obj_kpi_on_time_pallet_step_interval)).bool_is_synchronized_with_process = True
+                    obj_kpi_on_time_previous_interval.col_pallets_full_live(obj_kpi_on_time_pallet_full_live_interval.str_id).bool_is_synchronized_with_process = True
+                    On Error GoTo 0
+                    Set obj_kpi_on_time_previous_interval = obj_kpi_on_time_previous_interval.obj_previous_interval
+                Loop
             End If
             
             ' create
@@ -220,6 +234,8 @@ INFO_NEW_PALLET_IN_FULL_LIVE_INTERVAL:
     obj_kpi_on_time_interval.col_pallets_full_live.add obj_kpi_on_time_pallet_full_live_interval, obj_kpi_on_time_pallet_full_live_interval.str_id
     Resume Next
 INFO_TRY_TO_REMOVE:
+    Resume Next
+INFO_TRY_TO_SYNCHRONIZE:
     Resume Next
 End Function
 
