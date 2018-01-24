@@ -16,6 +16,7 @@ Public STR_VERSION_CROSS_A_BC As String
 Public STR_STORAGE_TYPE_VNA As String
 Public STR_STORAGE_TYPE_TA As String
 Public STR_STORAGE_TYPE_PROD_HALL As String
+Public STR_STORAGE_TYPE_JIRNY As String
 
 Public STR_MODULE_EXT As String
 Public STR_MODULE_PROD As String
@@ -58,6 +59,8 @@ Public Function init(obj_record As DBHistoryRecord)
         str_storage_type = STR_STORAGE_TYPE_PROD_HALL
     ElseIf bin_stor_grp.is_ta(obj_record.str_storage_group_material) Then
         str_storage_type = STR_STORAGE_TYPE_TA
+    ElseIf bin_stor_grp.is_outbound(obj_record.str_storage_group_material) Then
+        str_storage_type = STR_STORAGE_TYPE_JIRNY
     Else
         str_storage_type = STR_STORAGE_TYPE_VNA
     End If
@@ -93,6 +96,7 @@ Private Sub Class_Initialize()
     STR_STORAGE_TYPE_VNA = "VNA"
     STR_STORAGE_TYPE_PROD_HALL = "PROD_HALL"
     STR_STORAGE_TYPE_TA = "TA"
+    STR_STORAGE_TYPE_JIRNY = "JIRNY"
     
     STR_MODULE_EXT = "EXT"
 End Sub
