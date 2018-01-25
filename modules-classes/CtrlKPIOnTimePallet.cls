@@ -336,6 +336,10 @@ Public Function update_kpi_on_time_pallet(obj_kpi_on_time_pallet As KPIOnTimePal
     Dim int_pallet_step_counter As Integer
     Dim int_pallet_step_total As Integer
     Dim obj_kpi_on_time_interval As KPIOnTimeInterval
+    
+    Dim obj_kpi_on_time_pallet_delete As KPIOnTimePallet
+    Dim obj_checkpoint_from As KPIOnTimeLimitCheckpoint
+    Dim obj_checkpoint_to As KPIOnTimeLimitCheckpoint
 
     bool_is_place_to_tracked_by_kpi = False
     Set col_pallet_steps = New Collection
@@ -415,9 +419,29 @@ Public Function update_kpi_on_time_pallet(obj_kpi_on_time_pallet As KPIOnTimePal
             Set col_pallet_steps = New Collection
             col_kpi_pallets.Remove obj_kpi_on_time_pallet.str_id
             
+            Set obj_kpi_on_time_pallet_delete = obj_kpi_on_time_pallet.create_copy
+            
             For Each obj_kpi_on_time_interval In col_kpi_intervals
                 On Error GoTo INFO_NOT_REGISTERED
-                obj_kpi_on_time_interval.col_pallets_step.Remove retrieve_pallet_step_id(obj_kpi_on_time_pallet)
+                Set obj_checkpoint_from = obj_kpi_on_time_pallet.obj_checkpoint
+                
+                  ' delete predecessor records
+                Do While Not obj_checkpoint_from Is Nothing
+                    obj_kpi_on_time_pallet_delete.str_place_from = obj_checkpoint_from.str_id
+                    obj_kpi_on_time_interval.col_pallets_step.Remove retrieve_pallet_step_id(obj_kpi_on_time_pallet_delete)
+                    Set obj_checkpoint_from = obj_checkpoint_from.obj_previous_limit
+                Loop
+                On Error GoTo 0
+                
+                  ' delete successor records
+                On Error GoTo INFO_NOT_REGISTERED
+                Set obj_checkpoint_to = obj_kpi_on_time_pallet.obj_checkpoint
+                Do While Not obj_checkpoint_to Is Nothing
+                    obj_kpi_on_time_pallet_delete.str_place_from = obj_checkpoint_from.str_id
+                    obj_kpi_on_time_interval.col_pallets_step.Remove retrieve_pallet_step_id(obj_kpi_on_time_pallet_delete)
+                    Set obj_checkpoint_to = obj_checkpoint_to.obj_next_limit
+                Loop
+                
                 obj_kpi_on_time_interval.col_pallets_full_live.Remove obj_kpi_on_time_pallet.str_id
                 On Error GoTo 0
             Next
