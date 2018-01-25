@@ -155,6 +155,10 @@ Public STR_PRODUCTION_STORAGE_HALL_C2_PREFIX As String
 
 Public INT_VNA_INBOUND_HOUSE_LIMIT As Integer
 
+Public INT_BULK_MAT_STORAGE_LEN As Integer
+Public STR_BULK_MAT_STORAGE_BUILDING_B_PREFIX As String
+Public STR_BULK_MAT_STORAGE_BUILDING_C_PREFIX As String
+
 ' External WH
   ' general
 Public INT_EXT_WH_LEN As Integer
@@ -316,6 +320,10 @@ Public Function init()
     STR_PRODUCTION_STORAGE_HALL_B4_PREFIX = "6-12-03-04-9"
     
     INT_VNA_INBOUND_HOUSE_LIMIT = 800
+    
+    INT_BULK_MAT_STORAGE_LEN = 14
+    STR_BULK_MAT_STORAGE_BUILDING_B_PREFIX = "6-12-01-99-999"
+    STR_BULK_MAT_STORAGE_BUILDING_C_PREFIX = "6-13-01-99-999"
     
     ' EXTERNAL WH
     INT_EXT_WH_LEN = 4
@@ -653,6 +661,16 @@ Public Function is_production_hall_storage(str_bin) As Boolean
         Case STR_PRODUCTION_STORAGE_HALL_C2_PREFIX, _
                 STR_PRODUCTION_STORAGE_HALL_B4_PREFIX
             is_production_hall_storage = True
+    End Select
+End Function
+
+Public Function is_bulk_mat_storage(str_bin) As Boolean
+    is_bulk_mat_storage = False
+        
+    Select Case Left(str_bin, INT_BULK_MAT_STORAGE_LEN)
+        Case STR_BULK_MAT_STORAGE_BUILDING_B_PREFIX, _
+                STR_BULK_MAT_STORAGE_BUILDING_C_PREFIX
+            is_bulk_mat_storage = True
     End Select
 End Function
 
