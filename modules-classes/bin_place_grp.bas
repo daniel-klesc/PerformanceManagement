@@ -3,6 +3,7 @@ Option Explicit
 
 Public Const str_module = "bin_place_grp"
 
+Public Const STR_BULK_MAT_STORAGE As String = "BULK_MAT_STORAGE"
 Public Const STR_DUMMY As String = "DUMMY"
 Public Const STR_EXT_WH_GENERAL As String = "EXT_WH_GENERAL"
 Public Const STR_EXT_WH_IN_TRANSIT_HBW As String = "EXT_WH_IN_TRANSIT_HBW"
@@ -31,6 +32,7 @@ Public Const STR_TA_RACK As String = "TA_RACK"
 Public Const STR_VNA_BULK As String = "VNA_BULK"
 Public Const STR_VNA_RACK As String = "VNA_RACK"
 
+
 Public Const STR_USER_BIN As String = "USERBIN"
 
 Public Function get_place_grp(str_bin As String) As String
@@ -41,6 +43,8 @@ Public Function get_place_grp(str_bin As String) As String
     Else
         If bin.is_vna_rack(str_bin) Then
             get_place_grp = bin_place_grp.STR_VNA_RACK
+        ElseIf bin.is_bulk_mat_storage(str_bin) Then
+            get_place_grp = bin_place_grp.STR_BULK_MAT_STORAGE
         ElseIf bin.is_vna_bulk(str_bin) Then
             get_place_grp = bin_place_grp.STR_VNA_BULK
         ElseIf bin.is_production_hall_storage(str_bin) Then
