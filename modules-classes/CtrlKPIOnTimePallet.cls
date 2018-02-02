@@ -747,6 +747,7 @@ Public Function save_unfinished(obj_provider_info As FileExcelDataProviderInfo)
         On Error GoTo ERR_TEST
         If obj_pallet.bool_is_synchronized_with_process Then
             If Not obj_pallet.obj_checkpoint.obj_next_limit Is Nothing Then
+                obj_pallet.str_kpi_status = db_kpi_on_time_pallet.STR_KPI_STATUS_OPEN
                 obj_mdl_kpi_on_time_pallet_unfinished.save_record_static obj_pallet
             End If
         End If
